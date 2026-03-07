@@ -34,3 +34,6 @@ venv/
 # Temp / archives
 *.zip
 *.tar.gz
+
+# Local binaries
+cloud-sql-proxy
