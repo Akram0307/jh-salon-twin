@@ -1,0 +1,210 @@
+import { query, pool } from '../config/db';
+import crypto from 'crypto';
+
+export class AppointmentRepository {
+
+
+  static async findAll() {
+    const res = await query(`
+      SELECT
+        a.*,
+        c.full_name as client_name,
+        st.full_name as staff_name,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'service_id', s.id,
+              'service_name', s.name,
+              'base_price', aps.base_price,
+              'charged_price', aps.charged_price
+            )
+          ) FILTER (WHERE s.id IS NOT NULL), '[]'
+        ) as services
+      FROM appointments a
+      JOIN clients c ON a.client_id = c.id
+      LEFT JOIN staff st ON a.staff_id = st.id
+      LEFT JOIN appointment_services aps ON a.id = aps.appointment_id
+      LEFT JOIN services s ON aps.service_id = s.id
+      GROUP BY a.id, c.full_name, st.full_name
+      ORDER BY a.appointment_time DESC
+    `);
+
+    return res.rows;
+  }
+
+  static async create(appointment: {
+    salon_id: string;
+    client_id: string;
+    staff_id?: string;
+    appointment_time: string;
+    status?: string;
+    services: { service_id: string; base_price: number; charged_price?: number }[];
+  }) {
+
+    const client = await pool.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      const qrToken = crypto.randomUUID();
+      const status = appointment.status || 'SCHEDULED';
+
+      const apptRes = await client.query(
+        `INSERT INTO appointments
+        (salon_id, client_id, staff_id, appointment_time, status, qr_token)
+        VALUES ($1,$2,$3,$4,$5,$6)
+        RETURNING *`,
+        [
+          appointment.salon_id,
+          appointment.client_id,
+          appointment.staff_id || null,
+          appointment.appointment_time,
+          status,
+          qrToken
+        ]
+      );
+
+      const appointmentRow = apptRes.rows[0];
+
+      for (const service of appointment.services) {
+        await client.query(
+          `INSERT INTO appointment_services
+           (appointment_id, service_id, base_price, charged_price)
+           VALUES ($1,$2,$3,$4)`,
+          [
+            appointmentRow.id,
+            service.service_id,
+            service.base_price,
+            service.charged_price || service.base_price
+          ]
+        );
+      }
+
+      await client.query('COMMIT');
+
+      return appointmentRow;
+
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  static async updateStatus(id: string, status: string) {
+
+    const normalized = status.toUpperCase();
+
+    const res = await query(
+      `UPDATE appointments SET status = $1 WHERE id = $2 RETURNING *`,
+      [normalized, id]
+    );
+
+    const appointment = res.rows[0];
+
+    if (normalized === 'CANCELLED' && appointment) {
+
+      await query(
+        `INSERT INTO slot_events (salon_id, event_type, slot_time, processed)
+         SELECT salon_id, 'CANCELLED', appointment_time, false
+         FROM appointments WHERE id = $1`,
+        [id]
+      );
+    }
+
+    return appointment;
+  }
+
+  static async updateServicePrice(
+    appointment_id: string,
+    service_id: string,
+    charged_price: number
+  ) {
+
+    const res = await query(
+      `UPDATE appointment_services
+       SET charged_price = $1
+       WHERE appointment_id = $2 AND service_id = $3
+       RETURNING *`,
+      [charged_price, appointment_id, service_id]
+    );
+
+    return res.rows[0];
+  }
+
+  static async rescheduleAppointment(id: string, newStartTime: string) {
+
+    const res = await query(
+      `UPDATE appointments
+       SET appointment_time = $1
+       WHERE id = $2
+       RETURNING *`,
+      [newStartTime, id]
+    );
+
+    return res.rows[0];
+  }
+
+  static async findUpcomingByClient(client_id: string) {
+
+    const res = await query(
+      `SELECT * FROM appointments
+       WHERE client_id = $1
+       AND status = 'SCHEDULED'
+       AND appointment_time > NOW()
+       ORDER BY appointment_time ASC
+       LIMIT 1`,
+      [client_id]
+    );
+
+    return res.rows[0] || null;
+  }
+
+  static async checkAvailability(opts: any) {
+    const { staff_id, date } = opts;
+
+    const res = await query(
+      `SELECT appointment_time
+       FROM appointments
+       WHERE staff_id = $1
+       AND DATE(appointment_time) = $2
+       AND status = 'SCHEDULED'`,
+      [staff_id, date]
+    );
+
+    const booked = res.rows.map((r: any) => new Date(r.appointment_time).toISOString());
+
+    const slots = ["11:00","13:00","16:00"];
+
+    const available = slots.filter((s) => !booked.find((b: string) => b.includes(s)));
+
+    return available.map((t) => ({ start_time: new Date(`T:00`).toISOString() }));
+  }
+
+  static async findByQrToken(token: string) {
+    const res = await query(
+      `SELECT * FROM appointments WHERE qr_token = $1 LIMIT 1`,
+      [token]
+    );
+
+    return res.rows[0] || null;
+  }
+
+  static async addService(
+    appointment_id: string,
+    service_id: string,
+    base_price: number,
+    charged_price: number
+  ) {
+    const res = await query(
+      `INSERT INTO appointment_services (appointment_id, service_id, base_price, charged_price)
+       VALUES ($1,$2,$3,$4)
+       RETURNING *`,
+      [appointment_id, service_id, base_price, charged_price]
+    );
+
+    return res.rows[0];
+  }
+
+}

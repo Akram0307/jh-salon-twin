@@ -1,0 +1,36 @@
+# Root secrets and project internals
+.a0proj/
+credentials/
+**/.env
+**/.env.*
+
+# Node / frontend
+**/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright_checks/artifacts/
+
+# Backend build artifacts
+backend/dist/
+
+# Python / caches
+**/__pycache__/
+**/*.pyc
+venv/
+
+# Logs
+*.log
+**/*.log
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Large generated assets / mock outputs
+/generated_images/
+/frontend/mockups/
+
+# Temp / archives
+*.zip
+*.tar.gz

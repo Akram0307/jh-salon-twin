@@ -1,0 +1,1056 @@
+URL: https://salonos-owner-frontend-687369167038.us-central1.run.app/owner
+Status: 200
+Title: Vite + React + TS
+
+Assertions:
+- Owner Control Tower: PASS
+- AI Revenue Opportunity Engine: PASS
+- POS Intelligence: PASS
+- System Health: PASS
+
+Probe results:
+- Owner Control Tower: FOUND
+- Revenue Trend: FOUND
+- Live Salon Activity: FOUND
+- Today's Appointments: missing
+- Client Profiles: FOUND
+- Staff Performance: FOUND
+- POS Intelligence: FOUND
+- System Health: FOUND
+- Revenue Intelligence: FOUND
+- AI Revenue Forecast: FOUND
+- Staff Utilization Heatmap: FOUND
+- AI Revenue Opportunity Engine: FOUND
+- AI Campaign Control: FOUND
+
+Headings:
+- Owner Control Tower
+- Revenue Trend
+- Live Salon Activity
+- Client Profiles
+- Staff Performance
+- POS Intelligence
+- System Health
+- Revenue Intelligence
+- AI Revenue Forecast
+- Staff Utilization Heatmap
+- AI Revenue Opportunity Engine
+- AI Campaign Control
+
+Buttons (first 80):
+- A Pre Bridal Package 5 Days Prior
+$10000
+- Bridal Classic package
+$7499
+- Bridal Makeup
+$4000
+- Bridal Package A + B
+$18000
+- Brides Maid
+$4000
+- B Wedding Day Package
+$10000
+- Classic Package
+$4000
+- Hair Do
+$2000
+- Party Make Up
+$4000
+- Premium Bridal package
+$17999
+- Premium Package
+$8000
+- Saree Draping
+$2000
+- Simple Bridal Makeup
+$3000
+- Ultra Luxury Bridal package
+$21999
+- Glow & Go Pack
+$1400
+- Luxury Queen Makeover
+$3750
+- Quick Clean & Shine1
+$1650
+- Radiance Retreat
+$2650
+- Salon Queen Upgrade
+$3099
+- The Royal Reboot
+$1450
+- The Royal Refresh
+$2050
+- The Smart Look
+$1000
+- The Ultimate Makeover
+$2250
+- Ultimate Glow Up Combo
+$4499
+- 24 Carat Gold Facial
+$3499
+- 4 Layer Advance Anti Aging Facial
+$2999
+- 4 Layer Advance Radiance Facial
+$2799
+- 4 Layer Advance Whitening Facial
+$2799
+- Acne Facial
+$2499
+- Acne Hydra Facial
+$3999
+- Advanced Kiwi Fruit Marmalade
+$2999
+- Advanced Papaya Marmalade
+$2999
+- Advanced Pineapple Marmalade
+$2999
+- Anti Aging Facial
+$4499
+- Anti Tan Facial
+$2499
+- Barberry Facial
+$1799
+- Brightening & Whitening Facial
+$4999
+- Classic Diamond Facial
+$1999
+- Classic Face & Neck Tan Pack
+$499
+- Classic Fruit Facial
+$999
+- Classic Full Body Tan Pack
+$2999
+- Classic Full Hands Tan Pack
+$999
+- Classic Full Legs Tan Pack
+$1499
+- Classic Glow Pack
+$1299
+- Classic Gold Facial
+$1699
+- Classic Half Hands Tan Pack
+$499
+- Classic Half Legs Tan Pack
+$799
+- Classic Herbal Facial
+$999
+- Classic Hydrogel Facial
+$1199
+- Classic Instafair Facial
+$1699
+- Classic Papaya Fruit Facial
+$1199
+- Classic Silver Facial
+$1499
+- Classic Tightening Pack
+$999
+- Depigmentation Facial
+$2199
+- Diamond Back Facial
+$1999
+- Diamond Facial
+$1999
+- Double Whitening Signature Facial
+$3999
+- Face Bleach
+$800
+- Face Clean Up
+$999
+- Fruit Facial
+$999
+- Full Hand Bleach
+$750
+- Full Leg Bleach
+$1100
+- Galvanic Facial
+$2499
+- Gold Facial
+$1699
+- Goldseen Facial
+$1999
+- Gold Sheen Signature Facial
+$3499
+- Half Hand Bleach
+$500
+- Half Leg Bleach
+$750
+- Herbal Facial
+$999
+- Hydra Facial Advanced Kiwi Fruit Marmalade
+$3999
+- Hydra Facial Advanced Papaya Marmalade
+$3999
+- Hydra Facial Advanced Pineapple Marmalade
+$3999
+- Hydra Facial Advanced Radiance
+$3499
+- Hydra Facial Advanced Whitening
+$3999
+- Hydra Facial Dipigmentation
+$3499
+- Hydra Instafair Facial
+$3499
+- Hydrogel Facial
+$1199
+- Instafair Facial
+$1999
+- Instafair Facial
+$2499
+- Kiwi Facial
+$1799
+
+API issues:
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/products
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/ai/campaigns
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/owner/system-health
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/analytics/pos-stats
+[response:500] GET https://salonos-backend-687369167038.us-central1.run.app/api/waitlist/recovery-stats
+
+Events:
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/products
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/ai/campaigns
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/owner/system-health
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[response:404] GET https://salonos-backend-687369167038.us-central1.run.app/api/analytics/pos-stats
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[response:500] GET https://salonos-backend-687369167038.us-central1.run.app/api/waitlist/recovery-stats
+[console:error] Failed to load resource: the server responded with a status of 500 ()
+[console:log] App ready to work offline
+
+Body excerpt:
+SalonOS Owner
+Owner Control Tower
+
+AI revenue intelligence for your salon
+
+Revenue Today
+
+0
+
+Bookings Today
+
+12133
+
+New Clients
+
+0
+
+Upcoming Appointments
+
+10
+
+Revenue Trend
+Chart loading...
+Live Salon Activity
+No activity yet
+Loading appointments...
+Client Profiles
+Test Client
+—
+0 visits
+$0
+Client
+—
+0 visits
+$0
+Likhitha
+—
+4 visits
+$0
+Pradeep
+—
+0 visits
+$0
+karthikey
+—
+1 visits
+$0
+Madhu
+—
+0 visits
+$0
+Moim
+—
+0 visits
+$0
+PADMARANJANI
+—
+0 visits
+$0
+JA FARA
+—
+0 visits
+$0
+SEWAR
+—
+0 visits
+$0
+Vamsh krishna
+—
+0 visits
+$0
+Arathi
+—
+0 visits
+$0
+rohit
+—
+0 visits
+$0
+Reddy Babu
+—
+1 visits
+$0
+Upendra Nath Reddy
+—
+0 visits
+$0
+JAWED HABIB HAIR AND BEAUTY
+—
+128 visits
+$0
+Paven kumar
+—
+0 visits
+$0
+PRAVEEN
+—
+0 visits
+$0
+Praveen
+—
+0 visits
+$0
+Mohammed Ammer
+—
+0 visits
+$0
+Zagadish
+—
+0 visits
+$0
+Vinod
+—
+2 visits
+$0
+MOHANAN
+—
+0 visits
+$0
+Rajashekar Reddy (Club Canteen Sir)
+—
+0 visits
+$0
+AKSHA
+—
+0 visits
+$0
+Hafiz
+—
+0 visits
+$0
+AASA JAIN
+—
+0 visits
+$0
+Eshwar
+—
+0 visits
+$0
+Sridevi
+—
+0 visits
+$0
+Kathyayini
+—
+0 visits
+$0
+Koushik
+—
+0 visits
+$0
+Rohit
+—
+0 visits
+$0
+Shaik Sameer
+—
+0 visits
+$0
+Charan
+—
+0 visits
+$0
+SHANMUKI
+—
+0 visits
+$0
+Abuzar
+—
+0 visits
+$0
+sriniva
+—
+0 visits
+$0
+Uma
+—
+0 visits
+$0
+Preeti
+—
+0 visits
+$0
+Kedar
+—
+0 visits
+$0
+Anand
+—
+0 visits
+$0
+Meena
+—
+0 visits
+$0
+Veeresh
+—
+0 visits
+$0
+Dharani
+—
+0 visits
+$0
+Gowtham
+—
+0 visits
+$0
+Hari
+—
+0 visits
+$0
+Parvez
+—
+0 visits
+$0
+Subhashini
+—
+0 visits
+$0
+Sadik
+—
+0 visits
+$0
+Raj Kumar
+—
+2 visits
+$0
+Ahmed
+—
+0 visits
+$0
+B krishna Murthy
+—
+0 visits
+$0
+Vahini
+—
+6 visits
+$0
+Karthik @ Chalam Anna
+—
+0 visits
+$0
+Srihari
+—
+3 visits
+$0
+Mittu
+—
+0 visits
+$0
+goutham
+—
+0 visits
+$0
+Sushma shankar
+—
+0 visits
+$0
+Sadiya
+—
+0 visits
+$0
+MEHNAZ
+—
+0 visits
+$0
+SHARA
+—
+0 visits
+$0
+Shiva
+—
+0 visits
+$0
+Deepak Reddy
+—
+0 visits
+$0
+Pallavi
+—
+0 visits
+$0
+Manohar
+—
+0 visits
+$0
+Srikar
+—
+0 visits
+$0
+DR Nikethan
+—
+0 visits
+$0
+Uday
+—
+0 visits
+$0
+Hemanth
+—
+0 visits
+$0
+Venkatesh
+—
+2 visits
+$0
+Rafik
+—
+0 visits
+$0
+Janardhan
+—
+0 visits
+$0
+Rajesh
+—
+0 visits
+$0
+bharath
+—
+0 visits
+$0
+S murali krishna
+—
+1 visits
+$0
+Pravallika
+—
+0 visits
+$0
+Faizan
+—
+0 visits
+$0
+nelson
+—
+0 visits
+$0
+Sahil
+—
+0 visits
+$0
+Divya reddy
+—
+0 visits
+$0
+Joyce
+—
+0 visits
+$0
+VYOMAKESH
+—
+0 visits
+$0
+Naveen
+—
+0 visits
+$0
+Abhiram
+—
+0 visits
+$0
+Junaid
+—
+0 visits
+$0
+Satish
+—
+0 visits
+$0
+Shoyab
+—
+0 visits
+$0
+Azwar
+—
+0 visits
+$0
+LUBNA
+—
+0 visits
+$0
+K Nirmala
+—
+0 visits
+$0
+EMRAN
+—
+0 visits
+$0
+Sushma
+—
+0 visits
+$0
+Nasreen
+—
+0 visits
+$0
+Mohd RAFIK
+—
+0 visits
+$0
+Paban
+—
+0 visits
+$0
+Malik
+—
+0 visits
+$0
+Deekshith
+—
+0 visits
+$0
+Jahnavi
+—
+0 visits
+$0
+Srinivas
+—
+0 visits
+$0
+Muzammil
+—
+0 visits
+$0
+IRFAN
+—
+0 visits
+$0
+Jampala Ramesh
+—
+0 visits
+$0
+Haritha Reddy
+—
+0 visits
+$0
+Aruna
+—
+0 visits
+$0
+JAYALAKSHAM
+—
+0 visits
+$0
+Fasiha
+—
+0 visits
+$0
+Alfiya
+—
+0 visits
+$0
+Nageshwar Rao
+—
+0 visits
+$0
+mounish
+—
+3 visits
+$0
+Vamshi Krishna
+—
+0 visits
+$0
+Malle Bhavanish
+—
+0 visits
+$0
+Beulah
+—
+0 visits
+$0
+Umar Khan
+—
+0 visits
+$0
+Peddi Raja Rajeshwari
+—
+0 visits
+$0
+Radhika
+—
+0 visits
+$0
+Rachel
+—
+0 visits
+$0
+Rama krishna
+—
+0 visits
+$0
+Farha
+—
+0 visits
+$0
+B siva kumar
+—
+0 visits
+$0
+Aarthi
+—
+0 visits
+$0
+Ramesh
+—
+0 visits
+$0
+Sahithi Gajjala
+—
+0 visits
+$0
+Jyothirmai
+—
+1 visits
+$0
+Swetha
+—
+0 visits
+$0
+Nakhia Yasmeen
+—
+2 visits
+$0
+Bala Subrhmanyam
+—
+0 visits
+$0
+P BENKATESUUARLU
+—
+0 visits
+$0
+Ranjanth
+—
+0 visits
+$0
+Sabina
+—
+0 visits
+$0
+Raheel Sir (Family)
+—
+0 visits
+$0
+Anusha
+—
+0 visits
+$0
+Mohammed
+—
+0 visits
+$0
+Majeed
+—
+1 visits
+$0
+Srinivas
+—
+0 visits
+$0
+Rihana
+—
+0 visits
+$0
+Zeeshan Sir (Family)
+—
+0 visits
+$0
+Jaideep
+—
+0 visits
+$0
+Sathya
+—
+0 visits
+$0
+Swarna
+—
+0 visits
+$0
+Pushpa
+—
+1 visits
+$0
+Ram Krishna
+—
+0 visits
+$0
+Anjith
+—
+0 visits
+$0
+Pavan
+—
+0 visits
+$0
+Muralidhar
+—
+0 visits
+$0
+Nasreen
+—
+0 visits
+$0
+Mustafa
+—
+0 visits
+$0
+Ravi Teja
+—
+0 visits
+$0
+Ravindra
+—
+0 visits
+$0
+Sumaiya
+—
+0 visits
+$0
+Supriya
+—
+0 visits
+$0
+Sourab
+—
+0 visits
+$0
+Mohan
+—
+0 visits
+$0
+Rohith
+—
+0 visits
+$0
+Varun
+—
+0 visits
+$0
+Niraj
+—
+0 visits
+$0
+Pranitha Reddy
+—
+0 visits
+$0
+Nishal Khan
+—
+4 visits
+$0
+Sheryl
+—
+2 visits
+$0
+Prithi
+—
+0 visits
+$0
+Aayan
+—
+0 visits
+$0
+Abdul Haq
+—
+0 visits
+$0
+Khaja Basa
+—
+0 visits
+$0
+Mujeed
+—
+0 visits
+$0
+Tarun
+—
+0 visits
+$0
+Mabash
+—
+0 visits
+$0
+Dr Sridhar
+—
+0 visits
+$0
+Babu Wali
+—
+0 visits
+$0
+Rashmi
+—
+0 visits
+$0
+Rama Krishna
+—
+0 visits
+$0
+Kodandapani
+—
+0 visits
+$0
+Mohammad Khabulla
+—
+0 visits
+$0
+Shyamala
+—
+0 visits
+$0
+Venkatesh
+—
+0 visits
+$0
+Sahithi
+—
+0 visits
+$0
+Salman Shaik
+—
+0 visits
+$0
+Mukesh
+—
+0 visits
+$0
+Ala Kishan Kumar reddy
+—
+1 visits
+$0
+Laxmi
+—
+0 visits
+$0
+Rajesh
+—
+0 visits
+$0
+Harshitha
+—
+0 visits
+$0
+Abdul Arfath
+—
+0 visits
+$0
+Shashank Reddy
+—
+3 visits
+$0
+Mohammad Aftab
+—
+0 visits
+$0
+Siddhrath
+—
+0 visits
+$0
+Haseena
+—
+0 visits
+$0
+Vyshnavi
+—
+0 visits
+$0
+Sumaira
+—
+0 visits
+$0
+Ayesha
+—
+0 visits
+$0
+Shaida
+—
+0 visits
+$0
+Mahesh
+—
+0 visits
+$0
+Mahboob Basa
+—
+0 visits
+$0
+Praveen
+—
+0 visits
+$0
+Lakshmi Prasanna
+—
+0 visits
+$0
+Surya
+—
+0 visits
+$0
+Shylaja
+—
+0 visits
+$0
+Vinay Kumar
+—
+0 visits
+$0
+Anusha
+—
+0 visits
+$0
+krishna
+—
+0 visits
+$0
+Ashritha
+—
+5 visits
+$0
+Kavitha
+—
+0 visits
+$0
+Abdul Majid
+—
+0 visits
+$0
+Lubna
+—
+0 vi

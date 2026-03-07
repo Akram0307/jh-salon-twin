@@ -1,0 +1,310 @@
+import { genkit, z } from 'genkit';
+import { vertexAI } from '@genkit-ai/vertexai';
+import { pool } from '../config/db';
+import { ClientRepository } from '../repositories/ClientRepository';
+import { AppointmentRepository } from '../repositories/AppointmentRepository';
+import { ServiceRepository } from '../repositories/ServiceRepository';
+import { StaffRepository } from '../repositories/StaffRepository';
+
+// Initialize Genkit with Vertex AI
+const ai = genkit({
+    plugins: [vertexAI({ location: 'us-central1', projectId: 'salon-saas-487508' })],
+});
+
+// Define tools
+const getServicesTool = ai.defineTool(
+    {
+        name: 'getServices',
+        description: 'Fetches the list of available salon services and their prices.',
+        inputSchema: z.object({}),
+        outputSchema: z.array(z.object({
+            id: z.string(),
+            name: z.string(),
+            
+            price: z.string()
+        }))
+    },
+    async () => {
+        const result = await pool.query('SELECT id, name, duration_minutes, price FROM services WHERE is_active = true');
+        return result.rows;
+    }
+);
+
+const getStaffTool = ai.defineTool(
+    {
+        name: 'getStaff',
+        description: 'Fetches the list of available staff members/stylists.',
+        inputSchema: z.object({}),
+        outputSchema: z.array(z.object({
+            id: z.string(),
+            full_name: z.string(),
+            role: z.string()
+        }))
+    },
+    async () => {
+        const result = await pool.query('SELECT id, full_name, role FROM staff WHERE is_active = true');
+        return result.rows;
+    }
+);
+const resolveEntityTool = ai.defineTool(
+    {
+        name: "resolveEntity",
+        description: "Resolves natural language service/staff names to UUIDs for booking. Use this when user mentions a service or stylist by name.",
+        inputSchema: z.object({
+            type: z.enum(["service", "staff"]).describe("Type of entity to resolve"),
+            name: z.string().describe("Name to resolve (e.g., haircut, John)")
+        }),
+        outputSchema: z.object({
+            id: z.string().nullable(),
+            name: z.string(),
+            found: z.boolean()
+        })
+    },
+    async ({ type, name }) => {
+        try {
+            if (type === "service") {
+                const service = await ServiceRepository.findByName(name);
+                return service ? { id: service.id, name: service.name, found: true } : { id: null, name, found: false };
+            } else {
+                const staff = await StaffRepository.findByName(name);
+                return staff ? { id: staff.id, name: staff.full_name, found: true } : { id: null, name, found: false };
+            }
+        } catch (error) {
+            console.error("resolveEntity error:", error);
+            return { id: null, name, found: false };
+        }
+    }
+);
+
+const checkAvailabilityTool = ai.defineTool(
+    {
+        name: 'checkAvailability',
+        description: 'Checks booked appointments for a specific date to infer available time slots. Business hours are 9 AM to 9 PM.',
+        inputSchema: z.object({
+            date: z.string().describe('The date to check in YYYY-MM-DD format')
+        }),
+        outputSchema: z.array(z.object({
+            appointment_time: z.string()
+        }))
+    },
+    async (input) => {
+        const result = await pool.query(
+            "SELECT appointment_time FROM appointments WHERE DATE(appointment_time) = $1 AND status NOT IN ('CANCELLED','NO_SHOW')",
+            [input.date]
+        );
+        return result.rows.map((row: any) => ({
+            appointment_time: row.appointment_time.toISOString()
+        }));
+    }
+);
+
+const bookAppointmentTool = ai.defineTool(
+    {
+        name: 'bookAppointment',
+        description: 'Books an appointment for a client.',
+        inputSchema: z.object({
+            client_id: z.string().describe('The ID of the client booking the appointment'),
+            service_id: z.string(),
+            staff_id: z.string().optional(),
+            appointment_time: z.string().describe('ISO 8601 format date and time')
+        }),
+        outputSchema: z.object({
+            success: z.boolean(),
+            message: z.string(),
+            appointment_id: z.string().optional()
+        })
+    },
+    async (input) => {
+        try {
+            // Fetch service to get base_price
+            const service = await ServiceRepository.findById(input.service_id);
+            if (!service) {
+                return { success: false, message: 'Service not found.' };
+            }
+
+            const appointmentData = {
+                salon_id: service.salon_id,
+                client_id: input.client_id,
+                staff_id: input.staff_id,
+                appointment_time: input.appointment_time,
+                status: 'SCHEDULED',
+                services: [
+                    {
+                        service_id: input.service_id,
+                        base_price: service.price
+                    }
+                ]
+            };
+
+            const newAppt = await AppointmentRepository.create(appointmentData);
+
+            return { success: true, message: 'â BOOKING_CONFIRMED: Appointment successfully scheduled.', appointment_id: newAppt.id };
+        } catch (e: any) {
+            return { success: false, message: 'â BOOKING_FAILED: ' + e.message };
+        }
+    }
+);
+
+
+async function classifyIntent(message: string): Promise<string> {
+    const prompt = `Classify the user's intent into one of the following categories: BOOKING, RESCHEDULE, ESCALATION, GENERAL.
+User message: "${message}"
+Respond ONLY with a JSON object: {"intent": "CATEGORY"}`;
+
+    try {
+        const response = await ai.generate({
+            model: 'vertexai/gemini-2.0-flash',
+            prompt: prompt,
+            config: { temperature: 0.1 }
+        });
+        const text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(text);
+        return parsed.intent || 'GENERAL';
+    } catch (e) {
+        console.error('[Intent Classifier] Error:', e);
+        return 'GENERAL';
+    }
+}
+
+
+// Session state management
+type SessionState = 'ONBOARDING_NAME' | 'ONBOARDING_PREFS' | 'READY' | 'HUMAN_INTERVENTION';
+interface ChatSession {
+    state: SessionState;
+    client?: any;
+    tempData?: any;
+    history: any[];
+}
+const sessions = new Map<string, ChatSession>();
+
+export async function handleIncomingMessage(sender: string, message: string): Promise<string> {
+    const cleanPhone = sender.replace(/^whatsapp:/, "");
+    let session = sessions.get(cleanPhone);
+
+    // 1. Initialization & Client Lookup
+    if (!session) {
+        const client = await ClientRepository.findByPhone(cleanPhone);
+        if (client) {
+            session = { state: 'READY', client, history: [] };
+            sessions.set(cleanPhone, session);
+        } else {
+            session = { state: 'ONBOARDING_NAME', tempData: {}, history: [] };
+            sessions.set(cleanPhone, session);
+            return "Welcome to JH Salon! I'm your digital assistant. To get started, could you please tell me your full name?";
+        }
+    }
+
+    // 2. Onboarding Flow
+    if (session.state === 'ONBOARDING_NAME') {
+        session.tempData.name = message;
+        session.state = 'ONBOARDING_PREFS';
+        return `Nice to meet you, ${session.tempData.name}! Do you have any specific hair preferences or favorite styles we should know about? (Or just say 'none')`;
+    }
+
+    if (session.state === 'ONBOARDING_PREFS') {
+        session.tempData.preferences = message;
+        // Create client in DB
+        try {
+            const newClient = await ClientRepository.create({
+                phone_number: cleanPhone,
+                full_name: session.tempData.name,
+                preferences: session.tempData.preferences
+            });
+            session.client = newClient;
+            session.state = 'READY';
+            return `Thanks! You're all set. How can I help you today? You can ask to book an appointment, check our services, or speak to a human.`;
+        } catch (e) {
+            console.error('[Greeter] Error creating client:', e);
+            return "Sorry, I had a little trouble saving your details. Let's try again later. How can I help you today?";
+        }
+    }
+
+    if (session.state === 'HUMAN_INTERVENTION') {
+        return "A manager will be with you shortly. Please hold on.";
+    }
+
+    // 3. Intent Classification & Routing (READY state)
+    const IntentSchema = z.object({
+        intent: z.enum(['BOOKING', 'ESCALATION', 'GENERAL', 'RESCHEDULE']),
+        confidence: z.number(),
+        reasoning: z.string()
+    });
+
+    try {
+        // Classify intent
+        const intentResponse = await ai.generate({
+            model: 'vertexai/gemini-2.0-flash',
+            prompt: `Analyze the user's message and classify their intent.
+User message: "${message}"
+Intents:
+- BOOKING: Wants to book an appointment, check availability, or ask about services/staff with the intent to book.
+- RESCHEDULE: Wants to change or cancel an existing appointment.
+- ESCALATION: Angry, frustrated, or explicitly asking for a human/manager.
+- GENERAL: General greetings or questions not related to the above.`,
+            output: { schema: IntentSchema }
+        });
+
+        const classification = intentResponse.output;
+        console.log(`[Greeter] Intent classified as: ${classification?.intent} (${classification?.reasoning})`);
+
+        let systemPrompt = "";
+        let activeTools: any[] = [];
+
+        switch (classification?.intent) {
+            case 'ESCALATION':
+                session.state = 'HUMAN_INTERVENTION';
+                // TODO: Trigger Web Push Notification to Manager PWA
+                return "I understand. I'm transferring you to our salon manager right now. They will reply to you here shortly.";
+
+            case 'BOOKING':
+                systemPrompt = `You are the JH Salon Scheduling Specialist.
+The client's name is ${session.client.full_name}. Their ID is ${session.client.id}.
+Be helpful, concise, and friendly.
+Today's date is ${new Date().toISOString().split('T')[0]}.
+Use tools to check services, staff, availability, and book appointments. Never ask the user for service_id or staff_id. If the user mentions a service or staff member by name, you MUST call resolveEntityTool to convert the name to a UUID before calling checkAvailabilityTool or bookAppointmentTool.
+When calling bookAppointment, you MUST provide the client_id: ${session.client.id}.`;
+                activeTools = [getServicesTool, getStaffTool, checkAvailabilityTool, bookAppointmentTool, resolveEntityTool];
+                break;
+
+            case 'RESCHEDULE':
+                systemPrompt = `You are the JH Salon Rescheduling Specialist.
+The client's name is ${session.client.full_name}. Their ID is ${session.client.id}.
+Be helpful, empathetic, and concise.
+Today's date is ${new Date().toISOString().split('T')[0]}.
+The client wants to change or cancel an appointment. Ask them for the date and time of their current appointment and when they would like to reschedule.
+(Note: Rescheduling tools are being integrated. For now, gather the necessary information and inform them you will update their booking).`;
+                activeTools = [getServicesTool, getStaffTool, checkAvailabilityTool, resolveEntityTool];
+                break;
+
+            case 'GENERAL':
+            default:
+                systemPrompt = `You are the JH Salon General Assistant.
+The client's name is ${session.client.full_name}.
+Be welcoming, helpful, and concise.
+Answer general questions about the salon, services, and staff.
+Do NOT attempt to book appointments. If they ask to book, tell them you can help them with that and the system will route them to the scheduling specialist next.`;
+                activeTools = [getServicesTool, getStaffTool, resolveEntityTool];
+                break;
+        }
+
+        const response = await ai.generate({
+            model: 'vertexai/gemini-2.0-flash',
+            system: systemPrompt,
+            messages: [
+                ...session.history,
+                { role: 'user', content: [{ text: message }] }
+            ],
+            tools: activeTools,
+            config: { temperature: 0.3 }
+        });
+
+        session.history.push({ role: 'user', content: [{ text: message }] });
+        session.history.push({ role: 'model', content: [{ text: response.text }] });
+
+        return response.text;
+
+    } catch (error) {
+        console.error('[Greeter] Error:', error);
+        return "I'm sorry, I'm having trouble processing that right now. Please try again.";
+    }
+}
