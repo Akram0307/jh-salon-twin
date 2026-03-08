@@ -1,0 +1,102 @@
+{
+  "backend_url": "https://salonos-backend-rgvcleapsa-uc.a.run.app",
+  "created_name": "PhaseA Service 1772948761493",
+  "steps": [
+    {
+      "step": "create",
+      "status": 201,
+      "body": {
+        "success": true,
+        "data": {
+          "id": "f1e37d07-f7e5-4cf6-ab64-e9385e91133a",
+          "name": "PhaseA Service 1772948761493",
+          "description": "Phase A smoke service",
+          "duration_minutes": 45,
+          "price": "799.00",
+          "is_active": true,
+          "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
+          "category_id": null,
+          "gender_target": null,
+          "popularity_score": 0,
+          "is_addon": false,
+          "display_order": 0,
+          "category": "Testing"
+        },
+        "message": "Created service \"PhaseA Service 1772948761493\" successfully.",
+        "error": null,
+        "meta": {
+          "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4"
+        }
+      }
+    },
+    {
+      "step": "duplicate_conflict",
+      "status": 409,
+      "body": {
+        "success": false,
+        "data": null,
+        "error": "SERVICE_NAME_CONFLICT",
+        "message": "Service name already exists",
+        "details": {
+          "duplicateName": "PhaseA Service 1772948761493"
+        }
+      }
+    },
+    {
+      "step": "archive",
+      "status": 200,
+      "body": {
+        "success": true,
+        "data": {
+          "id": "f1e37d07-f7e5-4cf6-ab64-e9385e91133a",
+          "name": "PhaseA Service 1772948761493",
+          "description": "Phase A smoke service",
+          "duration_minutes": 45,
+          "price": "799.00",
+          "is_active": false,
+          "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
+          "category_id": null,
+          "gender_target": null,
+          "popularity_score": 0,
+          "is_addon": false,
+          "display_order": 0,
+          "category": "Testing"
+        },
+        "message": "Archived service \"PhaseA Service 1772948761493\" successfully.",
+        "error": null,
+        "meta": {
+          "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4"
+        }
+      }
+    },
+    {
+      "step": "restore",
+      "status": 200,
+      "body": {
+        "success": true,
+        "data": {
+          "id": "f1e37d07-f7e5-4cf6-ab64-e9385e91133a",
+          "name": "PhaseA Service 1772948761493",
+          "description": "Phase A smoke service",
+          "duration_minutes": 45,
+          "price": "799.00",
+          "is_active": true,
+          "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
+          "category_id": null,
+          "gender_target": null,
+          "popularity_score": 0,
+          "is_addon": false,
+          "display_order": 0,
+          "category": "Testing"
+        },
+        "message": "Updated service \"PhaseA Service 1772948761493\" successfully.",
+        "error": null,
+        "meta": {
+          "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4"
+        }
+      }
+    }
+  ],
+  "ok": true,
+  "message": "Service CRUD smoke passed"
+}
