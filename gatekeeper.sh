@@ -105,3 +105,5 @@ gcloud run deploy "$SERVICE" \
   --allow-unauthenticated
 
 echo "[gatekeeper] Deployment complete ✅"
+\n# Deploy frontend using isolated script
+bash scripts/deploy_frontend_cloudrun.sh
