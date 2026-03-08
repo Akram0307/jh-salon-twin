@@ -10,6 +10,8 @@ CHAT_SMOKE_SCRIPT="$BACKEND_DIR/scripts/chat_contract_smoke.sh"
 CHAT_REPORT_PATH="$BACKEND_DIR/scripts/chat_heartbeat_report.json"
 FRONTEND_BRANDING_SCRIPT="$FRONTEND_DIR/scripts/verify_dist_branding.sh"
 OWNER_DASHBOARD_SCRIPT="$FRONTEND_DIR/scripts/run_owner_dashboard_regression.sh"
+STAFF_SMOKE_SCRIPT="$BACKEND_DIR/scripts/staff_crud_smoke.js"
+STAFF_REPORT_PATH="$BACKEND_DIR/scripts/staff_crud_smoke_report.json"
 
 DEPLOY=false
 IMAGE=""
@@ -27,8 +29,9 @@ What it does:
   2. Runs the chat contract smoke suite against the live backend.
   3. Runs the owner dashboard Playwright regression against the live frontend.
   4. Runs the schedule CRUD smoke suite against the live backend.
-  5. Aborts immediately if any verification or smoke suite fails.
-  6. If --deploy is provided, deploys the provided image to Cloud Run only after all checks pass.
+  5. Runs the staff CRUD smoke suite against the live backend.
+  6. Aborts immediately if any verification or smoke suite fails.
+  7. If --deploy is provided, deploys the provided image to Cloud Run only after all checks pass.
 
 Options:
   --image <image>   Required for deploy mode. Exact image reference to deploy.
@@ -82,6 +85,11 @@ echo "[gatekeeper] Running schedule CRUD smoke suite: $SCHEDULE_SMOKE_SCRIPT"
 node "$SCHEDULE_SMOKE_SCRIPT"
 echo "[gatekeeper] Schedule CRUD smoke passed ✅"
 echo "[gatekeeper] Schedule report: $SCHEDULE_REPORT_PATH"
+
+echo "[gatekeeper] Running staff CRUD smoke suite: $STAFF_SMOKE_SCRIPT"
+node "$STAFF_SMOKE_SCRIPT"
+echo "[gatekeeper] Staff CRUD smoke passed ✅"
+echo "[gatekeeper] Staff report: $STAFF_REPORT_PATH"
 
 if [[ "$DEPLOY" != true ]]; then
   echo "[gatekeeper] Validation-only mode complete. No deployment executed."
