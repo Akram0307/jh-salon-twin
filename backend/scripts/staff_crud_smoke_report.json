@@ -1,6 +1,6 @@
 {
   "base_url": "https://salonos-backend-rgvcleapsa-uc.a.run.app",
-  "created_at": "2026-03-08T04:25:14.408Z",
+  "created_at": "2026-03-08T04:34:19.434Z",
   "steps": [
     {
       "name": "create",
@@ -8,13 +8,13 @@
       "body": {
         "success": true,
         "data": {
-          "id": "193bfb27-1a4c-4ab4-b290-301edf837490",
-          "full_name": "Staff Smoke 1772943914408",
-          "email": "staff-smoke-1772943914408@example.com",
-          "phone_number": "9000014408",
+          "id": "29ca7d25-4e34-4415-bbed-3df68458d9d1",
+          "full_name": "Staff Smoke 1772944459434",
+          "email": "staff-smoke-1772944459434@example.com",
+          "phone_number": "9000059434",
           "role": "stylist",
           "is_active": true,
-          "created_at": "2026-03-08T04:25:15.370Z",
+          "created_at": "2026-03-08T04:34:21.131Z",
           "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
           "updated_at": null
         },
@@ -40,13 +40,13 @@
       "body": {
         "success": true,
         "data": {
-          "id": "193bfb27-1a4c-4ab4-b290-301edf837490",
-          "full_name": "Staff Smoke 1772943914408",
-          "email": "staff-smoke-1772943914408@example.com",
-          "phone_number": "9000014408",
+          "id": "29ca7d25-4e34-4415-bbed-3df68458d9d1",
+          "full_name": "Staff Smoke 1772944459434",
+          "email": "staff-smoke-1772944459434@example.com",
+          "phone_number": "9000059434",
           "role": "stylist",
           "is_active": false,
-          "created_at": "2026-03-08T04:25:15.370Z",
+          "created_at": "2026-03-08T04:34:21.131Z",
           "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
           "updated_at": null
         },
@@ -72,11 +72,22 @@
             "created_at": "2026-03-08T04:25:15.370Z",
             "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
             "updated_at": null
+          },
+          {
+            "id": "29ca7d25-4e34-4415-bbed-3df68458d9d1",
+            "full_name": "Staff Smoke 1772944459434",
+            "email": "staff-smoke-1772944459434@example.com",
+            "phone_number": "9000059434",
+            "role": "stylist",
+            "is_active": false,
+            "created_at": "2026-03-08T04:34:21.131Z",
+            "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
+            "updated_at": null
           }
         ],
         "meta": {
           "salon_id": "b0dcbd9e-1ca0-450e-a299-7ad239f848f4",
-          "count": 1,
+          "count": 2,
           "status": "archived",
           "search": null,
           "role": null
