@@ -8,6 +8,7 @@ import OwnerSchedulePage from './pages/owner/OwnerSchedulePage'
 import OwnerClientsPage from './pages/owner/OwnerClientsPage'
 import OwnerReportsPage from './pages/owner/OwnerReportsPage'
 import OwnerSettingsPage from './pages/owner/OwnerSettingsPage'
+import ClientChat from './pages/client/ClientChat'
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
           <Route path="reports" element={<OwnerReportsPage />} />
           <Route path="settings" element={<OwnerSettingsPage />} />
         </Route>
+
+        <Route path="/client" element={<ClientChat />} />
 
         <Route path="/staff" element={<Navigate to="/owner/staff" replace />} />
         <Route path="/services" element={<Navigate to="/owner/services" replace />} />
