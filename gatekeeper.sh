@@ -3,43 +3,48 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$ROOT_DIR/backend"
-SMOKE_SCRIPT="$BACKEND_DIR/scripts/schedule_crud_smoke.js"
-REPORT_PATH="$BACKEND_DIR/scripts/schedule_crud_smoke_report.json"
-PROJECT_ID="${PROJECT_ID:-salon-saas-487508}"
-REGION="${REGION:-us-central1}"
+FRONTEND_DIR="$ROOT_DIR/frontend"
+SCHEDULE_SMOKE_SCRIPT="$BACKEND_DIR/scripts/schedule_crud_smoke.js"
+SCHEDULE_REPORT_PATH="$BACKEND_DIR/scripts/schedule_crud_smoke_report.json"
+CHAT_SMOKE_SCRIPT="$BACKEND_DIR/scripts/chat_contract_smoke.sh"
+CHAT_REPORT_PATH="$BACKEND_DIR/scripts/chat_heartbeat_report.json"
+FRONTEND_BRANDING_SCRIPT="$FRONTEND_DIR/scripts/verify_dist_branding.sh"
+OWNER_DASHBOARD_SCRIPT="$FRONTEND_DIR/scripts/run_owner_dashboard_regression.sh"
+
+DEPLOY=false
+IMAGE=""
 SERVICE="${SERVICE:-salonos-backend}"
-IMAGE="${IMAGE:-}"
-DEPLOY="${DEPLOY:-0}"
-EXTRA_DEPLOY_ARGS="${EXTRA_DEPLOY_ARGS:-}"
+REGION="${REGION:-us-central1}"
+PROJECT_ID="${PROJECT_ID:-salon-saas-487508}"
 
 usage() {
   cat <<USAGE
 Usage:
-  ./gatekeeper.sh --image gcr.io/<project>/<service>:<tag> [--deploy]
+  ./gatekeeper.sh [--image <image>] [--deploy]
 
-Behavior:
-  1. Runs the schedule CRUD smoke suite against the live backend.
-  2. Aborts immediately if the smoke suite fails.
-  3. If --deploy is provided, deploys the provided image to Cloud Run only after smoke passes.
+What it does:
+  1. Verifies the frontend build artifact is present and free of default Vite branding.
+  2. Runs the chat contract smoke suite against the live backend.
+  3. Runs the owner dashboard Playwright regression against the live frontend.
+  4. Runs the schedule CRUD smoke suite against the live backend.
+  5. Aborts immediately if any verification or smoke suite fails.
+  6. If --deploy is provided, deploys the provided image to Cloud Run only after all checks pass.
 
 Options:
   --image <image>   Required for deploy mode. Exact image reference to deploy.
-  --deploy          Run gcloud deploy after smoke passes.
+  --deploy          If present, performs the Cloud Run deployment after checks pass.
   -h, --help        Show this help.
-
-Environment overrides:
-  PROJECT_ID, REGION, SERVICE, IMAGE, EXTRA_DEPLOY_ARGS
 USAGE
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --image)
-      IMAGE="$2"
+      IMAGE="${2:-}"
       shift 2
       ;;
     --deploy)
-      DEPLOY=1
+      DEPLOY=true
       shift
       ;;
     -h|--help)
@@ -47,41 +52,48 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     *)
-      echo "Unknown argument: $1" >&2
+      echo "[gatekeeper] Unknown argument: $1" >&2
       usage >&2
-      exit 2
+      exit 1
       ;;
   esac
 done
 
+if [[ "$DEPLOY" == true && -z "$IMAGE" ]]; then
+  echo "[gatekeeper] ERROR: --image is required in deploy mode." >&2
+  exit 1
+fi
+
 echo "[gatekeeper] Root: $ROOT_DIR"
-echo "[gatekeeper] Running source-of-truth smoke suite: $SMOKE_SCRIPT"
-node "$SMOKE_SCRIPT"
+echo "[gatekeeper] Running frontend branding gate: $FRONTEND_BRANDING_SCRIPT"
+bash "$FRONTEND_BRANDING_SCRIPT"
+echo "[gatekeeper] Frontend branding gate passed ✅"
 
-echo "[gatekeeper] Smoke suite passed ✅"
-echo "[gatekeeper] Report: $REPORT_PATH"
+echo "[gatekeeper] Running chat contract smoke suite: $CHAT_SMOKE_SCRIPT"
+bash "$CHAT_SMOKE_SCRIPT"
+echo "[gatekeeper] Chat contract smoke passed ✅"
+echo "[gatekeeper] Chat report: $CHAT_REPORT_PATH"
 
-if [[ "$DEPLOY" != "1" ]]; then
-  echo "[gatekeeper] Dry run only. No deploy requested."
+echo "[gatekeeper] Running owner dashboard regression: $OWNER_DASHBOARD_SCRIPT"
+bash "$OWNER_DASHBOARD_SCRIPT"
+echo "[gatekeeper] Owner dashboard regression passed ✅"
+
+echo "[gatekeeper] Running schedule CRUD smoke suite: $SCHEDULE_SMOKE_SCRIPT"
+node "$SCHEDULE_SMOKE_SCRIPT"
+echo "[gatekeeper] Schedule CRUD smoke passed ✅"
+echo "[gatekeeper] Schedule report: $SCHEDULE_REPORT_PATH"
+
+if [[ "$DEPLOY" != true ]]; then
+  echo "[gatekeeper] Validation-only mode complete. No deployment executed."
   exit 0
 fi
 
-if [[ -z "$IMAGE" ]]; then
-  echo "[gatekeeper] ERROR: --image is required in deploy mode." >&2
-  exit 3
-fi
-
-echo "[gatekeeper] Deploy enabled."
-echo "[gatekeeper] Project: $PROJECT_ID"
-echo "[gatekeeper] Region:  $REGION"
-echo "[gatekeeper] Service: $SERVICE"
-echo "[gatekeeper] Image:   $IMAGE"
-
+echo "[gatekeeper] Deploying image to Cloud Run..."
 gcloud run deploy "$SERVICE" \
   --image "$IMAGE" \
-  --project "$PROJECT_ID" \
   --region "$REGION" \
+  --project "$PROJECT_ID" \
   --platform managed \
-  ${EXTRA_DEPLOY_ARGS}
+  --allow-unauthenticated
 
-echo "[gatekeeper] Deploy completed successfully ✅"
+echo "[gatekeeper] Deployment complete ✅"

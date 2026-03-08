@@ -1,69 +1,62 @@
-# Deployment Guardrail: Smoke Before Deploy
+# Deployment Safety Gate
 
 ## Rule
 
-**No backend Cloud Run deployment should be executed until the schedule CRUD smoke suite passes.**
+**No backend Cloud Run deployment should be executed until both the chat contract smoke suite and the schedule CRUD smoke suite pass.**
 
-The source-of-truth verification is:
+## Source-of-truth smoke checks
 
+The source-of-truth verification set is:
+
+- `/a0/usr/projects/jh_salon_twin/backend/scripts/chat_contract_smoke.sh`
 - `/a0/usr/projects/jh_salon_twin/backend/scripts/schedule_crud_smoke.js`
 
-This suite validates:
+These suites validate:
 
+- live chat contract heartbeat and response shape
 - live owner schedule CRUD routing
 - smart seed creation on an empty slot
 - update and delete behavior using the created UUID
 - overlap protection returning `409 Conflict`
 - cleanup of seeded state after execution
 
-## Gatekeeper script
+## Gatekeeper workflow
 
-Use the root-level gatekeeper script:
-
-- `/a0/usr/projects/jh_salon_twin/gatekeeper.sh`
-
-### Dry run smoke only
+Use the project root gatekeeper:
 
 ```bash
-cd /a0/usr/projects/jh_salon_twin
-./gatekeeper.sh
-```
-
-### Smoke + deploy
-
-```bash
-cd /a0/usr/projects/jh_salon_twin
-./gatekeeper.sh --image gcr.io/salon-saas-487508/salonos-backend:20260308TXXXXXXZ --deploy
-```
-
-## Required behavior
-
-1. Run smoke suite first.
-2. Abort immediately on any non-zero exit code.
-3. Only deploy the **explicit image reference** passed via `--image`.
-4. Do not rely on implicit or stale image defaults during release execution.
-
-## Notes
-
-- Preferred deploy inputs should use a **unique image tag or exact immutable image reference** to avoid version drift.
-- The smoke report is written to:
-  - `/a0/usr/projects/jh_salon_twin/backend/scripts/schedule_crud_smoke_report.json`
-- The live backend URL under test is currently:
-  - `https://salonos-backend-rgvcleapsa-uc.a.run.app`
-
-## Suggested release flow
-
-```bash
-# 1) build/push image using your normal release process
-# 2) gate with smoke verification
 ./gatekeeper.sh --image gcr.io/salon-saas-487508/salonos-backend:<unique-tag> --deploy
 ```
 
-## Commit conventions
+### Gatekeeper behavior
 
-Use repository commit prefixes such as:
+1. Run chat contract smoke first.
+2. Run schedule CRUD smoke second.
+3. Abort immediately on any non-zero exit code from either suite.
+4. Only deploy the **explicit image reference** passed via `--image`.
+5. Do not rely on implicit or stale image defaults during release execution.
 
-- `fix:`
-- `chore:`
-- `docs:`
-- `release(production):`
+## Reports
+
+The smoke reports are written to:
+
+- `/a0/usr/projects/jh_salon_twin/backend/scripts/chat_heartbeat_report.json`
+- `/a0/usr/projects/jh_salon_twin/backend/scripts/schedule_crud_smoke_report.json`
+
+## Validation-only mode
+
+To run checks without deploying:
+
+```bash
+./gatekeeper.sh
+```
+
+
+## Gatekeeper validation coverage
+
+The gatekeeper now validates all of the following before deploy:
+
+- frontend branding verification
+- backend chat contract smoke
+- frontend owner dashboard Playwright regression
+- backend schedule CRUD smoke
