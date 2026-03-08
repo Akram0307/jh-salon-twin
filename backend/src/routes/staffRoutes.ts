@@ -15,10 +15,11 @@ const ok = (data: unknown, meta: Record<string, unknown> = {}) => ({
   },
 });
 
-const fail = (error: string, details?: unknown) => ({
+const fail = (message: string, details?: unknown, error?: string) => ({
   success: false,
   data: null,
-  error,
+  error: error || message,
+  message,
   ...(details !== undefined ? { details } : {}),
 });
 
@@ -60,6 +61,14 @@ const staffUpdateSchema = z.object({
   message: 'At least one field is required to update staff',
 });
 
+const normalizeStaffRecord = (staff: any) => {
+  if (!staff) return staff;
+  return {
+    ...staff,
+    updated_at: staff.updated_at || null,
+  };
+};
+
 const detectDuplicateStaff = async (
   payload: { email?: string; phone_number?: string | null },
   excludeId?: string
@@ -91,10 +100,20 @@ const detectDuplicateStaff = async (
   return null;
 };
 
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const staff = await StaffRepository.findAll(SALON_ID);
-    res.json(ok(staff, { count: staff.length }));
+    const status = typeof req.query.status === 'string' ? req.query.status : 'active';
+    const search = typeof req.query.search === 'string' ? req.query.search : undefined;
+    const role = typeof req.query.role === 'string' ? req.query.role : undefined;
+
+    const filters = {
+      is_active: status === 'active' ? true : status === 'archived' ? false : undefined,
+      search,
+      role,
+    };
+
+    const staff = await StaffRepository.findAll(SALON_ID, filters);
+    res.json(ok(staff.map(normalizeStaffRecord), { count: staff.length, status, search: search || null, role: role || null }));
   } catch (err) {
     console.error(err);
     res.status(500).json(fail('Failed to fetch staff'));
@@ -114,7 +133,7 @@ router.post('/', async (req, res) => {
     }
 
     const staff = await StaffRepository.create({ ...parsed.data, salon_id: SALON_ID });
-    res.status(201).json(ok(staff));
+    res.status(201).json(ok(normalizeStaffRecord(staff), { updated_at: staff?.updated_at || null }));
   } catch (err) {
     console.error(err);
     res.status(500).json(fail('Failed to create staff'));
@@ -143,7 +162,7 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json(fail('Staff member not found'));
     }
 
-    res.json(ok(staff));
+    res.json(ok(normalizeStaffRecord(staff), { updated_at: staff.updated_at || null }));
   } catch (err) {
     console.error(err);
     res.status(500).json(fail('Failed to update staff'));

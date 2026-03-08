@@ -5,6 +5,18 @@ export interface ApiEnvelope<T> {
   data: T
   meta?: Record<string, unknown>
   error?: string
+  message?: string
+  details?: unknown
+}
+
+export interface ApiErrorLike extends Error {
+  status?: number
+  data?: {
+    success?: boolean
+    error?: string
+    message?: string
+    details?: unknown
+  }
 }
 
 export interface ChatResponse {
@@ -23,6 +35,13 @@ export interface StaffRecord {
   phone_number?: string | null
   role?: string | null
   is_active?: boolean
+  updated_at?: string
+}
+
+export interface StaffListParams {
+  status?: 'active' | 'archived' | 'all'
+  search?: string
+  role?: string
 }
 
 export interface ServiceRecord {
@@ -85,6 +104,11 @@ export function asArray<T>(value: unknown): T[] {
   return []
 }
 
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+  const err = error as ApiErrorLike | undefined
+  return err?.data?.message || err?.data?.error || err?.message || fallback
+}
+
 export async function sendChatMessage(sender:string,message:string){
   return apiFetch<ChatResponse>('/api/chat',{
     method:'POST',
@@ -110,8 +134,13 @@ export async function updateService(id: string, payload: Partial<Omit<ServiceRec
   })
 }
 
-export async function getStaff(){
-  return apiFetch<ApiEnvelope<StaffRecord[]>>('/api/staff')
+export async function getStaff(params: StaffListParams = {}){
+  const query = new URLSearchParams()
+  if (params.status) query.set('status', params.status)
+  if (params.search) query.set('search', params.search)
+  if (params.role) query.set('role', params.role)
+  const suffix = query.toString() ? `?${query.toString()}` : ''
+  return apiFetch<ApiEnvelope<StaffRecord[]>>(`/api/staff${suffix}`)
 }
 
 export async function createStaff(payload: Omit<StaffRecord, 'id'>){

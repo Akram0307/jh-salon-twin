@@ -4,6 +4,12 @@ function buildUrl(path: string): string {
   return `${API_BASE}${path}`;
 }
 
+type ApiFetchError = Error & {
+  status?: number;
+  data?: unknown;
+  contentType?: string;
+};
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(buildUrl(path), {
     headers: {
@@ -15,24 +21,40 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 
   const contentType = response.headers.get('content-type') || '';
   const rawText = await response.text();
+  let parsed: unknown = null;
+
+  if (rawText) {
+    if (contentType.includes('application/json')) {
+      parsed = JSON.parse(rawText);
+    } else {
+      try {
+        parsed = JSON.parse(rawText);
+      } catch {
+        parsed = rawText;
+      }
+    }
+  }
 
   if (!response.ok) {
-    throw new Error(rawText || `Request failed with status ${response.status}`);
+    const message = typeof parsed === 'object' && parsed !== null
+      ? ((parsed as { message?: string; error?: string }).message || (parsed as { message?: string; error?: string }).error)
+      : undefined;
+    const error: ApiFetchError = new Error(message || rawText || `Request failed with status ${response.status}`);
+    error.status = response.status;
+    error.data = parsed;
+    error.contentType = contentType;
+    throw error;
   }
 
   if (!rawText) {
     return null as T;
   }
 
-  if (contentType.includes('application/json')) {
-    return JSON.parse(rawText) as T;
-  }
-
-  try {
-    return JSON.parse(rawText) as T;
-  } catch {
+  if (typeof parsed === 'string') {
     throw new Error(`Expected JSON but received ${contentType || 'unknown content type'}`);
   }
+
+  return parsed as T;
 }
 
 export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
