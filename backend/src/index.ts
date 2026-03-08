@@ -71,6 +71,7 @@ async function bootstrap() {
 
   // Web Chat
   app.use('/api/chat', chatRoutes);
+  app.post('/api/chat/message', (req, res, next) => chatRoutes(req, res, next));
 
   // Health Check
   app.get('/health', (req, res) => {

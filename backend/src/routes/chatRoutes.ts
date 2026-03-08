@@ -1,22 +1,40 @@
-import { Router } from 'express';
-import { handleIncomingMessage } from '../agents/receptionist';
+import { Router } from 'express'
+import { handleIncomingMessage } from '../agents/receptionist'
 
-const router = Router();
+const router = Router()
 
-router.post('/', async (req, res) => {
-    try {
-        const { message, sender } = req.body;
-        if (!message || !sender) {
-            return res.status(400).json({ error: 'Message and sender are required' });
-        }
-        
-        // handleIncomingMessage expects (sender, message)
-        const responseText = await handleIncomingMessage(sender, message);
-        res.json({ response: responseText });
-    } catch (error) {
-        console.error('Chat API Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+const handleChatRequest = async (req: any, res: any) => {
+  try {
+    const { message, sender, sessionId } = req.body
+    const senderId = sender || sessionId
+
+    if (!message || !senderId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Message and sender/sessionId are required'
+      })
     }
-});
 
-export default router;
+    const text = await handleIncomingMessage(senderId, message)
+
+    return res.json({
+      success: true,
+      message: text,
+      ui: {
+        type: 'text'
+      }
+    })
+  } catch (error) {
+    console.error('Chat API Error:', error)
+
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    })
+  }
+}
+
+router.post('/', handleChatRequest)
+router.post('/message', handleChatRequest)
+
+export default router
