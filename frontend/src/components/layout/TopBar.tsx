@@ -10,7 +10,11 @@ export default function TopBar(){
       <div className="topbar-center">
         <div className="search-box">
           <FaSearch />
-          <input placeholder="Search clients, bookings, services..." />
+          <input 
+            type="search"
+            aria-label="Search clients, bookings, and services"
+            placeholder="Search clients, bookings, services..." 
+          />
         </div>
       </div>
 

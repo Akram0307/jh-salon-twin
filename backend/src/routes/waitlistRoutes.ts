@@ -59,4 +59,16 @@ router.get('/recovery-stats', async (_req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Autonomous Waitlist Recovery Engine
+router.post('/recover', async (req, res) => {
+  try {
+    const result = await (await import('../services/AIWaitlistRecoveryOrchestrator.js')).AIWaitlistRecoveryOrchestrator.runRecoveryCycle();
+    return res.json(result);
+
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

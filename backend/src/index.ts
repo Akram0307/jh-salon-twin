@@ -1,3 +1,6 @@
+import upsellRoutes from './routes/upsellRoutes'
+import aiConciergeRoutes from './routes/aiConciergeRoutes'
+import revenueActionRoutes from './routes/revenueActionRoutes';
 import { loadSecrets } from './config/secrets';
 import { startTelemetry } from './config/telemetry';
 import redis from './config/redis';
@@ -50,7 +53,6 @@ async function bootstrap() {
 
   // API Routes
   app.use('/api/clients', clientRoutes);
-  app.use('/api/owners', ownerRoutes);
   app.use('/api/owner', ownerRoutes);
   app.use('/api/staff', staffRoutes);
   app.use('/api/services', serviceRoutes);
@@ -58,7 +60,10 @@ async function bootstrap() {
   app.use('/api/analytics', analyticsRoutes);
   app.use('/api/pos', posRoutes);
   app.use('/api/revenue', revenueRoutes);
+  app.use('/api/revenue/action', revenueActionRoutes);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/ai', upsellRoutes);
+  app.use('/api/ai', aiConciergeRoutes);
   app.use('/api/activity', activityRoutes);
   app.use('/api/waitlist', waitlistRoutes);
   app.use('/api/appointments', appointmentRoutes);
@@ -71,7 +76,6 @@ async function bootstrap() {
 
   // Web Chat
   app.use('/api/chat', chatRoutes);
-  app.post('/api/chat/message', (req, res, next) => chatRoutes(req, res, next));
 
   // Health Check
   app.get('/health', (req, res) => {

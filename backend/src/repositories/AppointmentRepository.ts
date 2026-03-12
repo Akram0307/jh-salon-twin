@@ -1,5 +1,5 @@
 import { query, pool } from '../config/db';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 export class AppointmentRepository {
 
@@ -207,4 +207,21 @@ export class AppointmentRepository {
     return res.rows[0];
   }
 
+  // Client service history for AI rebooking + revenue brain
+  static async getClientServiceHistory(clientId: string, salonId: string) {
+
+    const result = await query(`
+      SELECT appointment_date, service_id
+      FROM appointments
+      WHERE client_id = $1
+      AND salon_id = $2
+      AND status = 'completed'
+      ORDER BY appointment_date ASC
+    `, [clientId, salonId])
+
+    return result.rows
+  }
+
 }
+
+

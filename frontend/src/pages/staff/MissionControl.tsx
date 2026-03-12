@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 interface Appointment {
   id: number;
@@ -14,7 +14,7 @@ interface Staff {
   name: string;
   role: string;
   is_available: boolean;
-  break_times: any[];
+  break_times: string[];
 }
 
 export default function MissionControl() {

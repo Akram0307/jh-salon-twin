@@ -1,937 +1,312 @@
-URL: https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/owner
-Title: Vite + React + TS
 Status: 200
+Title: SalonOS
 
 Probe results:
-- Owner: FOUND
-- Revenue: FOUND
-- Opportunity: FOUND
-- Campaign: FOUND
-- Health: FOUND
-- Waitlist: FOUND
-- POS: FOUND
-- Dashboard: missing
-- Staff: FOUND
-- Services: missing
-- Schedule: FOUND
+- Owner: present
+- Revenue: present
+- Opportunity: present
+- Campaign: present
+- Health: present
+- Waitlist: missing
+- POS: present
+- Dashboard: present
+- Staff: present
+- Services: present
+- Schedule: present
 
 Headings:
+- Owner Command
 - Owner Control Tower
+- Command the salon like a live revenue business, not a passive booking app.
+- Owner Control Tower
+- See the business state in one glance
+- Four persistent owner lenses
+- Start with business signals, not raw widgets
+- Performance snapshot
 - Revenue Trend
-- Live Salon Activity
-- Today's Appointments
-- Client Profiles
-- Staff Performance
-- POS Intelligence
-- System Health
-- Revenue Intelligence
+- Revenue Trend
 - AI Revenue Forecast
-- Staff Utilization Heatmap
 - AI Revenue Opportunity Engine
-- AI Campaign Control
+- Move from observation to intervention
+- AI Action Center
+- Run the floor, calendar, and client flow
+- Today's Appointments
+- Salon pulse
+- Staff Utilization Heatmap
+- Staff productivity
+- Client profiles
+- Protect financial confidence and platform integrity
+- POS intelligence
+- System health
 
 Buttons:
-- A Pre Bridal Package 5 Days Prior
-$10000.00
-- Bridal Classic package
-$7499.00
-- Bridal Makeup
-$4000.00
-- Bridal Package A + B
-$18000.00
-- Brides Maid
-$4000.00
-- B Wedding Day Package
-$10000.00
-- Classic Package
-$4000.00
-- Hair Do
-$2000.00
-- Party Make Up
-$4000.00
-- Premium Bridal package
-$17999.00
-- Premium Package
-$8000.00
-- Saree Draping
-$2000.00
-- Simple Bridal Makeup
-$3000.00
-- Ultra Luxury Bridal package
-$21999.00
-- Glow & Go Pack
-$1400.00
-- Luxury Queen Makeover
-$3750.00
-- Quick Clean & Shine1
-$1650.00
-- Radiance Retreat
-$2650.00
-- Salon Queen Upgrade
-$3099.00
-- The Royal Reboot
-$1450.00
-- The Royal Refresh
-$2050.00
-- The Smart Look
-$1000.00
-- The Ultimate Makeover
-$2250.00
-- Ultimate Glow Up Combo
-$4499.00
-- 24 Carat Gold Facial
-$3499.00
-- 4 Layer Advance Anti Aging Facial
-$2999.00
-- 4 Layer Advance Radiance Facial
-$2799.00
-- 4 Layer Advance Whitening Facial
-$2799.00
-- Acne Facial
-$2499.00
-- Acne Hydra Facial
-$3999.00
-- Advanced Kiwi Fruit Marmalade
-$2999.00
-- Advanced Papaya Marmalade
-$2999.00
-- Advanced Pineapple Marmalade
-$2999.00
-- Anti Aging Facial
-$4499.00
-- Anti Tan Facial
-$2499.00
-- Barberry Facial
-$1799.00
-- Brightening & Whitening Facial
-$4999.00
-- Classic Diamond Facial
-$1999.00
-- Classic Face & Neck Tan Pack
-$499.00
-- Classic Fruit Facial
-$999.00
-- Classic Full Body Tan Pack
-$2999.00
-- Classic Full Hands Tan Pack
-$999.00
-- Classic Full Legs Tan Pack
-$1499.00
-- Classic Glow Pack
-$1299.00
-- Classic Gold Facial
-$1699.00
-- Classic Half Hands Tan Pack
-$499.00
-- Classic Half Legs Tan Pack
-$799.00
-- Classic Herbal Facial
-$999.00
-- Classic Hydrogel Facial
-$1199.00
-- Classic Instafair Facial
-$1699.00
-- Classic Papaya Fruit Facial
-$1199.00
-- Classic Silver Facial
-$1499.00
-- Classic Tightening Pack
-$999.00
-- Depigmentation Facial
-$2199.00
-- Diamond Back Facial
-$1999.00
-- Diamond Facial
-$1999.00
-- Double Whitening Signature Facial
-$3999.00
-- Face Bleach
-$800.00
-- Face Clean Up
-$999.00
-- Fruit Facial
-$999.00
-- Full Hand Bleach
-$750.00
-- Full Leg Bleach
-$1100.00
-- Galvanic Facial
-$2499.00
-- Gold Facial
-$1699.00
-- Goldseen Facial
-$1999.00
-- Gold Sheen Signature Facial
-$3499.00
-- Half Hand Bleach
-$500.00
-- Half Leg Bleach
-$750.00
-- Herbal Facial
-$999.00
-- Hydra Facial Advanced Kiwi Fruit Marmalade
-$3999.00
-- Hydra Facial Advanced Papaya Marmalade
-$3999.00
-- Hydra Facial Advanced Pineapple Marmalade
-$3999.00
-- Hydra Facial Advanced Radiance
-$3499.00
-- Hydra Facial Advanced Whitening
-$3999.00
-- Hydra Facial Dipigmentation
-$3499.00
-- Hydra Instafair Facial
-$3499.00
-- Hydrogel Facial
-$1199.00
-- Instafair Facial
-$1999.00
-- Instafair Facial
-$2499.00
-- Kiwi Facial
-$1799.00
-- Oily Skin Clean Up
-$1499.00
-- Papaya Fruit Facia
-$1199.00
-- Platinum Facial
-$2199.00
-- Premium 24 Carat Gold Facial
-$3499.00
-- Premium 24 Carrot Gold Facial
-$4999.00
-- Premium 24 Carrot Gold Facial
-$4999.00
-- Premium 4 Layer Advance Anti Aging Facial
-$2999.00
-- Premium 4 Layer Advance Radiance Facial
-$2799.00
-- Premium 4 Layer Advance Whitening Facial
-$2799.00
-- Premium Acne Facial
-$2499.00
-- Premium Acne Hydra Facial
-$3999.00
-- Premium Advanced Kiwi Fruit Marmalade
-$2999.00
-- Premium Advanced Papaya Marmalade
-$2999.00
-- Premium Advanced Pineapple Marmalade
-$2999.00
-- Premium Anti Tan Facial
-$2499.00
-- Premium Barberry Facial
-$1799.00
-- Premium Depigmentation Facial
-$2199.00
-- Premium Face & Neck D Tan Pack
-$999.00
-- Premium Feet D Tan pack
-$799.00
-- Premium Full Body D Tan
-$4999.00
-- Premium Full Hands D Tan Pack
-$1499.00
-- Premium Full Legs D Tan Pack
-$1999.00
-- Premium Galvanic Facial
-$2499.00
-- Premium Goldseen Facial
-$1999.00
-- Premium Half Hands D Tan Pack
-$699.00
-- Premium Half Legs D Tan Pack
-$799.00
-- Premium Hydra Facial Advanced Anti Aging
-$4499.00
-- Premium Hydra Facial Advanced Papaya Marmalade
-$3999.00
-- Premium Hydra Facial Advanced Pineapple Marmalade
-$3999.00
-- Premium Hydra Facial Advanced Radiance
-$3499.00
-- Premium Hydra Facial Advanced Whitening
-$3999.00
-- Premium Hydra Facial Dipigmentation
-$3499.00
-- Premium Hydra Fcial Advanced Kiwi Fruit Marmalade
-$3999.00
-- Premium Hydra Instafair Facial
-$3499.00
-- Premium Instafair Facial
-$2499.00
-- Premium Kiwi Facial
-$1799.00
-- Premium Platinum Facial
-$2199.00
-- Premium Underarms D Tan
-$299.00
-- Sea Weed Signature Facial
-$2999.00
-- Signature Diamond Facial
-$3999.00
-- Signature Shine & Glow Facial
-$3999.00
-- Silver Facial
-$1499.00
-- Whitening Signature Facial
-$3499.00
-- Radiant Groom Package
-$9999.00
-- The Refined Look
-$4999.00
-- The Ultimate Groom's Glow
-$12499.00
-- Advance Haircut
-$999.00
-- All Over Head
-$4999.00
-- Ammonia Free Colour
-$1199.00
-- Ammonia Free Colour
-$3499.00
-- Beard Colouring
-$499.00
-- Beard Designing
-$199.00
-- Bob / Blunt HairCut
-$1199.00
-- Hair Wash Treatment
-$999.00
-- Happy Child Below 6 Years Boy
-$199.00
-- Happy Child Below 6 Years Girl
-$299.00
-- Henna
-$650.00
-- Henna Men
-$500.00
-- Ironing | Tongs Below Shoulder
-$1199.00
-- Ironing | Tongs Up To Wasit
-$1599.00
-- Ironing | Tong Up To Shoulder
-$799.00
-- Layer/Feather Haircut
-$799.00
-- Men Blow Dry Setting With Wash
-$249.00
-- Men Hair Cut
-$349.00
-- Men Hair Wash
-$149.00
-- Moustache Colouring
-$199.00
-- Per Streak
-$499.00
-- Profile Streaking 6 Streak
-$2499.00
-- Root Touch Up Ammonia Free
-$1499.00
-- Root Touch Up With Ammonia
-$1199.00
-- Shaving | Moustache Trim
-$149.00
-- Split Ends
-$799.00
-- With Ammonia Colour
-$999.00
-- With Ammonia Colour
-$2499.00
-- Women Blow Dry Setting With Wash
-$599.00
-- Women Hair Cut
-$599.00
-- Women Hair Wash
-$399.00
-- Women Tangle Free Wash
-$1499.00
-- Anti Dandruff & Flakes Men
-$1199.00
-- Anti Dandruff & Flakes Women
-$1799.00
-- Anti Hairfall Treatment Men
-$1399.00
-- Anti Hairfall Women
-$1999.00
-- Below Shoulder Hair Spa
-$999.00
-- Classic Protein Treatment Men
-$1499.00
-- Classic Protein Treatment Women
-$1999.00
-- Deep Conditioning Female
-$1499.00
-- Head Massage Men 30 Min
-$399.00
-- Head Massage Women 30 Min
-$599.00
-- Men Deep Conditioning
-$999.00
-- Men Hair Spa
-$999.00
-- Men Keratin Hair Spa
-$1999.00
-- Premium Protein Treatment Men
-$1999.00
-- Premium Protein Treatment Women
-$2499.00
-- Upto Shoulder + Below Shoulder + Upto Waist
-$999.00
-- Women Hair Spa
-$1499.00
-- Women Keratin Hair Spa
-$2499.00
-- Botox Below Waist
-$0.00
-- Botox Treatment
-$5999.00
-- Botox Treatment Men
-$3999.00
-- Botox Up To Waist
-$0.00
-- Men Cystine Treatment
-$2499.00
-- Men Kerasmooth Treatment
-$4999.00
-- Men Keratin Treatment
-$2999.00
-- Men Rebonding
-$3999.00
-- Men Straightening
-$2999.00
-- Nanoplastia Below Shoulder
-$0.00
-- Nanoplastia Treatment
-$7499.00
-- Permanent Blow Dry Treatment
-$5999.00
-- Smoothening Treatment
-$5999.00
-- Smoothening Treatment
-$4999.00
-- Smoothening Up To Waist
-$0.00
-- Women Cysteine Treatment
-$5999.00
-- Women Kerasmooth Treatment
-$7999.00
-- Women Keratin Treatment
-$4999.00
-- Women Rebonding
-$5999.00
-- Women Smoothening Below Shoulder
-$0.00
-- Women Straightening
-$5999.00
-- Crystal Manicure
-$999.00
-- Crystal Pedicure
-$999.00
-- D Tan Manicure
-$1499.00
-- D Tan Pedicure
-$1499.00
-- Hands Nail Filling & Paints
-$150.00
-- Herbal Manicure
-$599.00
-- Herbal Pedicure
-$649.00
-- Legs Nail Filling & Paints
-$200.00
-- Raaga Manicure
-$1000.00
-- Spa Manicure
-$799.00
-- Spa Pedicure
-$799.00
-- Anti Aging Facial
-$4499.00
-- Brightening & Whitening Facial
-$4999.00
-- Brightening & Whitening Signature Facial
-$3999.00
-- Double Whitening Signature Facial
-$3999.00
-- Face Clean Up
-$999.00
-- Gold Seen Signature Facial
-$3499.00
-- O3+ Signature Diamond Facial
-$3999.00
-- Oily Skin Clean Up
-$1499.00
-- Sea Weed Signature Facial
-$2999.00
-- Signature Shine & Glow Facial
-$3999.00
-- Whitening Signature Facial
-$3499.00
-- Back Polish
-$1999.00
-- Chin Threading
-$50.00
-- Eyebrows Threading
-$50.00
-- Flavour Full Arms Wax
-$399.00
-- Flavour Full Back Wax
-$999.00
-- Flavour Full Body Wax
-$3999.00
-- Flavour Full Face Wax
-$399.00
-- Flavour Full Front Wax
-$999.00
-- Flavour Full Leg Wax
-$799.00
-- Flavour Half Leg Wax
-$399.00
-- Flavour Stomach Wax
-$699.00
-- Flavour Underarms Wax
-$250.00
-- Foot Massage
-$399.00
-- Fore Head Threading
-$50.00
-- Full Arms Polish
-$1499.00
-- Full Arms Wax
-$399.00
-- Full Back Wax
-$999.00
-- Full Body D Tan
-$4999.00
-- Full Body Polish
-$7999.00
-- Full Body Wax
-$3999.00
-- Full Face D Tan Wax
-$599.00
-- Full Face Threading
-$300.00
-- Full Face Wax
-$399.00
-- Full Front Wax
-$999.00
-- Full | Half Arms D Tan Wax
-$799.00
-- Full Leg Polish
-$1999.00
-- Full Legs D Tan Wax
-$1399.00
-- Full Leg Wax
-$799.00
-- Half Leg D Tan Wax
-$799.00
-- Half Leg Wax
-$399.00
-- Leg Massage
-$699.00
-- Normal Full Arms Wax
-$299.00
-- Normal Full Back Wax
-$799.00
-- Normal Full Body Wax
-$2999.00
-- Normal Full Face Wax
-$299.00
-- Normal Full Face Wax
-$299.00
-- Normal Full Front Wax
-$799.00
-- Normal Full Legs Wax
-$599.00
-- Normal Half Leg Wax
-$299.00
-- Normal Stomach Wax
-$499.00
-- Normal Tan Hand Wax
-$399.00
-- Normal Tan Leg Wax
-$549.00
-- Normal Underarms Wax
-$150.00
-- Sidelock Threading
-$80.00
-- Stomach Wax
-$699.00
-- Under Arms D Tan Wax
-$299.00
-- Underarms Wax
-$249.00
-- Upper Lip & Chin Waxing
-$199.00
-- Upperlip | Lowerlip Threading
-$50.00
-
-API responses:
-404 https://salonos-backend-687369167038.us-central1.run.app/api/products
-200 https://salonos-backend-687369167038.us-central1.run.app/api/activity/live
-200 https://salonos-backend-687369167038.us-central1.run.app/api/clients
-200 https://salonos-backend-687369167038.us-central1.run.app/api/services
-404 https://salonos-backend-687369167038.us-central1.run.app/api/analytics/pos-stats
-200 https://salonos-backend-687369167038.us-central1.run.app/api/activity/feed
-200 https://salonos-backend-687369167038.us-central1.run.app/api/ai/forecast
-500 https://salonos-backend-687369167038.us-central1.run.app/api/waitlist/recovery-stats
-404 https://salonos-backend-687369167038.us-central1.run.app/api/ai/campaigns
-404 https://salonos-backend-687369167038.us-central1.run.app/api/owner/system-health
-200 https://salonos-backend-687369167038.us-central1.run.app/api/analytics/revenue-opportunities
-200 https://salonos-backend-687369167038.us-central1.run.app/api/analytics/overview
-200 https://salonos-backend-687369167038.us-central1.run.app/api/clients
-200 https://salonos-backend-687369167038.us-central1.run.app/api/analytics/utilization-heatmap
-200 https://salonos-backend-687369167038.us-central1.run.app/api/analytics/staff-performance
-200 https://salonos-backend-687369167038.us-central1.run.app/api/appointments/today
-
-Failed requests:
+- 
+- Review
+- Approve
+- Review
+- Approve
+- Review
+- Approve
+- Review
+- Approve
+- $0
+- $0
 
 Events:
-[console:error] Failed to load resource: the server responded with a status of 404 ()
-[console:error] Failed to load resource: the server responded with a status of 404 ()
-[console:error] Failed to load resource: the server responded with a status of 500 ()
-[console:error] Failed to load resource: the server responded with a status of 404 ()
-[console:error] Failed to load resource: the server responded with a status of 404 ()
-[console:log] App ready to work offline
+[console:warning] The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[console:error] EventSource's response has a MIME type ("text/html") that is not "text/event-stream". Aborting the connection.
 
 Body excerpt:
-SalonOS Owner
+SalonOS
+
+Owner Command
+
+Navigation
+
+Dashboard
+Staff
+Services
+Schedule
+Clients
+Reports
+Settings
+Owner
+Dashboard
 Owner Control Tower
 
-AI revenue intelligence for your salon
+Monitor revenue, operational velocity, AI automation, and system health from the canonical SalonOS command surface.
+
+Revenue operating system
+Command the salon like a live revenue business, not a passive booking app.
+
+This Control Tower is the master design canon for SalonOS: one surface for forecasting, staff efficiency, live client flow, campaign actions, and service-system reliability.
+
+AI demand engine active
+Owner design canon source
+Mobile-first control shell
+Focus
+Protect daily revenue and fill underutilized capacity
+Autonomy
+Campaign, waitlist, and intelligence workflows available
+Operations
+Frontdesk and staff shells aligned to this owner model
+Owner command brief
+Owner Control Tower
+
+One premium operating surface for revenue posture, staff performance, live capacity, campaign automation, and system trust.
+
+Control mode
+Live operations
+AI layer
+Revenue automation armed
+Priority
+Protect capacity and conversion
+
+Executive snapshot
+
+See the business state in one glance
+
+Lead with the four metrics that tell the owner whether today is healthy, underbooked, or accelerating ahead of plan.
 
 Revenue Today
 
-0
+₹48,260
+
+Live business velocity across POS and bookings
 
 Bookings Today
 
-12133
+27
+
+Confirmed appointment activity on today's schedule
 
 New Clients
 
-0
+6
+
+Fresh acquisition entering the salon pipeline
 
 Upcoming Appointments
 
-10
+5
 
+Near-term demand already committed in the calendar
+
+Command lanes
+
+Four persistent owner lenses
+
+Organize the dashboard around monetization, capacity, actionability, and trust so operators always know where to look next.
+
+Revenue posture
+Live monetization
+
+Track gross flow, recovery opportunities, and POS performance in one command view.
+
+Capacity posture
+Schedule aware
+
+See today's appointments, staffing pressure, and waitlist recovery in the same canvas.
+
+Decision layer
+Action oriented
+
+Drive campaigns, monitor recovery, and react to AI-identified revenue opportunities instantly.
+
+System layer
+Operational trust
+
+Health signals and resilient modules keep the owner cockpit premium under real production load.
+
+Revenue intelligence
+
+Start with business signals, not raw widgets
+
+Put aggregated intelligence first so the owner sees momentum, forecast posture, and intervention urgency before reviewing module detail.
+
+Revenue intelligence
+
+Performance snapshot
+
+Live intelligence is syncing. Showing a polished operating snapshot so the dashboard remains presentation-ready.
+
+Updated moments ago
+9 open slots can still be monetized this weekAction Required
+14 clients are ready for reactivationHigh Priority
+Revenue Trend
 Revenue Trend
 Chart loading...
-Live Salon Activity
-No activity yet
+AI Revenue Forecast
+
+Forecast data unavailable
+
+AI Revenue Opportunity Engine
+
+Live demand recovery signals for the next 7 days
+
+Expected JSON but received text/html
+
+Autonomous actions
+
+Move from observation to intervention
+
+Keep AI actions directly after revenue intelligence so the owner can immediately act on what the system detects.
+
+AI Action Center
+Rebookable
+12
+ReviewApprove
+Low Capacity
+3
+ReviewApprove
+Active
+5
+ReviewApprove
+Paused
+2
+ReviewApprove
+Predictive Intervention
+High churn risk: Client #882CRITICAL
+Capacity optimization: TuesdayHIGH
+Staff schedule conflictMEDIUM
+
+Daily operations
+
+Run the floor, calendar, and client flow
+
+Cluster today's appointment execution, live activity, staff efficiency, and client insight into a single operational zone optimized for frequent checks.
+
 Today's Appointments
-Venkatesh
-Happy Child Below 6 Years Boy
-12:00 AM
-Jane Smith
-SCHEDULED
-Ashritha
-Happy Child Below 6 Years Boy
-12:00 AM
-John Doe
-SCHEDULED
-Sadiya
-Men Hair Cut
-12:00 AM
-John Doe
-SCHEDULED
-Farha
-Happy Child Below 6 Years Girl
-12:00 AM
-Jane Smith
-SCHEDULED
-Radhika
-Women Hair Cut
-12:00 AM
-Jane Smith
-SCHEDULED
-Subhashini
-Happy Child Below 6 Years Girl
-12:00 AM
-John Doe
-SCHEDULED
-Rachel
-Happy Child Below 6 Years Girl
-12:00 AM
-Jane Smith
-SCHEDULED
-Umar Khan
-Men Hair Cut
-12:00 AM
-John Doe
-SCHEDULED
-Mohammed
-Split Ends
-12:01 AM
-Jane Smith
-SCHEDULED
-Rohith
-Happy Child Below 6 Years Girl
-12:01 AM
-John Doe
-SCHEDULED
-Test Client
-Happy Child Below 6 Years Girl
-12:01 AM
-Jane Smith
-SCHEDULED
-K Nirmala
-Split Ends
-12:01 AM
-John Doe
-SCHEDULED
-Mohammed Ammer
-Happy Child Below 6 Years Girl
-12:01 AM
-John Doe
-SCHEDULED
-Rafik
-Men Hair Cut
-12:01 AM
-John Doe
-SCHEDULED
-Vamshi Krishna
-Happy Child Below 6 Years Boy
-12:01 AM
-Jane Smith
-SCHEDULED
-Umar Khan
-Men Hair Cut
-12:01 AM
-John Doe
-SCHEDULED
-Pallavi
-Happy Child Below 6 Years Boy
-12:01 AM
-Jane Smith
-SCHEDULED
-Sathya
-Split Ends
-12:01 AM
-Jane Smith
-SCHEDULED
-Malle Bhavanish
-Happy Child Below 6 Years Girl
-12:01 AM
-Jane Smith
-SCHEDULED
-S murali krishna
-Happy Child Below 6 Years Boy
-12:01 AM
-Jane Smith
-SCHEDULED
-JA FARA
-Happy Child Below 6 Years Girl
-12:02 AM
-John Doe
-SCHEDULED
-Koushik
-Men Hair Cut
-12:02 AM
-Jane Smith
-SCHEDULED
-Sathya
-Men Hair Cut
-12:02 AM
-John Doe
-SCHEDULED
-Dr Sridhar
-Happy Child Below 6 Years Girl
-12:02 AM
-John Doe
-SCHEDULED
-Moim
-Happy Child Below 6 Years Boy
-12:02 AM
-John Doe
-SCHEDULED
-Junaid
-Men Hair Cut
-12:03 AM
-John Doe
-SCHEDULED
-Rama Krishna
-Split Ends
-12:03 AM
-John Doe
-SCHEDULED
-Ravindra
-Happy Child Below 6 Years Girl
-12:03 AM
-John Doe
-SCHEDULED
-Vamsh krishna
-Women Hair Cut
-12:03 AM
-John Doe
-SCHEDULED
-Peddi Raja Rajeshwari
-Men Hair Cut
-12:03 AM
-John Doe
-SCHEDULED
-Haseena
-Men Hair Cut
-12:04 AM
-John Doe
-SCHEDULED
-Upendra Nath Reddy
-Split Ends
-12:04 AM
-Jane Smith
-SCHEDULED
-Rajashekar Reddy (Club Canteen Sir)
-Women Hair Cut
-12:04 AM
-Jane Smith
-SCHEDULED
-Sridevi
-Split Ends
-12:04 AM
-John Doe
-SCHEDULED
-B krishna Murthy
-Men Hair Cut
-12:04 AM
-Jane Smith
-SCHEDULED
-Siddhrath
-Split Ends
-12:04 AM
-John Doe
-SCHEDULED
-Paban
-Happy Child Below 6 Years Boy
-12:05 AM
-Jane Smith
-SCHEDULED
-Vamshi Krishna
-Women Hair Cut
-12:05 AM
-Jane Smith
-SCHEDULED
-Abuzar
-Happy Child Below 6 Years Girl
-12:05 AM
-John Doe
-SCHEDULED
-Ranjanth
-Men Hair Cut
-12:05 AM
-John Doe
-SCHEDULED
-Karthik @ Chalam Anna
-Split Ends
-12:05 AM
-Jane Smith
-SCHEDULED
-Rajashekar Reddy (Club Canteen Sir)
-Happy Child Below 6 Years Boy
-12:05 AM
-Jane Smith
-SCHEDULED
-Nasreen
-Men Hair Cut
-12:05 AM
-John Doe
-SCHEDULED
-Preeti
-Women Hair Cut
-12:05 AM
-Jane Smith
-SCHEDULED
-Pranitha Reddy
-Happy Child Below 6 Years Girl
-12:05 AM
-John Doe
-SCHEDULED
-Ramesh
-Women Hair Cut
-12:05 AM
-Jane Smith
-SCHEDULED
-Hari
-Happy Child Below 6 Years Girl
-12:05 AM
-Jane Smith
-SCHEDULED
-Kavitha
-Men Hair Cut
-12:05 AM
-John Doe
-SCHEDULED
-Srikar
-Women Hair Cut
-12:05 AM
-John Doe
-SCHEDULED
-Sheryl
-Happy Child Below 6 Years Boy
-12:05 AM
-John Doe
-SCHEDULED
-Likhitha
-Happy Child Below 6 Years Boy
-12:05 AM
-John Doe
-SCHEDULED
-Vinod
-Men Hair Cut
-12:05 AM
-Jane Smith
-SCHEDULED
-Ala Kishan Kumar reddy
-Women Hair Cut
-12:05 AM
-Jane Smith
-SCHEDULED
-Rashmi
-Men Hair Cut
-12:06 AM
-John Doe
-SCHEDULED
-Shoyab
-Men Hair Cut
-12:06 AM
-Jane Smith
-SCHEDULED
-Rama krishna
-Happy Child Below 6 Years Girl
-12:06 AM
-Jane Smith
-SCHEDULED
-Varun
-Split Ends
-12:06 AM
-Jane Smith
-SCHEDULED
-B krishna Murthy
-Split Ends
-12:06 AM
-John Doe
-SCHEDULED
-Sahithi Gajjala
-Happy Child Below 6 Years Boy
-12:06 AM
-Jane Smith
-SCHEDULED
-Srinivas
-Split Ends
-12:06 AM
-Jane Smith
-SCHEDULED
-B krishna Murthy
-Women Hair Cut
-12:06 AM
-Jane Smith
-SCHEDULED
-Moim
-Men Hair Cut
-12:06 AM
-Jane Smith
-SCHEDULED
-Prithi
-Happy Child
+No appointments today
+
+Live activity stream
+
+Salon pulse
+
+Track bookings, revenue events, recoveries, and operational signals in one premium stream.
+
+Live feed
+No live activity yet. New bookings and operational events will appear here automatically.
+Attach Client
+Select client
+Client
+$0
+Retail Upsells
+$0
+No waitlist data
+Staff Utilization Heatmap
+
+No utilization data yet
+
+Team performance
+
+Staff productivity
+
+Monitor revenue contribution, appointment throughput, and average ticket quality by team member.
+
+Presentation snapshot
+Staff
+Revenue
+Appts
+Avg ticket
+Ananya S.
+₹12,400
+7
+₹1,770
+Rhea M.
+₹10,820
+6
+₹1,803
+Mehak P.
+₹9,260
+5
+₹1,852
+
+CRM intelligence
+
+Client profiles
+
+Search your top clients, surface repeat spenders, and keep retention signals close to the control tower.
+
+0 visible • 0 total
+Search clients
+No clients matched this search. Try a different name or number.
+
+Trust layer
+
+Protect financial confidence and platform integrity
+
+Close the command surface with the modules owners consult for system trust, payment posture, and operational reliability under production load.
+
+Commercial intelligence
+
+POS intelligence
+
+See how checkout quality, team performance, and winning services are shaping revenue right now.
+
+Preview mode
+
+Average ticket
+
+₹1,780
+
+Tip rate
+
+18%
+
+Top service
+
+Keratin + Gloss Ritual
+
+Top staff
+
+Ananya S.
+
+Operational resilience
+
+System health
+
+Keep infrastructure confidence visible for owner operations

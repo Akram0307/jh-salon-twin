@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   asArray,
   createScheduleRule,
@@ -12,10 +12,11 @@ import {
   StaffRecord,
   updateScheduleRule,
 } from '../../services/api'
+import { glass, semantic, component } from '../../lib/design-tokens';
 
-const metricCard = 'rounded-3xl border border-white/10 bg-white/[0.03] p-4'
-const surfaceCard = 'rounded-3xl border border-white/10 bg-zinc-950/40 p-4'
-const inputClass = 'w-full rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-emerald-400/60 focus:bg-white/[0.06]'
+const metricCard = 'rounded-3xl border semantic.border.default bg-white/[0.03] p-4'
+const surfaceCard = 'rounded-3xl border semantic.border.default bg-zinc-950/40 p-4'
+const inputClass = 'w-full rounded-2xl border semantic.border.default glass.default px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-emerald-400/60 focus:bg-white/[0.06]'
 const labelClass = 'text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500'
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -77,8 +78,9 @@ export default function ScheduleManager() {
         ...current,
         staff_id: current.staff_id || normalizedStaff[0]?.id || '',
       }))
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load schedule operations')
+    } catch (err: unknown) { const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error(err);
+      setError((err as { message?: string })?.message || 'Failed to load schedule operations')
     } finally {
       setLoading(false)
     }
@@ -143,8 +145,9 @@ export default function ScheduleManager() {
       }
       await loadAll()
       resetForm(form.staff_id)
-    } catch (err: any) {
-      setFormError(err?.message || 'Failed to save schedule rule')
+    } catch (err: unknown) { const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error(err);
+      setFormError((err as { message?: string })?.message || 'Failed to save schedule rule')
     } finally {
       setSaving(false)
     }
@@ -161,8 +164,9 @@ export default function ScheduleManager() {
       setNotice('Schedule rule deleted.')
       await loadAll()
       if (editingId === id) resetForm()
-    } catch (err: any) {
-      setFormError(err?.message || 'Failed to delete schedule rule')
+    } catch (err: unknown) { const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error(err);
+      setFormError((err as { message?: string })?.message || 'Failed to delete schedule rule')
     } finally {
       setSaving(false)
     }
@@ -195,7 +199,7 @@ export default function ScheduleManager() {
             <h4 className="text-base font-semibold text-white">Weekly coverage map</h4>
             <p className="text-sm text-zinc-400">Normalized summary of configured working-hours coverage for operational readiness.</p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-zinc-300">
+          <div className="rounded-2xl border semantic.border.default bg-white/[0.03] px-3 py-2 text-sm text-zinc-300">
             Time off today: <span className="font-semibold text-white">{summary?.staff_time_off_today ?? '—'}</span>
           </div>
         </div>
@@ -205,7 +209,7 @@ export default function ScheduleManager() {
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-7">
           {(summary?.coverage || []).map((day) => (
-            <article key={day.weekday} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <article key={day.weekday} className="rounded-2xl border semantic.border.default bg-white/[0.03] p-4">
               <p className="text-sm font-semibold text-white">{day.day_label}</p>
               <p className="mt-3 text-2xl font-semibold text-emerald-200">{day.staffed_count}</p>
               <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">staffed</p>
@@ -228,7 +232,7 @@ export default function ScheduleManager() {
               <button
                 type="button"
                 onClick={() => resetForm()}
-                className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/10"
+                className="rounded-2xl border semantic.border.default glass.subtle px-3 py-2 text-sm text-zinc-200 transition hover:glass.default"
               >
                 Cancel edit
               </button>
@@ -300,7 +304,7 @@ export default function ScheduleManager() {
                 />
               </label>
 
-              <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm text-zinc-200">
+              <label className="flex items-center gap-3 rounded-2xl border semantic.border.default bg-white/[0.03] px-3 py-3 text-sm text-zinc-200">
                 <input
                   type="checkbox"
                   checked={form.is_active}
@@ -325,7 +329,7 @@ export default function ScheduleManager() {
                 type="button"
                 disabled={saving || loading}
                 onClick={() => resetForm()}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-2xl border semantic.border.default glass.subtle px-4 py-2 text-sm text-zinc-200 transition hover:glass.default disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Reset form
               </button>
@@ -339,20 +343,20 @@ export default function ScheduleManager() {
               <h4 className="text-base font-semibold text-white">Configured working-hours rules</h4>
               <p className="mt-1 text-sm text-zinc-400">Owner-facing CRUD list grouped by team member for quick schedule operations.</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-zinc-300">
+            <div className="rounded-2xl border semantic.border.default bg-white/[0.03] px-3 py-2 text-sm text-zinc-300">
               Rules: <span className="font-semibold text-white">{rules.length}</span>
             </div>
           </div>
 
           <div className="mt-4 space-y-4">
             {!loading && rules.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm text-zinc-400">
+              <div className="rounded-2xl border border-dashed semantic.border.default bg-white/[0.02] p-4 text-sm text-zinc-400">
                 No working-hours rules yet. Create the first one using the editor.
               </div>
             ) : null}
 
             {Object.entries(groupedRules).map(([staffName, staffRules]) => (
-              <section key={staffName} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <section key={staffName} className="rounded-2xl border semantic.border.default bg-white/[0.03] p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div>
                     <h5 className="text-sm font-semibold text-white">{staffName}</h5>
@@ -363,7 +367,7 @@ export default function ScheduleManager() {
 
                 <div className="space-y-3">
                   {staffRules.map((rule) => (
-                    <article key={rule.id} className="rounded-2xl border border-white/10 bg-zinc-950/50 p-3">
+                    <article key={rule.id} className="rounded-2xl border semantic.border.default bg-zinc-950/50 p-3">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <p className="text-sm font-medium text-white">
@@ -377,7 +381,7 @@ export default function ScheduleManager() {
                           <button
                             type="button"
                             onClick={() => beginEdit(rule)}
-                            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-zinc-200 transition hover:bg-white/10"
+                            className="rounded-xl border semantic.border.default glass.subtle px-3 py-2 text-sm text-zinc-200 transition hover:glass.default"
                           >
                             Edit
                           </button>
@@ -399,7 +403,7 @@ export default function ScheduleManager() {
         </article>
       </section>
 
-      <section className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-4 text-sm text-zinc-400">
+      <section className="rounded-3xl border border-dashed semantic.border.default bg-white/[0.02] p-4 text-sm text-zinc-400">
         Next hardening step: extend this CRUD layer to staff breaks, time off, blackout dates, and location-wide operating constraints.
       </section>
     </div>

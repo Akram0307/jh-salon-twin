@@ -1,0 +1,7 @@
+PHASE B VERIFICATION START
+1. Exporting ADC credentials
+2. Starting Cloud SQL Proxy
+3. TCP probe
+TCP_OK
+4. DB connection probe
+Password for user postgres: DB_CONNECT_FAIL

@@ -1,17 +1,25 @@
-import { useEffect, useMemo, useState } from 'react';
-import { apiFetch } from '../../../core/api/client';
+import { useEffect, useMemo, useState } from "react";
+import { getRevenueForecast } from '../../../services/api';
 import { asArray } from '../../../core/api/utils';
 
+interface ForecastItem {
+  date?: string;
+  forecast_date?: string;
+  revenue?: number;
+  predicted_demand?: number;
+}
+
+
 export default function RevenueForecast() {
-  const [forecast, setForecast] = useState<any[]>([]);
+  const [forecast, setForecast] = useState<ForecastItem[]>([]);
 
   useEffect(() => {
-    apiFetch<any>('/api/ai/forecast')
-      .then((data) => setForecast(asArray(data)))
+    getRevenueForecast()
+      .then((data) => setForecast((data.forecast || []) as unknown as ForecastItem[]))
       .catch(() => setForecast([]));
   }, []);
 
-  const safeForecast = useMemo(() => asArray<any>(forecast), [forecast]);
+  const safeForecast = useMemo(() => asArray<ForecastItem>(forecast), [forecast]);
 
   return (
     <div className="bg-zinc-900 rounded-xl p-5 border border-zinc-800">

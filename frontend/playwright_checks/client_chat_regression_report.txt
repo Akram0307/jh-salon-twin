@@ -1,0 +1,16 @@
+URL: https://salonos-owner-frontend-687369167038.us-central1.run.app/client
+Status: 200
+Title: SalonOS
+
+Headings:
+- Jawed Habib Kurnool
+
+Events:
+[console:log] App ready to work offline
+
+Body excerpt:
+Jawed Habib Kurnool
+
+Online
+
+Hello! I am the Jawed Habib digital receptionist. How can I help you today?

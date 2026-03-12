@@ -1,5 +1,7 @@
 import { apiFetch } from '../core/api/client'
 
+export { apiFetch } from '../core/api/client'
+
 export interface ApiEnvelope<T> {
   success: boolean
   data: T
@@ -24,7 +26,7 @@ export interface ChatResponse {
   message:string
   ui?:{
     type:string
-    data?:any
+    data?:unknown
   }
 }
 
@@ -96,6 +98,85 @@ export interface ScheduleRuleInput {
   is_active?: boolean
 }
 
+// Activity Feed Types
+export interface ActivityItem {
+  id: string
+  type: string
+  message: string
+  timestamp: string
+  client_name?: string
+  staff_name?: string
+  service_name?: string
+}
+
+export interface ActivityFeedResponse {
+  activities: ActivityItem[]
+  total: number
+}
+
+// Appointment Types
+export interface AppointmentRecord {
+  id: string
+  client_id: string
+  client_name?: string
+  service_id: string
+  service_name?: string
+  staff_id: string
+  staff_name?: string
+  slot_start: string
+  slot_end?: string
+  status: string
+  price?: number
+  notes?: string
+}
+
+export interface AppointmentsTodayResponse {
+  appointments: AppointmentRecord[]
+  total: number
+}
+
+// Revenue Forecast Types
+export interface RevenueForecastData {
+  predicted_revenue: number
+  confidence: number
+  period: string
+  factors?: string[]
+}
+
+export interface RevenueForecastResponse {
+  forecast: RevenueForecastData
+}
+
+// Staff Performance Types
+export interface StaffPerformanceMetrics {
+  staff_id: string
+  staff_name: string
+  appointments_completed: number
+  revenue_generated: number
+  avg_appointment_duration: number
+  client_satisfaction?: number
+}
+
+export interface StaffPerformanceResponse {
+  staff_performance: StaffPerformanceMetrics[]
+}
+
+// Staff Utilization Types
+export interface UtilizationCell {
+  staff_id: string
+  staff_name: string
+  utilization_rate: number
+  appointments_count: number
+}
+
+export interface UtilizationHeatmapResponse {
+  heatmap: UtilizationCell[][]
+  date_range: {
+    start: string
+    end: string
+  }
+}
+
 export function asArray<T>(value: unknown): T[] {
   if (Array.isArray(value)) return value as T[]
   if (value && typeof value === 'object' && Array.isArray((value as { data?: unknown[] }).data)) {
@@ -132,6 +213,14 @@ export async function updateService(id: string, payload: Partial<Omit<ServiceRec
     method: 'PUT',
     body: JSON.stringify(payload),
   })
+}
+
+export async function archiveService(id: string){
+  return updateService(id, { is_active: false })
+}
+
+export async function restoreService(id: string){
+  return updateService(id, { is_active: true })
 }
 
 export async function getStaff(params: StaffListParams = {}){
@@ -186,5 +275,47 @@ export async function deleteScheduleRule(id: string){
 }
 
 export async function getSlots(salon_id:string,service_id:string,date:string){
-  return apiFetch(`/api/appointments/slots?salon_id=${salon_id}&service_id=${service_id}&date=${date}`)
+  if (!salon_id || !service_id || !date) {
+    throw new Error('Missing required slot params: salon_id, service_id, and date are required')
+  }
+
+  const query = new URLSearchParams({
+    salon_id: salon_id.trim(),
+    service_id: service_id.trim(),
+    date: date.trim(),
+  })
+
+  return apiFetch<{ slots?: unknown[]; data?: { slots?: unknown[] } }>(`/api/appointments/slots?${query.toString()}`)
+}
+
+export async function createAppointment(payload:unknown){
+  return apiFetch('/api/appointments',{
+    method:'POST',
+    body:JSON.stringify(payload)
+  })
+}
+
+// Activity Feed - exported function
+export async function getActivityFeed() {
+  return apiFetch<ActivityFeedResponse>('/api/activity/feed')
+}
+
+// Appointments Today - exported function
+export async function getAppointmentsToday() {
+  return apiFetch<AppointmentsTodayResponse>('/api/appointments/today')
+}
+
+// Revenue Forecast - exported function
+export async function getRevenueForecast() {
+  return apiFetch<RevenueForecastResponse>('/api/ai/forecast')
+}
+
+// Staff Performance - exported function
+export async function getStaffPerformance() {
+  return apiFetch<StaffPerformanceResponse>('/api/analytics/staff-performance')
+}
+
+// Utilization Heatmap - exported function
+export async function getUtilizationHeatmap() {
+  return apiFetch<UtilizationHeatmapResponse>('/api/analytics/utilization-heatmap')
 }

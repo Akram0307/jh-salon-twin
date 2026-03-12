@@ -117,6 +117,41 @@ async function tableExists(client, table) {
       staffIds.push(r.rows[0]);
     }
 
+    // Seed working hours for all staff (P0-3: Staff Availability Seeding)
+    console.log('[SEED] Ensuring working hours for all staff...');
+    const defaultStartTime = '09:00';
+    const defaultEndTime = '21:00';
+    const defaultCapacity = 1;
+    const weekdays = [0, 1, 2, 3, 4, 5, 6]; // Sunday=0 to Saturday=6
+
+    for (const staff of staffIds) {
+      const staffId = staff.id;
+
+      // Check existing working hours
+      const existingHours = await client.query(
+        `SELECT weekday FROM staff_working_hours WHERE salon_id=$1 AND staff_id=$2`,
+        [salonId, staffId]
+      );
+      const existingWeekdays = existingHours.rows.map(r => r.weekday);
+      const missingWeekdays = weekdays.filter(w => !existingWeekdays.includes(w));
+
+      if (missingWeekdays.length > 0) {
+        for (const weekday of missingWeekdays) {
+          await client.query(
+            `INSERT INTO staff_working_hours (salon_id, staff_id, weekday, start_time, end_time, capacity, is_active)
+             VALUES ($1, $2, $3, $4, $5, $6, true)
+             ON CONFLICT (salon_id, staff_id, weekday) DO UPDATE
+             SET start_time=EXCLUDED.start_time, end_time=EXCLUDED.end_time, capacity=EXCLUDED.capacity, is_active=true`,
+            [salonId, staffId, weekday, defaultStartTime, defaultEndTime, defaultCapacity]
+          );
+        }
+        console.log(`[SEED] Added ${missingWeekdays.length} working days for ${staff.full_name}`);
+      } else {
+        console.log(`[SEED] Staff ${staff.full_name} already has complete working hours`);
+      }
+    }
+    console.log('[SEED] Working hours seeding complete');
+
     const servicesSeed = [
       ['Signature Haircut', 'Precision cut with consultation and styling.', 45, 699],
       ['Hair Color Global', 'Premium global color application.', 120, 3499],

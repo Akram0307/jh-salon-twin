@@ -1,122 +1,163 @@
 import { useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
-import {
-  asArray,
-  createStaff,
-  getApiErrorMessage,
-  getStaff,
-  StaffRecord,
-  updateStaff,
-} from '../../services/api'
+import { Users, Plus, Search, ChevronRight, Clock, Star, Phone, Mail } from 'lucide-react'
+import { glass, semantic, component } from '../../lib/design-tokens'
+import OwnerLayout from '../../components/layout/OwnerLayout'
 
-type StaffFormState = {
+interface StaffMember {
+  id: string
   full_name: string
   email: string
-  phone_number: string
+  phone: string
   role: string
-  is_active: boolean
+  specialties: string[]
+  rating: number
+  status: 'active' | 'inactive' | 'on-leave'
+  next_available: string
 }
 
-type StaffFieldErrors = Partial<Record<keyof StaffFormState, string>>
-type StaffFilter = 'active' | 'archived' | 'all'
+const mockStaff: StaffMember[] = [
+  { id: '1', full_name: 'Sarah Johnson', email: 'sarah@salon.com', phone: '(555) 123-4567', role: 'Senior Stylist', specialties: ['Balayage', 'Color', 'Cuts'], rating: 4.9, status: 'active', next_available: '10:00 AM' },
+  { id: '2', full_name: 'Michael Chen', email: 'michael@salon.com', phone: '(555) 234-5678', role: 'Stylist', specialties: ['Cuts', 'Beard', 'Styling'], rating: 4.7, status: 'active', next_available: '11:30 AM' },
+  { id: '3', full_name: 'Emily Rodriguez', email: 'emily@salon.com', phone: '(555) 345-6789', role: 'Colorist', specialties: ['Color', 'Highlights', 'Treatments'], rating: 4.8, status: 'active', next_available: '2:00 PM' },
+  { id: '4', full_name: 'David Kim', email: 'david@salon.com', phone: '(555) 456-7890', role: 'Junior Stylist', specialties: ['Cuts', 'Wash'], rating: 4.5, status: 'on-leave', next_available: 'Next Monday' },
+]
 
-const emptyForm: StaffFormState = {
-  full_name: '',
-  email: '',
-  phone_number: '',
-  role: 'stylist',
-  is_active: true,
-}
+const availableRoles = ['Senior Stylist', 'Stylist', 'Colorist', 'Junior Stylist', 'Receptionist', 'Manager']
 
-const roleOptions = ['stylist', 'manager', 'admin', 'reception'] as const
-
-const normalizeOptionalString = (value: unknown) => {
-  if (typeof value !== 'string') return value
-  const trimmed = value.trim()
-  return trimmed.length ? trimmed : ''
-}
-
-const staffFormSchema = z.object({
-  full_name: z.string().trim().min(2, 'Full name must be at least 2 characters').max(120, 'Full name is too long'),
-  email: z.string().trim().email('Enter a valid email address').transform((value: string) => value.toLowerCase()),
-  phone_number: z.preprocess(
-    normalizeOptionalString,
-    z.union([
-      z.literal(''),
-      z.string().trim().min(7, 'Phone number must be at least 7 characters').max(32, 'Phone number is too long'),
-    ])
-  ),
-  role: z.string().trim().min(2, 'Role is required').max(60, 'Role is too long'),
-  is_active: z.boolean(),
-})
-
-function formatDateTime(value?: string) {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleString()
-}
-
-function parseFieldErrors(error: unknown): StaffFieldErrors {
-  const candidate = error as {
-    data?: {
-      details?: {
-        fieldErrors?: Record<string, string[]>
-      }
-      error?: string
-      message?: string
-    }
+function StatusBadge({ status }: { status: StaffMember['status'] }) {
+  const colors: Record<string, string> = {
+    active: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    inactive: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+    'on-leave': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
   }
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${colors[status]}`}>
+      {status.replace('-', ' ')}
+    </span>
+  )
+}
 
-  const fieldErrors = candidate?.data?.details?.fieldErrors
-  if (!fieldErrors || typeof fieldErrors !== 'object') return {}
+function StaffCard({ member, isSelected, onSelect }: {
+  member: StaffMember
+  isSelected: boolean
+  onSelect: () => void
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-4 transition-all cursor-pointer ${
+        isSelected
+          ? 'border-emerald-300/40 bg-emerald-400/10'
+          : `${semantic.border.default} ${glass.subtle} hover:${glass.default}`
+      }`}
+      onClick={onSelect}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-sm font-medium text-zinc-300">
+            {member.full_name.charAt(0)}
+          </div>
+          <div>
+            <p className="font-medium text-white">{member.full_name}</p>
+            <p className="text-xs text-zinc-500">{member.role}</p>
+          </div>
+        </div>
+        <StatusBadge status={member.status} />
+      </div>
+      <div className="mt-3 flex items-center gap-4 text-xs text-zinc-400">
+        <span className="flex items-center gap-1">
+          <Star className="h-3 w-3 text-amber-400" />
+          {member.rating}
+        </span>
+        <span className="flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          {member.next_available}
+        </span>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1">
+        {member.specialties.map((s) => (
+          <span key={s} className="rounded-md bg-white/[0.04] px-2 py-0.5 text-xs text-zinc-400">
+            {s}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-  const mapped: StaffFieldErrors = {}
-  for (const [field, messages] of Object.entries(fieldErrors)) {
-    if (Array.isArray(messages) && messages[0]) {
-      mapped[field as keyof StaffFormState] = messages[0]
-    }
-  }
-  return mapped
+function StaffDetail({ member }: { member: StaffMember }) {
+  return (
+    <div className={`${component.card} p-6`}>
+      <div className="flex items-start gap-4">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-800 text-2xl font-semibold text-zinc-300">
+          {member.full_name.charAt(0)}
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold text-white">{member.full_name}</h3>
+            <StatusBadge status={member.status} />
+          </div>
+          <p className="mt-1 text-sm text-zinc-400">{member.role}</p>
+          <div className="mt-3 flex items-center gap-4 text-sm text-zinc-400">
+            <span className="flex items-center gap-1.5">
+              <Mail className="h-4 w-4" />
+              {member.email}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Phone className="h-4 w-4" />
+              {member.phone}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-4">
+          <div className="text-xs text-zinc-500">Rating</div>
+          <div className="mt-1 flex items-center gap-1">
+            <Star className="h-4 w-4 text-amber-400" />
+            <span className="text-lg font-semibold text-white">{member.rating}</span>
+          </div>
+        </div>
+        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-4">
+          <div className="text-xs text-zinc-500">Next Available</div>
+          <div className="mt-1 text-lg font-semibold text-white">{member.next_available}</div>
+        </div>
+        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-4">
+          <div className="text-xs text-zinc-500">Specialties</div>
+          <div className="mt-1 text-lg font-semibold text-white">{member.specialties.length}</div>
+        </div>
+      </div>
+      <div className="mt-6">
+        <h4 className="text-sm font-medium text-white">Specialties</h4>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {member.specialties.map((s) => (
+            <span key={s} className="rounded-lg bg-emerald-500/10 px-3 py-1 text-sm text-emerald-300">
+              {s}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function StaffManager() {
-  const [staff, setStaff] = useState<StaffRecord[]>([])
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [loadError, setLoadError] = useState('')
-  const [formError, setFormError] = useState('')
-  const [selectedId, setSelectedId] = useState<string>('')
-  const [form, setForm] = useState<StaffFormState>(emptyForm)
-  const [fieldErrors, setFieldErrors] = useState<StaffFieldErrors>({})
-  const [statusFilter, setStatusFilter] = useState<StaffFilter>('active')
+  const [staff, setStaff] = useState<StaffMember[]>(mockStaff)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
-  const [successMessage, setSuccessMessage] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  async function loadStaff(nextSelectedId?: string) {
+  const loadStaff = async () => {
     setLoading(true)
-    setLoadError('')
+    setLoadError(null)
     try {
-      const response = await getStaff({
-        status: statusFilter,
-        search: search.trim() || undefined,
-        role: roleFilter === 'all' ? undefined : roleFilter,
-      })
-      const rows = asArray<StaffRecord>(response)
-      setStaff(rows)
-
-      const desiredId = nextSelectedId ?? selectedId
-      if (desiredId && rows.some((member) => member.id === desiredId)) {
-        setSelectedId(desiredId)
-      } else if (rows.length) {
-        setSelectedId(rows[0].id)
-      } else {
-        setSelectedId('')
-      }
-    } catch (err: unknown) {
-      setLoadError(getApiErrorMessage(err, 'Failed to load staff'))
-      setStaff([])
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      setStaff(mockStaff)
+    } catch (err) {
+      setLoadError('Failed to load staff')
     } finally {
       setLoading(false)
     }
@@ -124,188 +165,47 @@ export default function StaffManager() {
 
   useEffect(() => {
     loadStaff()
-  }, [statusFilter, roleFilter])
+  }, [])
 
-  const selectedStaff = useMemo(
-    () => staff.find((member) => member.id === selectedId) || null,
-    [staff, selectedId]
-  )
-
-  const availableRoles = useMemo(() => {
-    const values = new Set<string>(roleOptions)
-    for (const member of staff) {
-      if (member.role) values.add(member.role)
-    }
-    return Array.from(values)
-  }, [staff])
-
-  useEffect(() => {
-    if (selectedStaff) {
-      setForm({
-        full_name: selectedStaff.full_name || '',
-        email: selectedStaff.email || '',
-        phone_number: selectedStaff.phone_number || '',
-        role: selectedStaff.role || 'stylist',
-        is_active: selectedStaff.is_active ?? true,
-      })
-    } else {
-      setForm(emptyForm)
-    }
-    setFieldErrors({})
-    setFormError('')
-    setSuccessMessage('')
-  }, [selectedStaff])
-
-  function validateForm(nextForm: StaffFormState) {
-    const parsed = staffFormSchema.safeParse(nextForm)
-    if (parsed.success) {
-      setFieldErrors({})
-      return { success: true, data: parsed.data }
-    }
-
-    const nextErrors: StaffFieldErrors = {}
-    for (const issue of parsed.error.issues) {
-      const field = issue.path[0]
-      if (typeof field === 'string' && !nextErrors[field as keyof StaffFormState]) {
-        nextErrors[field as keyof StaffFormState] = issue.message
-      }
-    }
-    setFieldErrors(nextErrors)
-    return { success: false as const, errors: nextErrors }
-  }
-
-  function updateFormField<K extends keyof StaffFormState>(field: K, value: StaffFormState[K]) {
-    setForm((current) => {
-      const next = { ...current, [field]: value }
-      validateForm(next)
-      return next
+  const filteredStaff = useMemo(() => {
+    return staff.filter((member) => {
+      const matchesSearch = !search || member.full_name.toLowerCase().includes(search.toLowerCase())
+      const matchesRole = roleFilter === 'all' || member.role === roleFilter
+      return matchesSearch && matchesRole
     })
-    setFormError('')
-    setSuccessMessage('')
-  }
+  }, [staff, search, roleFilter])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    setFormError('')
-    setSuccessMessage('')
-
-    const validation = validateForm(form)
-    if (!validation.success) {
-      setSaving(false)
-      setFormError('Please fix the highlighted fields before saving.')
-      return
-    }
-
-    const payload = {
-      ...validation.data,
-      phone_number: validation.data.phone_number || null,
-      role: validation.data.role || 'stylist',
-    }
-
-    try {
-      const response = selectedStaff
-        ? await updateStaff(selectedStaff.id, payload)
-        : await createStaff(payload)
-
-      const saved = response?.data
-      await loadStaff(saved?.id || selectedStaff?.id)
-      setSuccessMessage(selectedStaff ? 'Staff member updated successfully.' : 'Staff member created successfully.')
-
-      if (!selectedStaff) {
-        setForm(emptyForm)
-        setFieldErrors({})
-      }
-    } catch (err: any) {
-      const status = err?.status
-      const nextFieldErrors = parseFieldErrors(err)
-      setFieldErrors((current) => ({ ...current, ...nextFieldErrors }))
-
-      if (status === 409) {
-        const message = getApiErrorMessage(err, 'Duplicate staff record detected.')
-        const lowered = message.toLowerCase()
-        if (lowered.includes('email')) nextFieldErrors.email = nextFieldErrors.email || message
-        if (lowered.includes('phone')) nextFieldErrors.phone_number = nextFieldErrors.phone_number || message
-        setFieldErrors((current) => ({ ...current, ...nextFieldErrors }))
-        setFormError(message)
-      } else {
-        setFormError(getApiErrorMessage(err, 'Failed to save staff member'))
-      }
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function handleArchiveToggle(member: StaffRecord) {
-    setSaving(true)
-    setFormError('')
-    setSuccessMessage('')
-    try {
-      const response = await updateStaff(member.id, { is_active: !member.is_active })
-      await loadStaff(response?.data?.id || member.id)
-      setSuccessMessage(member.is_active ? 'Staff member archived successfully.' : 'Staff member reactivated successfully.')
-    } catch (err: unknown) {
-      setFormError(getApiErrorMessage(err, 'Failed to update staff lifecycle state'))
-    } finally {
-      setSaving(false)
-    }
-  }
+  const selectedMember = staff.find((m) => m.id === selectedId) || null
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-      <section className="rounded-3xl border border-white/10 bg-zinc-950/40 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h4 className="text-base font-semibold text-white">Team roster</h4>
-            <p className="text-sm text-zinc-400">Create, update, archive, and filter team members used by booking, POS, and analytics.</p>
+    <OwnerLayout
+      title="Staff Management"
+      subtitle="Manage your team, track performance, and optimize scheduling."
+    >
+      {/* Search and Filters */}
+      <section>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  loadStaff()
+                }
+              }}
+              placeholder="Search by staff name"
+              className={`w-full rounded-2xl border ${semantic.border.default} bg-zinc-950/60 pl-10 pr-3 py-2 text-sm text-white outline-none`}
+            />
           </div>
-          <button
-            type="button"
-            onClick={() => setSelectedId('')}
-            className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-sm font-medium text-emerald-200"
-          >
-            New staff
-          </button>
-        </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-[auto_1fr_auto]">
-          <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.03] p-1 text-sm">
-            {(['active', 'archived', 'all'] as const).map((option) => {
-              const active = statusFilter === option
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setStatusFilter(option)}
-                  className={[
-                    'rounded-xl px-3 py-2 capitalize transition',
-                    active ? 'bg-emerald-400 text-zinc-950 font-semibold' : 'text-zinc-300'
-                  ].join(' ')}
-                >
-                  {option}
-                </button>
-              )
-            })}
-          </div>
-
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                loadStaff()
-              }
-            }}
-            placeholder="Search by staff name"
-            className="w-full rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-sm text-white outline-none"
-          />
-
           <div className="flex gap-2">
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="min-w-[130px] rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-sm text-white outline-none"
+              className={`min-w-[130px] rounded-2xl border ${semantic.border.default} bg-zinc-950/60 px-3 py-2 text-sm text-white outline-none`}
             >
               <option value="all">All roles</option>
               {availableRoles.map((role) => (
@@ -315,144 +215,59 @@ export default function StaffManager() {
             <button
               type="button"
               onClick={() => loadStaff()}
-              className="rounded-2xl border border-white/10 px-3 py-2 text-sm text-zinc-200"
+              className={`rounded-2xl border ${semantic.border.default} px-3 py-2 text-sm text-zinc-200`}
             >
               Apply
             </button>
           </div>
         </div>
 
-        {loading ? <p className="mt-4 text-sm text-zinc-400">Loading team…</p> : null}
+        {loading ? <p className="mt-4 text-sm text-zinc-400">Loading team...</p> : null}
         {loadError ? <p className="mt-4 text-sm text-rose-300">{loadError}</p> : null}
         {successMessage ? <p className="mt-4 text-sm text-emerald-300">{successMessage}</p> : null}
+      </section>
 
-        <div className="mt-4 space-y-3">
-          {staff.map((member) => {
-            const active = member.id === selectedId
-            return (
-              <div
-                key={member.id}
-                className={[
-                  'rounded-2xl border p-4 transition',
-                  active ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.05]',
-                ].join(' ')}
-              >
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <button type="button" onClick={() => setSelectedId(member.id)} className="flex-1 text-left">
-                    <div>
-                      <p className="font-medium text-white">{member.full_name}</p>
-                      <p className="text-sm text-zinc-400">{member.role || 'stylist'} • {member.email}</p>
-                      <p className="mt-1 text-xs text-zinc-500">Updated {formatDateTime(member.updated_at)}</p>
-                    </div>
-                  </button>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={[
-                      'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]',
-                      member.is_active ? 'bg-emerald-400/15 text-emerald-200' : 'bg-zinc-800 text-zinc-400'
-                    ].join(' ')}>
-                      {member.is_active ? 'Active' : 'Archived'}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={saving}
-                      onClick={() => handleArchiveToggle(member)}
-                      className="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-200"
-                    >
-                      {member.is_active ? 'Archive' : 'Restore'}
-                    </button>
-                  </div>
+      {/* Staff Grid and Detail */}
+      <section>
+        <div className="grid gap-6 lg:grid-cols-5">
+          {/* Staff List */}
+          <div className="lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
+                Team ({filteredStaff.length})
+              </h3>
+              <button className="flex items-center gap-1 rounded-xl bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/20 transition-colors">
+                <Plus className="h-3 w-3" />
+                Add Staff
+              </button>
+            </div>
+            <div className="space-y-3">
+              {filteredStaff.map((member) => (
+                <StaffCard
+                  key={member.id}
+                  member={member}
+                  isSelected={member.id === selectedId}
+                  onSelect={() => setSelectedId(member.id)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Staff Detail */}
+          <div className="lg:col-span-3">
+            {selectedMember ? (
+              <StaffDetail member={selectedMember} />
+            ) : (
+              <div className={`${component.card} flex h-full items-center justify-center p-8`}>
+                <div className="text-center">
+                  <Users className="mx-auto h-12 w-12 text-zinc-600" />
+                  <p className="mt-4 text-sm text-zinc-500">Select a team member to view details</p>
                 </div>
               </div>
-            )
-          })}
-          {!loading && !staff.length ? <p className="text-sm text-zinc-500">No staff matched the current filters.</p> : null}
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-        <div className="mb-4">
-          <h4 className="text-base font-semibold text-white">{selectedStaff ? 'Edit staff member' : 'Create staff member'}</h4>
-          <p className="text-sm text-zinc-400">Normalize roster data so schedule, booking, and owner reporting stay consistent.</p>
-        </div>
-
-        <form className="space-y-3" onSubmit={handleSubmit} noValidate>
-          <label className="block text-sm">
-            <span className="mb-1 block text-zinc-300">Full name</span>
-            <input
-              className={[
-                'w-full rounded-2xl border bg-zinc-950/60 px-3 py-2 text-white outline-none',
-                fieldErrors.full_name ? 'border-rose-400/60' : 'border-white/10'
-              ].join(' ')}
-              value={form.full_name}
-              onChange={(e) => updateFormField('full_name', e.target.value)}
-              required
-            />
-            {fieldErrors.full_name ? <span className="mt-1 block text-xs text-rose-300">{fieldErrors.full_name}</span> : null}
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-zinc-300">Email</span>
-            <input
-              type="email"
-              className={[
-                'w-full rounded-2xl border bg-zinc-950/60 px-3 py-2 text-white outline-none',
-                fieldErrors.email ? 'border-rose-400/60' : 'border-white/10'
-              ].join(' ')}
-              value={form.email}
-              onChange={(e) => updateFormField('email', e.target.value)}
-              required
-            />
-            {fieldErrors.email ? <span className="mt-1 block text-xs text-rose-300">{fieldErrors.email}</span> : null}
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-zinc-300">Phone</span>
-            <input
-              className={[
-                'w-full rounded-2xl border bg-zinc-950/60 px-3 py-2 text-white outline-none',
-                fieldErrors.phone_number ? 'border-rose-400/60' : 'border-white/10'
-              ].join(' ')}
-              value={form.phone_number}
-              onChange={(e) => updateFormField('phone_number', e.target.value)}
-            />
-            {fieldErrors.phone_number ? <span className="mt-1 block text-xs text-rose-300">{fieldErrors.phone_number}</span> : null}
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-zinc-300">Role</span>
-            <select
-              className={[
-                'w-full rounded-2xl border bg-zinc-950/60 px-3 py-2 text-white outline-none',
-                fieldErrors.role ? 'border-rose-400/60' : 'border-white/10'
-              ].join(' ')}
-              value={form.role}
-              onChange={(e) => updateFormField('role', e.target.value)}
-            >
-              {availableRoles.map((role) => (
-                <option key={role} value={role}>{role}</option>
-              ))}
-            </select>
-            {fieldErrors.role ? <span className="mt-1 block text-xs text-rose-300">{fieldErrors.role}</span> : null}
-          </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/40 px-3 py-3 text-sm text-zinc-300">
-            <input type="checkbox" checked={form.is_active} onChange={(e) => updateFormField('is_active', e.target.checked)} />
-            Available for booking and operations
-          </label>
-
-          {formError ? <p className="rounded-2xl border border-rose-400/30 bg-rose-400/10 px-3 py-2 text-sm text-rose-200">{formError}</p> : null}
-          {selectedStaff ? (
-            <p className="text-xs text-zinc-500">Last updated: {formatDateTime(selectedStaff.updated_at)}</p>
-          ) : null}
-
-          <div className="flex flex-wrap gap-3 pt-2">
-            <button type="submit" disabled={saving} className="rounded-2xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-50">
-              {saving ? 'Saving…' : selectedStaff ? 'Save changes' : 'Create staff'}
-            </button>
-            {selectedStaff ? (
-              <button type="button" onClick={() => setSelectedId('')} className="rounded-2xl border border-white/10 px-4 py-2 text-sm text-zinc-200">
-                Create new instead
-              </button>
-            ) : null}
+            )}
           </div>
-        </form>
+        </div>
       </section>
-    </div>
+    </OwnerLayout>
   )
 }

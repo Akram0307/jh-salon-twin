@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import os from 'os';
 import { pool, query } from '../config/db';
+import { auditLogger, attachAuditContext } from '../middleware/auditLogger';
+import { AuditLogRepository } from '../repositories/AuditLogRepository';
+import { ConfigService } from '../services/ConfigService';
 
 const router = Router();
+router.use(auditLogger);
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
 const asBool = (value: unknown, fallback = true) => {
@@ -28,6 +32,22 @@ const normalizeWeekday = (value: unknown) => {
   if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) return null;
   return weekday;
 };
+
+const ok = (data: unknown, message?: string, meta: Record<string, unknown> = {}) => ({
+  success: true,
+  data,
+  message: message || null,
+  error: null,
+  meta: { salon_id: SALON_ID, ...meta },
+});
+
+const fail = (error: string, message?: string, details?: unknown) => ({
+  success: false,
+  data: null,
+  message: message || error,
+  error,
+  ...(details !== undefined ? { details } : {}),
+});
 
 const findOverlappingScheduleRule = async ({
   staffId,
@@ -444,6 +464,66 @@ router.delete('/schedule-rules/:id', async (req, res) => {
       success: false,
       error: err?.message || 'Failed to delete schedule rule',
     });
+  }
+});
+
+
+router.get('/settings', async (_req, res) => {
+  try {
+    const config = await ConfigService.getConfig(SALON_ID);
+    res.json(ok(config, 'Owner settings loaded successfully'));
+  } catch (err: any) {
+    console.error('Owner settings fetch error:', err);
+    res.status(500).json(fail('OWNER_SETTINGS_FETCH_FAILED', 'Failed to fetch owner settings'));
+  }
+});
+
+router.put('/settings', async (req, res) => {
+  try {
+    const before = await ConfigService.getConfig(SALON_ID);
+    const updated = await ConfigService.updateConfig(SALON_ID, req.body || {});
+    attachAuditContext(req as any, {
+      salonId: SALON_ID,
+      entityType: 'owner_settings',
+      entityId: SALON_ID,
+      action: 'update',
+      actorId: (req.header('x-user-id') || req.body?.user_id || null) as string | null,
+      actorType: 'owner',
+      before,
+      after: updated,
+    });
+    res.json(ok(updated, 'Owner settings updated successfully'));
+  } catch (err: any) {
+    console.error('Owner settings update error:', err);
+    res.status(500).json(fail('OWNER_SETTINGS_UPDATE_FAILED', 'Failed to update owner settings'));
+  }
+});
+
+router.get('/health', async (_req, res) => {
+  try {
+    const [activeStaff, activeServices, recentAuditCount, recentAudit] = await Promise.all([
+      query('SELECT COUNT(*)::int AS count FROM staff WHERE salon_id = $1 AND is_active = true', [SALON_ID]),
+      query('SELECT COUNT(*)::int AS count FROM services WHERE salon_id = $1 AND is_active = true', [SALON_ID]),
+      AuditLogRepository.countRecentBySalon(SALON_ID, 24),
+      AuditLogRepository.findRecentBySalon(SALON_ID, 5),
+    ]);
+
+    res.json(ok({
+      total_active_staff: Number(activeStaff.rows[0]?.count || 0),
+      active_services: Number(activeServices.rows[0]?.count || 0),
+      recent_audit_activity_24h: recentAuditCount,
+      recent_audit_logs: recentAudit.map((row: any) => ({
+        id: row.id,
+        action: row.action,
+        entity_type: row.entity_type,
+        entity_id: row.entity_id,
+        actor_id: row.actor_id,
+        created_at: row.created_at,
+      })),
+    }, 'Owner operational health loaded successfully'));
+  } catch (err: any) {
+    console.error('Owner health error:', err);
+    res.status(500).json(fail('OWNER_HEALTH_FETCH_FAILED', 'Failed to fetch owner operational health'));
   }
 });
 

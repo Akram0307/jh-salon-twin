@@ -3,6 +3,7 @@ import { SlotGenerator } from '../services/SlotGenerator';
 import { Router } from 'express';
 import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { WaitlistService } from '../services/WaitlistService';
+import { dispatchReminderForAppointment } from '../services/NotificationOrchestrator';
 
 const router = Router()
 router.use(validateUUID);
@@ -91,6 +92,20 @@ router.patch('/:id/services/:serviceId', async (req, res) => {
     }
 });
 
+
+
+router.post('/:id/send-reminder', async (req, res) => {
+    try {
+        const result = await dispatchReminderForAppointment(req.params.id);
+        if ((result as any)?.error === 'appointment_not_found') {
+            return res.status(404).json({ error: 'Appointment not found' });
+        }
+        res.json({ ok: true, notification: result });
+    } catch (error: any) {
+        console.error('[appointmentRoutes] reminder send failed', error);
+        res.status(500).json({ error: 'Failed to send reminder' });
+    }
+});
 
 router.patch('/:id/reschedule', async (req, res) => {
     try {

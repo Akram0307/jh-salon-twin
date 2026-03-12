@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
 import { FaChartLine, FaCalendarAlt, FaUsers, FaUserTie, FaCut, FaCog, FaBars } from 'react-icons/fa'
 
 const items = [
@@ -20,7 +20,13 @@ export default function Sidebar(){
     <aside className={collapsed ? 'sidebar collapsed' : 'sidebar'}>
       <div className="logo-row">
         {!collapsed && <div className="logo">SalonOS</div>}
-        <button className="collapse-btn" onClick={() => setCollapsed(!collapsed)}>
+        <button 
+          className="collapse-btn" 
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!collapsed}
+          type="button"
+        >
           <FaBars />
         </button>
       </div>

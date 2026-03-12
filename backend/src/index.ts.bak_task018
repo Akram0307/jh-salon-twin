@@ -1,0 +1,170 @@
+import upsellRoutes from './routes/upsellRoutes'
+import aiConciergeRoutes from './routes/aiConciergeRoutes'
+import revenueActionRoutes from './routes/revenueActionRoutes';
+import { loadSecrets } from './config/secrets';
+import { startTelemetry } from './config/telemetry';
+import redis from './config/redis';
+import { RevenueScheduler } from './services/RevenueScheduler'
+
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+import clientRoutes from './routes/clientRoutes';
+import ownerRoutes from './routes/ownerRoutes';
+import qrRoutes from './routes/qrRoutes';
+import staffRoutes from './routes/staffRoutes';
+import serviceRoutes from './routes/serviceRoutes';
+import waitlistRoutes from './routes/waitlistRoutes';
+import appointmentRoutes from './routes/appointmentRoutes';
+import chatRoutes from './routes/chatRoutes';
+import onboardingRoutes from './routes/onboardingRoutes';
+import productRoutes from './routes/productRoutes';
+import salonRoutes from './routes/salonRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
+import posRoutes from './routes/posRoutes';
+import revenueRoutes from './routes/revenueRoutes';
+import aiRoutes from './routes/aiRoutes';
+import activityRoutes from './routes/activityRoutes';
+import { twilioWebhook } from './webhooks/twilio';
+
+dotenv.config();
+
+async function bootstrap() {
+  console.log('🔐 Loading secrets from Secret Manager...');
+  await loadSecrets();
+
+  console.log('📊 Starting OpenTelemetry...');
+  await startTelemetry();
+
+  console.log('⚡ Connecting Redis...');
+  try {
+    await redis.connect();
+  } catch (err) {
+    console.warn('Redis connection failed (continuing):', err);
+  }
+
+  const app = express();
+  const port = Number(process.env.PORT) || 8080;
+
+  app.use(cors());
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use(express.json());
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use(express.urlencoded({ extended: true }));
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+
+  // API Routes
+  app.use('/api/clients', clientRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/owners', ownerRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/owner', ownerRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/staff', staffRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/services', serviceRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/salons', salonRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/pos', posRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/revenue', revenueRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+app.use('/api/revenue/action', revenueActionRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/ai', aiRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/activity', activityRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/waitlist', waitlistRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/appointments', appointmentRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/qr', qrRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.use('/api/products', productRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+
+  // Webhooks
+  app.use('/api/webhooks/twilio', twilioWebhook);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+
+  // Web Chat
+  app.use('/api/chat', chatRoutes);
+app.use('/api/ai', upsellRoutes)
+app.use('/api/ai', aiConciergeRoutes)
+app.use('/api/ai', upsellRoutes)
+  app.post('/api/chat/message', (req, res, next) => chatRoutes(req, res, next));
+
+  // Health Check
+  app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  app.listen(port, '0.0.0.0', () => {
+    console.log('🚀 JH Salon Twin Backend running on port ' + port);
+
+    console.log('MessagingEventBus initialized')
+    console.log('ConversationManager initialized')
+    console.log('TwilioWhatsAppService initialized')
+
+    const salonId = process.env.SALON_ID;
+
+    if (salonId) {
+      const scheduler = new RevenueScheduler();
+      scheduler.start(salonId);
+      console.log('[RevenueScheduler] RevenueScheduler started for salon: ' + salonId);
+    } else {
+      console.warn('[RevenueScheduler] SALON_ID not set, scheduler not started');
+    }
+  });
+}
+
+bootstrap();

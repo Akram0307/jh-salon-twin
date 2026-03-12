@@ -1,0 +1,48 @@
+{
+  "document": "SalonOS Owner HQ Page Specifications",
+  "version": "1.0",
+  "date": "2026-03-12",
+  "pages": [
+    {
+      "path": "/owner/dashboard",
+      "title": "Operational KPI Cockpit",
+      "priority": "P0"
+    },
+    {
+      "path": "/owner/clients",
+      "title": "Client CRM Management",
+      "priority": "P0"
+    },
+    {
+      "path": "/owner/staff",
+      "title": "Staff Management & Scheduling",
+      "priority": "P0"
+    },
+    {
+      "path": "/owner/services",
+      "title": "Service Catalog Management",
+      "priority": "P1"
+    },
+    {
+      "path": "/owner/schedule",
+      "title": "Appointment Calendar",
+      "priority": "P0"
+    },
+    {
+      "path": "/owner/reports",
+      "title": "Business Analytics",
+      "priority": "P1"
+    },
+    {
+      "path": "/owner/settings",
+      "title": "Salon Configuration",
+      "priority": "P2"
+    }
+  ],
+  "key_workflows": [
+    "Booking Flow",
+    "Staff Onboarding",
+    "Revenue Optimization"
+  ],
+  "design_alignment": "Operational Luxury v1.0"
+}
