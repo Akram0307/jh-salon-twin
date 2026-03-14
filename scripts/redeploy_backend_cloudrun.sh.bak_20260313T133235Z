@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_ID="${PROJECT_ID:-salon-saas-487508}"
+REGION="${REGION:-us-central1}"
+SERVICE="${SERVICE:-salonos-backend}"
+IMAGE="gcr.io/${PROJECT_ID}/${SERVICE}:latest"
+INSTANCE_CONNECTION_NAME="${INSTANCE_CONNECTION_NAME:-salon-saas-487508:us-central1:salon-booking-db}"
+
+: "${DB_USER:?Missing DB_USER}"
+: "${DB_PASSWORD:?Missing DB_PASSWORD}"
+: "${DB_HOST:?Missing DB_HOST}"
+: "${DB_PORT:?Missing DB_PORT}"
+: "${DB_NAME:?Missing DB_NAME}"
+: "${SALON_ID:?Missing SALON_ID}"
+: "${GCLOUD_PROJECT:?Missing GCLOUD_PROJECT}"
+: "${OPENROUTER_API_KEY:?Missing OPENROUTER_API_KEY}"
+: "${TWILIO_ACCOUNT_SID:?Missing TWILIO_ACCOUNT_SID}"
+: "${TWILIO_AUTH_TOKEN:?Missing TWILIO_AUTH_TOKEN}"
+: "${TWILIO_API_KEY_SID:?Missing TWILIO_API_KEY_SID}"
+: "${TWILIO_API_KEY_SECRET:?Missing TWILIO_API_KEY_SECRET}"
+: "${TWILIO_WHATSAPP_NUMBER:?Missing TWILIO_WHATSAPP_NUMBER}"
+: "${TEST_TO_NUMBER:?Missing TEST_TO_NUMBER}"
+: "${WAITLIST_TEMPLATE_SID:?Missing WAITLIST_TEMPLATE_SID}"
+
+cd "$(dirname "$0")/../backend"
+npm run build
+cd ..
+
+gcloud builds submit ./backend \
+  --project="${PROJECT_ID}" \
+  --tag "${IMAGE}"
+
+gcloud run deploy "${SERVICE}" \
+  --project="${PROJECT_ID}" \
+  --region="${REGION}" \
+  --platform=managed \
+  --image="${IMAGE}" \
+  --allow-unauthenticated \
+  --port=8080 \
+  --memory=512Mi \
+  --cpu=1 \
+  --concurrency=80 \
+  --timeout=300 \
+  --max-instances=20 \
+  --service-account="687369167038-compute@developer.gserviceaccount.com" \
+  --set-env-vars="DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD},DB_HOST=${DB_HOST},DB_PORT=${DB_PORT},DB_NAME=${DB_NAME},SALON_ID=${SALON_ID},GCLOUD_PROJECT=${GCLOUD_PROJECT},OPENROUTER_API_KEY=${OPENROUTER_API_KEY},TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID},TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN},TWILIO_API_KEY_SID=${TWILIO_API_KEY_SID},TWILIO_API_KEY_SECRET=${TWILIO_API_KEY_SECRET},TWILIO_WHATSAPP_NUMBER=${TWILIO_WHATSAPP_NUMBER},TEST_TO_NUMBER=${TEST_TO_NUMBER},WAITLIST_TEMPLATE_SID=${WAITLIST_TEMPLATE_SID}"

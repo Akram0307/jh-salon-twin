@@ -1,23 +1,14 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
-import { Providers } from '@/components/Providers';
+import { SkipLink } from '@/components/shared/SkipLink';
+import { Providers } from './providers';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SalonOS Owner HQ',
-  description: 'AI-Native Salon Revenue Operating System - Owner Command Center',
-  keywords: ['salon', 'management', 'revenue', 'AI', 'command center'],
-  authors: [{ name: 'SalonOS Team' }],
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-  },
-};
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
+  title: 'SalonOS - Owner HQ',
+  description: 'Operational command center for salon owners',
 };
 
 export default function RootLayout({
@@ -27,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className="font-sans antialiased">
+      <body className={`${inter.className} bg-slate-950 text-slate-50`}>        <SkipLink />
         <Providers>{children}</Providers>
       </body>
     </html>

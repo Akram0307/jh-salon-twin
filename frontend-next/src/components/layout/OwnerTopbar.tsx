@@ -4,15 +4,13 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
-  Search,
   Bell,
   Menu,
   ChevronRight,
   Activity,
   User,
-  Settings,
-  LogOut,
 } from 'lucide-react';
+import { GlobalSearchBar } from '@/components/search/GlobalSearchBar';
 
 interface BreadcrumbItem {
   label: string;
@@ -106,16 +104,7 @@ export function OwnerTopbar({ onMenuClick, sidebarCollapsed = false }: OwnerTopb
 
       {/* Center section: Search */}
       <div className="hidden md:flex flex-1 max-w-md mx-8">
-        <button
-          className="flex w-full items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.06)] bg-[oklch(0.12_0.008_264)] px-3 py-2 text-sm text-[oklch(0.50_0.005_264)] hover:bg-[oklch(0.16_0.010_264)] transition-colors focus-ring"
-          aria-label="Search"
-        >
-          <Search className="h-4 w-4" />
-          <span className="flex-1 text-left">Search clients, staff, services...</span>
-          <kbd className="rounded bg-[oklch(0.08_0.005_264)] px-1.5 py-0.5 text-[10px] font-medium">
-            ⌘K
-          </kbd>
-        </button>
+        <GlobalSearchBar className="w-full" />
       </div>
 
       {/* Right section: Actions */}

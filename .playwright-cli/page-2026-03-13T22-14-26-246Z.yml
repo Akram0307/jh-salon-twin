@@ -1,0 +1,355 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Owner navigation sidebar" [ref=e3]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /owner/dashboard
+        - img [ref=e6]
+      - navigation "Main navigation" [ref=e12]:
+        - link "Dashboard" [ref=e14] [cursor=pointer]:
+          - /url: /owner/dashboard
+          - img [ref=e15]
+        - generic [ref=e20]:
+          - link "Schedule" [ref=e21] [cursor=pointer]:
+            - /url: /owner/schedule
+            - img [ref=e22]
+          - link "Clients" [ref=e33] [cursor=pointer]:
+            - /url: /owner/clients
+            - img [ref=e34]
+          - link "Staff" [ref=e39] [cursor=pointer]:
+            - /url: /owner/staff
+            - img [ref=e40]
+          - link "Services" [ref=e52] [cursor=pointer]:
+            - /url: /owner/services
+            - img [ref=e53]
+        - link "Reports" [ref=e60] [cursor=pointer]:
+          - /url: /owner/reports
+          - img [ref=e61]
+        - link "Settings" [ref=e67] [cursor=pointer]:
+          - /url: /owner/settings
+          - img [ref=e68]
+    - generic [ref=e71]:
+      - banner [ref=e72]:
+        - generic [ref=e73]:
+          - button "Open navigation menu" [ref=e74] [cursor=pointer]:
+            - img [ref=e75]
+          - heading "Reports" [level=1] [ref=e79]
+        - generic [ref=e80]:
+          - button "Notifications" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+          - button "User menu" [ref=e86] [cursor=pointer]:
+            - img [ref=e88]
+      - main [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - navigation [ref=e94]:
+              - link "Owner HQ" [ref=e96] [cursor=pointer]:
+                - /url: /owner/dashboard
+              - generic [ref=e97]:
+                - img [ref=e98]
+                - generic [ref=e100]: Reports
+            - generic [ref=e101]:
+              - generic [ref=e102]:
+                - heading "Reports & Analytics" [level=1] [ref=e103]
+                - paragraph [ref=e104]: Business insights, trends, and performance metrics
+              - button "Export" [ref=e108] [cursor=pointer]:
+                - img [ref=e109]
+                - text: Export
+          - generic [ref=e185]:
+            - img [ref=e186]
+            - generic [ref=e190]:
+              - paragraph [ref=e191]: Unable to load reports data
+              - paragraph [ref=e192]: The backend API may be unavailable. Showing demo data.
+          - generic [ref=e113]:
+            - img
+            - generic [ref=e114]: "Period:"
+            - generic [ref=e115]:
+              - button "Week" [ref=e116] [cursor=pointer]
+              - button "Month" [ref=e117] [cursor=pointer]
+              - button "Quarter" [ref=e118] [cursor=pointer]
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - img [ref=e123]
+                - generic [ref=e126]: Total Revenue
+              - paragraph [ref=e127]: $0
+            - generic [ref=e128]:
+              - generic [ref=e129]:
+                - img [ref=e131]
+                - generic [ref=e136]: Total Bookings
+              - paragraph [ref=e137]: "0"
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - img [ref=e141]
+                - generic [ref=e146]: New Clients
+              - paragraph [ref=e147]: "0"
+            - generic [ref=e148]:
+              - generic [ref=e149]:
+                - img [ref=e151]
+                - generic [ref=e154]: Avg Ticket
+              - paragraph [ref=e155]: $0
+          - generic [ref=e156]:
+            - generic [ref=e193]:
+              - generic [ref=e194]:
+                - generic [ref=e195]:
+                  - img [ref=e197]
+                  - generic [ref=e200]:
+                    - heading "Revenue Overview" [level=3] [ref=e201]
+                    - paragraph [ref=e202]: "Total: $61,773"
+                - generic [ref=e203]:
+                  - button "Week" [ref=e204] [cursor=pointer]
+                  - button "Month" [ref=e205] [cursor=pointer]
+                  - button "Quarter" [ref=e206] [cursor=pointer]
+              - generic [ref=e207]:
+                - generic [ref=e208]:
+                  - paragraph [ref=e209]: Average
+                  - paragraph [ref=e210]: $2059
+                - generic [ref=e211]:
+                  - paragraph [ref=e212]: Peak
+                  - paragraph [ref=e213]: $2,757
+                - generic [ref=e214]:
+                  - paragraph [ref=e215]: Trend
+                  - generic [ref=e216]:
+                    - img [ref=e217]
+                    - paragraph [ref=e220]: "-4.6%"
+              - generic [ref=e221]:
+                - generic [ref=e222]:
+                  - 'generic "Feb 12: $1,532"'
+                  - generic [ref=e223]: Feb 12
+                - generic:
+                  - 'generic "Feb 13: $1,992"'
+                - generic:
+                  - 'generic "Feb 14: $1,787"'
+                - generic:
+                  - 'generic "Feb 15: $1,704"'
+                - generic:
+                  - 'generic "Feb 16: $1,888"'
+                - generic [ref=e224]:
+                  - 'generic "Feb 17: $2,336"'
+                  - generic [ref=e225]: Feb 17
+                - generic:
+                  - 'generic "Feb 18: $1,517"'
+                - generic:
+                  - 'generic "Feb 19: $1,649"'
+                - generic:
+                  - 'generic "Feb 20: $1,779"'
+                - generic:
+                  - 'generic "Feb 21: $2,353"'
+                - generic [ref=e226]:
+                  - 'generic "Feb 22: $2,100"'
+                  - generic [ref=e227]: Feb 22
+                - generic:
+                  - 'generic "Feb 23: $1,583"'
+                - generic:
+                  - 'generic "Feb 24: $1,673"'
+                - generic:
+                  - 'generic "Feb 25: $2,113"'
+                - generic:
+                  - 'generic "Feb 26: $1,808"'
+                - generic [ref=e228]:
+                  - 'generic "Feb 27: $1,902"'
+                  - generic [ref=e229]: Feb 27
+                - generic:
+                  - 'generic "Feb 28: $2,578"'
+                - generic:
+                  - 'generic "Mar 1: $2,122"'
+                - generic:
+                  - 'generic "Mar 2: $2,041"'
+                - generic:
+                  - 'generic "Mar 3: $2,041"'
+                - generic [ref=e230]:
+                  - 'generic "Mar 4: $2,474"'
+                  - generic [ref=e231]: Mar 4
+                - generic:
+                  - 'generic "Mar 5: $2,085"'
+                - generic:
+                  - 'generic "Mar 6: $2,365"'
+                - generic:
+                  - 'generic "Mar 7: $2,123"'
+                - generic:
+                  - 'generic "Mar 8: $2,698"'
+                - generic [ref=e232]:
+                  - 'generic "Mar 9: $2,393"'
+                  - generic [ref=e233]: Mar 9
+                - generic:
+                  - 'generic "Mar 10: $1,978"'
+                - generic:
+                  - 'generic "Mar 11: $2,757"'
+                - generic:
+                  - 'generic "Mar 12: $2,438"'
+                - generic:
+                  - 'generic "Mar 13: $1,964"'
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e236]:
+                  - img [ref=e238]
+                  - generic [ref=e243]:
+                    - heading "Client Growth" [level=3] [ref=e244]
+                    - paragraph [ref=e245]: "Total: 407 clients"
+                - generic [ref=e246]:
+                  - button "Week" [ref=e247] [cursor=pointer]
+                  - button "Month" [ref=e248] [cursor=pointer]
+                  - button "Quarter" [ref=e249] [cursor=pointer]
+              - generic [ref=e250]:
+                - generic [ref=e251]:
+                  - generic [ref=e252]:
+                    - img [ref=e253]
+                    - paragraph [ref=e258]: New Clients
+                  - paragraph [ref=e259]: "112"
+                - generic [ref=e260]:
+                  - generic [ref=e261]:
+                    - img
+                    - paragraph [ref=e262]: Returning
+                  - paragraph [ref=e263]: "295"
+                - generic [ref=e264]:
+                  - generic [ref=e265]:
+                    - img
+                    - paragraph [ref=e266]: Retention
+                  - paragraph [ref=e267]: 72.5%
+              - generic [ref=e268]:
+                - generic [ref=e269]:
+                  - generic:
+                    - 'generic "Returning: 12"'
+                    - 'generic "New: 3"'
+                  - generic [ref=e270]: Feb 12
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 11"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 14"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 6"'
+                    - 'generic "New: 4"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 8"'
+                    - 'generic "New: 2"'
+                - generic [ref=e271]:
+                  - generic:
+                    - 'generic "Returning: 12"'
+                    - 'generic "New: 6"'
+                  - generic [ref=e272]: Feb 17
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 14"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 10"'
+                    - 'generic "New: 5"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 11"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 13"'
+                    - 'generic "New: 5"'
+                - generic [ref=e273]:
+                  - generic:
+                    - 'generic "Returning: 13"'
+                    - 'generic "New: 4"'
+                  - generic [ref=e274]: Feb 22
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 9"'
+                    - 'generic "New: 4"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 12"'
+                    - 'generic "New: 3"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 5"'
+                    - 'generic "New: 3"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 13"'
+                    - 'generic "New: 2"'
+                - generic [ref=e275]:
+                  - generic:
+                    - 'generic "Returning: 10"'
+                    - 'generic "New: 4"'
+                  - generic [ref=e276]: Feb 27
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 6"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 14"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 12"'
+                    - 'generic "New: 5"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 6"'
+                    - 'generic "New: 5"'
+                - generic [ref=e277]:
+                  - generic:
+                    - 'generic "Returning: 8"'
+                    - 'generic "New: 3"'
+                  - generic [ref=e278]: Mar 4
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 7"'
+                    - 'generic "New: 3"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 6"'
+                    - 'generic "New: 2"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 8"'
+                    - 'generic "New: 5"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 7"'
+                    - 'generic "New: 4"'
+                - generic [ref=e279]:
+                  - generic:
+                    - 'generic "Returning: 8"'
+                    - 'generic "New: 6"'
+                  - generic [ref=e280]: Mar 9
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 8"'
+                    - 'generic "New: 5"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 10"'
+                    - 'generic "New: 5"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 8"'
+                    - 'generic "New: 6"'
+                - generic:
+                  - generic:
+                    - 'generic "Returning: 14"'
+                    - 'generic "New: 6"'
+              - generic [ref=e281]:
+                - generic [ref=e284]: New Clients
+                - generic [ref=e287]: Returning
+          - generic [ref=e159]:
+            - generic [ref=e160]:
+              - heading "Top Service" [level=3] [ref=e161]
+              - generic [ref=e162]:
+                - img [ref=e164]
+                - generic [ref=e169]:
+                  - paragraph [ref=e170]: N/A
+                  - paragraph [ref=e171]: Most booked service
+            - generic [ref=e172]:
+              - heading "Top Performer" [level=3] [ref=e173]
+              - generic [ref=e174]:
+                - img [ref=e176]
+                - generic [ref=e181]:
+                  - paragraph [ref=e182]: N/A
+                  - paragraph [ref=e183]: Highest revenue generator
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e184]

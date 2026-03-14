@@ -43,7 +43,7 @@ router.patch('/:id/status', async (req, res) => {
         }
         
         // Smart Gap Filling: Trigger waitlist check if cancelled
-        if (status === 'cancelled' && appointment.appointment_time) {
+        if (status === 'CANCELLED' && appointment.appointment_time) {
             WaitlistService.processCancellation(appointment.appointment_time);
         }
         

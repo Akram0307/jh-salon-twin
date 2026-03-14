@@ -1,0 +1,83 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Owner navigation sidebar" [ref=e3]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /owner/dashboard
+        - img [ref=e6]
+      - navigation "Main navigation" [ref=e12]:
+        - link "Dashboard" [ref=e14] [cursor=pointer]:
+          - /url: /owner/dashboard
+          - img [ref=e15]
+        - generic [ref=e20]:
+          - link "Schedule" [ref=e21] [cursor=pointer]:
+            - /url: /owner/schedule
+            - img [ref=e22]
+          - link "Clients" [ref=e33] [cursor=pointer]:
+            - /url: /owner/clients
+            - img [ref=e34]
+          - link "Staff" [ref=e39] [cursor=pointer]:
+            - /url: /owner/staff
+            - img [ref=e40]
+          - link "Services" [ref=e52] [cursor=pointer]:
+            - /url: /owner/services
+            - img [ref=e53]
+        - link "Reports" [ref=e60] [cursor=pointer]:
+          - /url: /owner/reports
+          - img [ref=e61]
+        - link "Settings" [ref=e67] [cursor=pointer]:
+          - /url: /owner/settings
+          - img [ref=e68]
+    - generic [ref=e71]:
+      - banner [ref=e72]:
+        - generic [ref=e73]:
+          - button "Open navigation menu" [ref=e74] [cursor=pointer]:
+            - img [ref=e75]
+          - heading "Schedule" [level=1] [ref=e79]
+        - generic [ref=e80]:
+          - button "Notifications" [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+          - button "User menu" [ref=e86] [cursor=pointer]:
+            - img [ref=e88]
+      - main [ref=e91]:
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - navigation [ref=e94]:
+              - link "Owner HQ" [ref=e96] [cursor=pointer]:
+                - /url: /owner/dashboard
+              - generic [ref=e97]:
+                - img [ref=e98]
+                - generic [ref=e100]: Schedule
+            - generic [ref=e101]:
+              - generic [ref=e102]:
+                - heading "Schedule" [level=1] [ref=e103]
+                - paragraph [ref=e104]: Appointment calendar and time management
+              - button "New Appointment" [ref=e106] [cursor=pointer]:
+                - img [ref=e107]
+                - text: New Appointment
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - button [ref=e112] [cursor=pointer]:
+                - img [ref=e113]
+              - generic [ref=e115]: Friday, March 13, 2026
+              - button [ref=e116] [cursor=pointer]:
+                - img [ref=e117]
+              - button "Today" [ref=e119] [cursor=pointer]
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - generic [ref=e122]: "Staff:"
+                - combobox [ref=e123] [cursor=pointer]:
+                  - generic: All Staff
+                  - img [ref=e124]
+              - generic [ref=e126]:
+                - button "Day" [ref=e127] [cursor=pointer]
+                - button "Week" [ref=e128] [cursor=pointer]
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - generic [ref=e131]: Time
+              - generic [ref=e132]:
+                - generic [ref=e133]: Fri
+                - generic [ref=e134]: "13"
+            - img [ref=e136]
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e138]

@@ -222,6 +222,21 @@ export class AppointmentRepository {
     return result.rows
   }
 
+  // Added for client booking routes - find appointment by ID and salon
+  static async findById(id: string, salonId: string) {
+    const res = await query(
+      `SELECT
+        a.*,
+        c.full_name as client_name,
+        c.phone_number as client_phone,
+        st.full_name as staff_name
+       FROM appointments a
+       JOIN clients c ON a.client_id = c.id
+       LEFT JOIN staff st ON a.staff_id = st.id
+       WHERE a.id = $1 AND a.salon_id = $2
+       LIMIT 1`,
+      [id, salonId]
+    );
+    return res.rows[0] || null;
+  }
 }
-
-

@@ -84,6 +84,7 @@ export const api = {
     create: (data: any) => apiFetch<any>('/api/clients', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => apiFetch<any>(`/api/clients/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => apiFetch<any>(`/api/clients/${id}`, { method: 'DELETE' }),
+    bulkDelete: (ids: string[]) => apiFetch<any>('/api/clients/bulk-delete', { method: 'POST', body: JSON.stringify({ ids }) }),
   },
   staff: {
     list: () => apiFetch<any[]>('/api/staff'),
@@ -91,6 +92,7 @@ export const api = {
     create: (data: any) => apiFetch<any>('/api/staff', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => apiFetch<any>(`/api/staff/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => apiFetch<any>(`/api/staff/${id}`, { method: 'DELETE' }),
+    bulkDelete: (ids: string[]) => apiFetch<any>('/api/staff/bulk-delete', { method: 'POST', body: JSON.stringify({ ids }) }),
     getSchedule: () => apiFetch<any>('/api/staff/schedule'),
   },
   services: {
@@ -100,6 +102,7 @@ export const api = {
     create: (data: any) => apiFetch<any>('/api/services', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => apiFetch<any>(`/api/services/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: string) => apiFetch<any>(`/api/services/${id}`, { method: 'DELETE' }),
+    bulkDelete: (ids: string[]) => apiFetch<any>('/api/services/bulk-delete', { method: 'POST', body: JSON.stringify({ ids }) }),
   },
   owner: {
     getAlerts: () => apiFetch<any[]>('/api/owner/alerts'),
@@ -119,5 +122,43 @@ export const api = {
     getRevenue: (params?: any) => apiFetch<any>(`/api/reports/revenue${params ? '?' + new URLSearchParams(params) : ''}`),
     getStaff: (params?: any) => apiFetch<any>(`/api/reports/staff${params ? '?' + new URLSearchParams(params) : ''}`),
     getServices: (params?: any) => apiFetch<any>(`/api/reports/services${params ? '?' + new URLSearchParams(params) : ''}`),
+    getClientGrowth: (params?: any) => apiFetch<any>(`/api/reports/client-growth${params ? "?" + new URLSearchParams(params) : ""}`),
+    getSummary: (params?: any) => apiFetch<any>(`/api/reports/summary${params ? "?" + new URLSearchParams(params) : ""}`),
   },
+  settings: {
+    getProfile: () => apiFetch<any>('/api/owner/settings/profile').catch(() => api.owner.getSettings()),
+    getNotifications: () => apiFetch<any>('/api/owner/settings/notifications').catch(() => ({
+      emailNotifications: true,
+      smsNotifications: true,
+      appointmentReminders: true,
+      marketingEmails: false,
+      lowInventoryAlerts: true,
+      staffUpdates: true,
+      revenueReports: true,
+      clientFeedback: true,
+    })),
+    getBilling: () => apiFetch<any>('/api/owner/settings/billing').catch(() => ({
+      plan: 'Professional',
+      price: 79,
+      billingCycle: 'monthly',
+      nextBillingDate: '2026-04-14',
+      paymentMethod: {
+        type: 'card',
+        brand: 'Visa',
+        last4: '4242',
+        expiry: '12/28',
+      },
+    })),
+  },
+};
+
+// POS API methods
+export const posApi = {
+  getServices: () => apiFetch<any[]>('/api/services'),
+  getProducts: () => apiFetch<any[]>('/api/products'),
+  getClients: () => apiFetch<any[]>('/api/clients'),
+  getStaff: () => apiFetch<any[]>('/api/staff'),
+  createDraft: (data: any) => apiFetch<any>('/api/pos/create-draft', { method: 'POST', body: JSON.stringify(data) }),
+  completeTransaction: (data: any) => apiFetch<any>('/api/pos/complete-transaction', { method: 'POST', body: JSON.stringify(data) }),
+  getRecentTransactions: () => apiFetch<any[]>('/api/pos/recent'),
 };

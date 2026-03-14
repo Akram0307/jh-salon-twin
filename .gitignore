@@ -37,3 +37,6 @@ venv/
 
 # Local binaries
 cloud-sql-proxy
+.next
+coverage
+docs/verification_artifacts/

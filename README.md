@@ -1,5 +1,9 @@
 # SalonOS / JH Salon Twin
 
+[![CI](https://github.com/Akram0307/jh-salon-twin/actions/workflows/ci.yml/badge.svg)](https://github.com/Akram0307/jh-salon-twin/actions/workflows/ci.yml)
+[![CD](https://github.com/Akram0307/jh-salon-twin/actions/workflows/deploy.yml/badge.svg)](https://github.com/Akram0307/jh-salon-twin/actions/workflows/deploy.yml)
+[![E2E](https://github.com/Akram0307/jh-salon-twin/actions/workflows/e2e.yml/badge.svg)](https://github.com/Akram0307/jh-salon-twin/actions/workflows/e2e.yml)
+
 Premium AI-native salon revenue operating system with:
 
 - **Owner PWA** for control tower operations
@@ -19,6 +23,7 @@ GitHub repository:
 | Area | Path | Purpose |
 |---|---|---|
 | Frontend | `/frontend` | React + Vite PWA |
+| Frontend Next | `/frontend-next` | Next.js 14 PWA |
 | Backend | `/backend` | Node/TypeScript API and services |
 | Database | `/db` | SQL schemas and migrations |
 | Skills | `/skills` | Project-specific Agent Zero skills |
@@ -50,129 +55,226 @@ cd /a0/usr/projects/jh_salon_twin
 ./scripts/git_sync_after_gcp_success.sh "chore: sync successful GCP deployment"
 ```
 
-### 2. Create a formal deployment release
+### 2. Create release tag
 
 ```bash
-cd /a0/usr/projects/jh_salon_twin
-./scripts/release_after_gcp_success.sh production owner-backend-frontend "successful GCP deployment"
+./scripts/release_after_gcp_success.sh v1.0.0
 ```
 
-Arguments:
+---
 
-| Argument | Example | Meaning |
-|---|---|---|
-| 1 | `production` | Environment |
-| 2 | `owner-backend-frontend` | Service scope |
-| 3 | `successful GCP deployment` | Release summary |
-| 4 | `main` | Branch, optional |
+## CI/CD Pipeline
 
-Example with more detail:
+This project uses GitHub Actions for continuous integration and deployment.
 
+### CI Pipeline (ci.yml)
+- **Triggers**: On push to main and pull requests
+- **Stages**: Lint, Type Check, Unit Tests, Build
+- **Runs on**: Ubuntu latest with Node.js 20
+
+### CD Pipeline (deploy.yml)
+- **Triggers**: On push to main (staging) and manual dispatch (production)
+- **Stages**: Build Docker images, Push to GCR, Deploy to Cloud Run, Smoke tests
+- **Environments**: Staging (auto-deploy) and Production (manual approval)
+
+### E2E Tests (e2e.yml)
+- **Triggers**: On push to main, pull requests, and manual dispatch
+- **Stages**: Install dependencies, Build frontend/backend, Run Playwright tests
+- **Artifacts**: Test results and reports
+
+---
+
+## Deployment
+
+### Staging Environment
+- **Auto-deploy**: On push to main
+- **URL**: https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app
+- **Backend**: https://salonos-backend-rgvcleapsa-uc.a.run.app
+
+### Production Environment
+- **Manual deploy**: Via GitHub Actions workflow dispatch
+- **URL**: https://salonos-owner-frontend-prod-rgvcleapsa-uc.a.run.app
+- **Backend**: https://salonos-backend-prod-rgvcleapsa-uc.a.run.app
+
+---
+
+## Environment Configuration
+
+### Required GitHub Secrets
+- `GCP_SA_KEY`: Google Cloud service account key
+- `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`: Database credentials
+- `SALON_ID`, `GCLOUD_PROJECT`: Project identifiers
+- `OPENROUTER_API_KEY`: AI service key
+- `TWILIO_*`: Twilio credentials for SMS/WhatsApp
+- `REDIS_HOST`, `REDIS_PORT`: Redis configuration
+- `INSTANCE_CONNECTION_NAME`: Cloud SQL instance connection
+
+### Environment Variables
+- `NEXT_PUBLIC_API_BASE_URL`: Frontend API base URL
+- All backend environment variables are set via Cloud Run configuration
+
+---
+
+## Testing Requirements
+
+### Pre-Deploy Checklist
+- [ ] `npm run build` passes with 0 errors
+- [ ] No TypeScript errors
+- [ ] All components use design tokens
+- [ ] No inline KPI/Card components
+- [ ] Responsive on mobile (375px) and desktop (1440px)
+
+### CI/CD Checks
+- [ ] CI runs on every PR and push to main
+- [ ] All tests pass before merge allowed
+- [ ] Auto-deploy to staging on main merge
+- [ ] Manual deploy to production
+- [ ] Build artifacts cached for speed
+- [ ] Status badges in README
+
+---
+
+## Architecture
+
+### Frontend (Next.js 14)
+- **Framework**: Next.js 14 with App Router
+- **Styling**: TailwindCSS + Radix UI + shadcn/ui
+- **State Management**: Zustand, TanStack Query
+- **Design System**: OKLCH color space with three-tier token system
+
+### Backend (Node.js/TypeScript)
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL with Redis caching
+- **AI Integration**: Google Vertex AI, Gemini 2.0 Flash, Firebase Genkit
+- **Communication**: Twilio for SMS/WhatsApp
+
+### Infrastructure
+- **Cloud Provider**: Google Cloud Platform
+- **Compute**: Cloud Run (serverless containers)
+- **Database**: Cloud SQL (PostgreSQL)
+- **Cache**: Redis
+- **CI/CD**: GitHub Actions
+- **Container Registry**: Google Container Registry (GCR)
+
+---
+
+## Development
+
+### Local Setup
 ```bash
-./scripts/release_after_gcp_success.sh production owner-frontend "fix owner dashboard API stability"
+# Clone repository
+git clone https://github.com/Akram0307/jh-salon-twin.git
+cd jh-salon-twin
+
+# Install dependencies
+cd frontend-next && npm install
+cd ../backend && npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Run development servers
+# Frontend (Next.js)
+cd frontend-next && npm run dev
+
+# Backend (Node.js)
+cd backend && npm run dev
 ```
 
----
-
-## Versioning convention
-
-This project uses a **deployment-based release versioning model**.
-
-### Tag format
-
-```text
-release/<environment>/YYYY.MM.DD-HHMMSS
-```
-
-Examples:
-
-- `release/production/2026.03.07-223000`
-- `release/staging/2026.03.08-101500`
-
-### Why this model
-
-It fits the current operating style better than package-semver because deployments may involve:
-
-- backend changes
-- frontend changes
-- routing fixes
-- infrastructure/runtime patches
-- coordinated Cloud Run releases
-
-This makes each tag a trustworthy deployment snapshot.
-
----
-
-## Commit convention
-
-Recommended commit prefixes:
-
-| Prefix | Use case |
-|---|---|
-| `feat:` | new functionality |
-| `fix:` | bug fix |
-| `refactor:` | code restructuring without behavior change |
-| `docs:` | documentation updates |
-| `chore:` | maintenance, tooling, cleanup |
-| `release(production):` | successful production deployment sync |
-| `release(staging):` | successful staging deployment sync |
-
-Examples:
-
-- `feat: add owner route shell for canonical portal`
-- `fix: normalize dashboard array responses to prevent map crashes`
-- `release(production): owner dashboard backend/frontend deployed successfully [2026-03-07T22:30:00Z]`
-
----
-
-## Branch policy
-
-Current default branch:
-
-- `main`
-
-Recommended operational policy:
-
-- use `main` for validated deployable work
-- do implementation work in local commits before deployment
-- after a successful GCP deployment, run the release script to preserve the exact shipped state
-
----
-
-## Suggested deployment discipline
-
-For every production push:
-
-1. make code changes
-2. validate builds/tests
-3. deploy to GCP / Cloud Run
-4. confirm deployment success
-5. run:
-
+### Testing
 ```bash
-./scripts/release_after_gcp_success.sh production owner-backend-frontend "describe what shipped"
+# Run unit tests
+npm run test
+
+# Run E2E tests
+npx playwright test
+
+# Run linting
+npm run lint
+
+# Type checking
+npx tsc --noEmit
 ```
 
-This creates:
+---
 
-- a final git commit if needed
-- a push to GitHub
-- an annotated release tag
+## Deployment Scripts
+
+### Manual Deployment
+```bash
+# Deploy frontend to Cloud Run
+./scripts/deploy_frontend_next_cloudrun.sh
+
+# Deploy backend to Cloud Run
+./scripts/redeploy_backend_cloudrun.sh
+```
+
+### Cloud Build
+```bash
+# Build and deploy frontend
+gcloud builds submit ./frontend-next --config=frontend-next/cloudbuild.yaml
+
+# Build and deploy backend
+gcloud builds submit ./backend --tag gcr.io/salon-saas-487508/salonos-backend
+```
 
 ---
 
-## Optional wrapper
+## Monitoring and Logs
 
-A placeholder wrapper exists here:
+### Cloud Run Logs
+```bash
+# View frontend logs
+gcloud run services logs read salonos-owner-frontend --region=us-central1
 
-- `/a0/usr/projects/jh_salon_twin/scripts/deploy_and_release_example.sh`
+# View backend logs
+gcloud run services logs read salonos-backend --region=us-central1
+```
 
-This can be connected later to the exact backend/frontend Cloud Run deploy commands so release sync happens automatically after successful deployment completion.
+### Health Checks
+- Frontend: `https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/`
+- Backend: `https://salonos-backend-rgvcleapsa-uc.a.run.app/health`
 
 ---
 
-## Notes
+## Security
 
-- Secrets and credential files are ignored by git.
-- Large generated artifacts and local binaries are excluded from routine version control.
-- GitHub is now the maintained code history for successful deployment states.
+### Authentication
+- JWT-based authentication for API access
+- Role-based access control (Owner, Manager, Staff, Client)
+- Secure environment variable management via GitHub Secrets
+
+### Data Protection
+- HTTPS everywhere
+- Database encryption at rest
+- Secure API endpoints with rate limiting
+- Input validation and sanitization
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Standards
+- Follow TypeScript best practices
+- Use ESLint and Prettier for code formatting
+- Write unit tests for new features
+- Update documentation as needed
+
+---
+
+## License
+
+This project is proprietary software. All rights reserved.
+
+---
+
+## Support
+
+For support, please contact the development team or create an issue in the GitHub repository.

@@ -2,392 +2,191 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { KPICard } from '@/components/shared/KPICard';
 import { EmptyState } from '@/components/shared/EmptyState';
+import RevenueChart from '@/components/reports/RevenueChart';
+import ClientGrowthChart from '@/components/reports/ClientGrowthChart';
+import ExportButton from '@/components/reports/ExportButton';
 import { api } from '@/lib/api';
-import { BarChart3, TrendingUp, DollarSign, Users, Calendar, Download, Loader2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, DollarSign, Calendar, Loader2, AlertCircle, Download } from 'lucide-react';
 import { useState } from 'react';
-import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
+import { ResponsiveStatGrid } from '@/components/shared/responsive/ResponsiveStatGrid';
+import { ResponsiveChartCard } from '@/components/shared/responsive/ResponsiveChartCard';
+import { ResponsiveSegmentedControl } from '@/components/schedule/ResponsiveSegmentedControl';
 
 export default function ReportsPage() {
-  const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'custom'>('30d');
-  const [reportType, setReportType] = useState<'revenue' | 'clients' | 'staff' | 'services'>('revenue');
+  const [dateRange, setDateRange] = useState<'week' | 'month' | 'quarter'>('month');
 
-  const getDateRange = () => {
-    const end = new Date();
-    let start;
-    switch (dateRange) {
-      case '7d': start = subDays(end, 7); break;
-      case '30d': start = subDays(end, 30); break;
-      case '90d': start = subDays(end, 90); break;
-      default: start = subDays(end, 30);
-    }
-    return { start: format(start, 'yyyy-MM-dd'), end: format(end, 'yyyy-MM-dd') };
+  const { data: revenueData, isLoading: revenueLoading, error: revenueError } = useQuery({
+    queryKey: ['reports', 'revenue', dateRange],
+    queryFn: () => api.reports.getRevenue({ period: dateRange }),
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: clientData, isLoading: clientLoading, error: clientError } = useQuery({
+    queryKey: ['reports', 'clients', dateRange],
+    queryFn: () => api.reports.getClientGrowth({ period: dateRange }),
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: summaryData, isLoading: summaryLoading } = useQuery({
+    queryKey: ['reports', 'summary', dateRange],
+    queryFn: () => api.reports.getSummary({ period: dateRange }),
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  const summary = summaryData || {
+    totalRevenue: 0,
+    totalBookings: 0,
+    newClients: 0,
+    avgTicket: 0,
+    topService: 'N/A',
+    topStaff: 'N/A'
   };
 
-  const { start, end } = getDateRange();
+  const isLoading = revenueLoading || clientLoading || summaryLoading;
+  const hasError = revenueError || clientError;
 
-  const { data: revenueData, isLoading: revenueLoading } = useQuery({
-    queryKey: ['reports', 'revenue', start, end],
-    queryFn: () => api.analytics.getRevenue({ start, end }),
-    enabled: reportType === 'revenue',
-  });
-
-  const { data: clientData, isLoading: clientLoading } = useQuery({
-    queryKey: ['reports', 'clients', start, end],
-    queryFn: () => api.analytics.getClientMetrics({ start, end }),
-    enabled: reportType === 'clients',
-  });
-
-  const { data: staffData, isLoading: staffLoading } = useQuery({
-    queryKey: ['reports', 'staff', start, end],
-    queryFn: () => api.analytics.getStaffPerformance({ start, end }),
-    enabled: reportType === 'staff',
-  });
-
-  const { data: serviceData, isLoading: serviceLoading } = useQuery({
-    queryKey: ['reports', 'services', start, end],
-    queryFn: () => api.analytics.getServicePerformance({ start, end }),
-    enabled: reportType === 'services',
-  });
-
-  const isLoading = revenueLoading || clientLoading || staffLoading || serviceLoading;
+  const periodOptions = [
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+    { value: 'quarter', label: 'Quarter' }
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 space-y-4 sm:space-y-6 lg:space-y-8">
       <PageHeader
-        title="Reports"
-        description="Business intelligence and performance analytics"
+        title="Reports & Analytics"
+        description="Business insights, trends, and performance metrics"
         breadcrumbs={[{ label: 'Owner HQ', href: '/owner/dashboard' }, { label: 'Reports' }]}
         actions={
-          <button className="flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition-colors">
-            <Download className="h-4 w-4" />
-            Export
-          </button>
+          <div className="flex items-center gap-2">
+            <ExportButton
+              data={revenueData || []}
+              filename={`salon-report-${dateRange}`}
+            />
+          </div>
         }
       />
 
-      {/* Report Controls */}
-      <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-400">Report Type:</span>
-          {(['revenue', 'clients', 'staff', 'services'] as const).map((type) => (
-            <button
-              key={type}
-              onClick={() => setReportType(type)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors capitalize ${reportType === type ? 'bg-gold-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-            >
-              {type}
-            </button>
-          ))}
+      {/* Error Banner */}
+      {hasError && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-red-300">Unable to load reports data</p>
+            <p className="text-xs text-red-400/70">The backend API may be unavailable. Showing demo data.</p>
+          </div>
         </div>
+      )}
+
+      {/* Date Range Selector - Mobile Responsive */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center rounded-xl border border-slate-800 bg-slate-900/50 p-4">
         <div className="flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-slate-500" />
           <span className="text-sm text-slate-400">Period:</span>
-          {(['7d', '30d', '90d'] as const).map((range) => (
-            <button
-              key={range}
-              onClick={() => setDateRange(range)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${dateRange === range ? 'bg-gold-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
-            >
-              {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
-            </button>
-          ))}
         </div>
+        <ResponsiveSegmentedControl
+          options={periodOptions}
+          value={dateRange}
+          onChange={(value) => setDateRange(value as 'week' | 'month' | 'quarter')}
+          className="w-full sm:w-auto"
+        />
       </div>
 
+      {/* KPI Summary Cards - Mobile Responsive */}
+      <ResponsiveStatGrid>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="rounded-lg bg-emerald-500/10 p-2">
+              <DollarSign className="h-5 w-5 text-emerald-400" />
+            </div>
+            <span className="text-sm text-slate-500">Total Revenue</span>
+          </div>
+          <p className="text-2xl font-bold text-white font-mono">${(summary.totalRevenue || 0).toLocaleString()}</p>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="rounded-lg bg-blue-500/10 p-2">
+              <BarChart3 className="h-5 w-5 text-blue-400" />
+            </div>
+            <span className="text-sm text-slate-500">Total Bookings</span>
+          </div>
+          <p className="text-2xl font-bold text-white font-mono">{(summary.totalBookings || 0).toLocaleString()}</p>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="rounded-lg bg-purple-500/10 p-2">
+              <Users className="h-5 w-5 text-purple-400" />
+            </div>
+            <span className="text-sm text-slate-500">New Clients</span>
+          </div>
+          <p className="text-2xl font-bold text-white font-mono">{(summary.newClients || 0).toLocaleString()}</p>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="rounded-lg bg-gold-500/10 p-2">
+              <TrendingUp className="h-5 w-5 text-gold-400" />
+            </div>
+            <span className="text-sm text-slate-500">Avg Ticket</span>
+          </div>
+          <p className="text-2xl font-bold text-white font-mono">${(summary.avgTicket || 0).toLocaleString()}</p>
+        </div>
+      </ResponsiveStatGrid>
+
+      {/* Charts Grid - Mobile Responsive */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-slate-500" />
         </div>
-      ) : reportType === 'revenue' ? (
-        <div className="space-y-6">
-          {/* Revenue KPIs */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <KPICard
-              title="Total Revenue"
-              value={`$${(revenueData?.total || 0).toLocaleString()}`}
-              change={revenueData?.change}
-              changeLabel="vs previous period"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Appointments"
-              value={revenueData?.appointments || 0}
-              change={revenueData?.appointmentsChange}
-              changeLabel="vs previous period"
-              icon={<Calendar className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Avg. Ticket"
-              value={`$${(revenueData?.avgTicket || 0).toLocaleString()}`}
-              change={revenueData?.avgTicketChange}
-              changeLabel="vs previous period"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <KPICard
-              title="New Clients"
-              value={revenueData?.newClients || 0}
-              change={revenueData?.newClientsChange}
-              changeLabel="vs previous period"
-              icon={<Users className="h-5 w-5" />}
-            />
-          </div>
-
-          {/* Revenue Chart Placeholder */}
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-            <h3 className="text-lg font-semibold text-white mb-4">Revenue Trend</h3>
-            <div className="h-64 flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="h-12 w-12 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm text-slate-500">Revenue chart visualization</p>
-                <p className="text-xs text-slate-600 mt-1">Chart integration pending</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Revenue Breakdown */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-              <h3 className="text-lg font-semibold text-white mb-4">Top Services by Revenue</h3>
-              {revenueData?.topServices && revenueData.topServices.length > 0 ? (
-                <div className="space-y-3">
-                  {revenueData.topServices.map((service: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 p-3">
-                      <div>
-                        <p className="text-sm font-medium text-white">{service.name}</p>
-                        <p className="text-xs text-slate-500">{service.bookings} bookings</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-mono text-white">${(service.revenue || 0).toLocaleString()}</p>
-                        <p className={`text-xs flex items-center justify-end gap-1 ${service.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {service.change >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                          {Math.abs(service.change || 0)}%
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No service data"
-                  description="Service revenue data will appear here"
-                  icon={<BarChart3 className="h-12 w-12" />}
-                />
-              )}
-            </div>
-
-            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-              <h3 className="text-lg font-semibold text-white mb-4">Top Staff by Revenue</h3>
-              {revenueData?.topStaff && revenueData.topStaff.length > 0 ? (
-                <div className="space-y-3">
-                  {revenueData.topStaff.map((staff: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-700 flex items-center justify-center">
-                          <span className="text-sm font-medium text-white">{staff.name?.charAt(0) || '?'}</span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-white">{staff.name}</p>
-                          <p className="text-xs text-slate-500">{staff.appointments} appointments</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-mono text-white">${(staff.revenue || 0).toLocaleString()}</p>
-                        <p className={`text-xs flex items-center justify-end gap-1 ${staff.change >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {staff.change >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                          {Math.abs(staff.change || 0)}%
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No staff data"
-                  description="Staff revenue data will appear here"
-                  icon={<Users className="h-12 w-12" />}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      ) : reportType === 'clients' ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <KPICard
-              title="Total Clients"
-              value={clientData?.total || 0}
-              change={clientData?.change}
-              changeLabel="vs previous period"
-              icon={<Users className="h-5 w-5" />}
-            />
-            <KPICard
-              title="New Clients"
-              value={clientData?.new || 0}
-              change={clientData?.newChange}
-              changeLabel="vs previous period"
-              icon={<Users className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Retention Rate"
-              value={`${clientData?.retention || 0}%`}
-              change={clientData?.retentionChange}
-              changeLabel="vs previous period"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Avg. LTV"
-              value={`$${(clientData?.avgLTV || 0).toLocaleString()}`}
-              change={clientData?.ltvChange}
-              changeLabel="vs previous period"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-            <h3 className="text-lg font-semibold text-white mb-4">Client Acquisition</h3>
-            <div className="h-64 flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="h-12 w-12 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm text-slate-500">Client acquisition chart</p>
-                <p className="text-xs text-slate-600 mt-1">Chart integration pending</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : reportType === 'staff' ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <KPICard
-              title="Total Staff"
-              value={staffData?.total || 0}
-              icon={<Users className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Avg. Utilization"
-              value={`${staffData?.avgUtilization || 0}%`}
-              change={staffData?.utilizationChange}
-              changeLabel="vs previous period"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Avg. Revenue/Staff"
-              value={`$${(staffData?.avgRevenue || 0).toLocaleString()}`}
-              change={staffData?.revenueChange}
-              changeLabel="vs previous period"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Avg. Rating"
-              value={staffData?.avgRating || 'N/A'}
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-            <h3 className="text-lg font-semibold text-white mb-4">Staff Performance</h3>
-            {staffData?.performance && staffData.performance.length > 0 ? (
-              <div className="space-y-3">
-                {staffData.performance.map((staff: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-slate-700 flex items-center justify-center">
-                        <span className="text-sm font-medium text-white">{staff.name?.charAt(0) || '?'}</span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-white">{staff.name}</p>
-                        <p className="text-xs text-slate-500">{staff.role || 'Stylist'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Utilization</p>
-                        <p className="text-sm font-mono text-white">{staff.utilization || 0}%</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Revenue</p>
-                        <p className="text-sm font-mono text-white">${(staff.revenue || 0).toLocaleString()}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Rating</p>
-                        <p className="text-sm font-mono text-white">{staff.rating || 'N/A'}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No staff performance data"
-                description="Staff performance metrics will appear here"
-                icon={<Users className="h-12 w-12" />}
-              />
-            )}
-          </div>
-        </div>
       ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <KPICard
-              title="Total Services"
-              value={serviceData?.total || 0}
-              icon={<BarChart3 className="h-5 w-5" />}
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+          <ResponsiveChartCard title="Revenue Overview">
+            <RevenueChart
+              data={revenueData || []}
+              period={dateRange}
+              hideControls={true}
             />
-            <KPICard
-              title="Most Popular"
-              value={serviceData?.mostPopular || 'N/A'}
-              icon={<TrendingUp className="h-5 w-5" />}
+          </ResponsiveChartCard>
+          <ResponsiveChartCard title="Client Growth">
+            <ClientGrowthChart
+              data={clientData || []}
+              period={dateRange}
+              hideControls={true}
             />
-            <KPICard
-              title="Avg. Price"
-              value={`$${(serviceData?.avgPrice || 0).toLocaleString()}`}
-              change={serviceData?.priceChange}
-              changeLabel="vs previous period"
-              icon={<DollarSign className="h-5 w-5" />}
-            />
-            <KPICard
-              title="Total Bookings"
-              value={serviceData?.totalBookings || 0}
-              change={serviceData?.bookingsChange}
-              changeLabel="vs previous period"
-              icon={<Calendar className="h-5 w-5" />}
-            />
-          </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-            <h3 className="text-lg font-semibold text-white mb-4">Service Performance</h3>
-            {serviceData?.performance && serviceData.performance.length > 0 ? (
-              <div className="space-y-3">
-                {serviceData.performance.map((service: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg bg-slate-800/50 p-3">
-                    <div>
-                      <p className="text-sm font-medium text-white">{service.name}</p>
-                      <p className="text-xs text-slate-500">{service.category || 'Uncategorized'}</p>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Bookings</p>
-                        <p className="text-sm font-mono text-white">{service.bookings || 0}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Revenue</p>
-                        <p className="text-sm font-mono text-white">${(service.revenue || 0).toLocaleString()}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-slate-500">Avg. Duration</p>
-                        <p className="text-sm font-mono text-white">{service.avgDuration || 0} min</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No service performance data"
-                description="Service performance metrics will appear here"
-                icon={<BarChart3 className="h-12 w-12" />}
-              />
-            )}
-          </div>
+          </ResponsiveChartCard>
         </div>
       )}
+
+      {/* Top Performers - Mobile Responsive */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
+          <h3 className="text-sm font-medium text-slate-400 mb-3">Top Service</h3>
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-emerald-500/10 p-3">
+              <BarChart3 className="h-6 w-6 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-white">{summary.topService || 'N/A'}</p>
+              <p className="text-xs text-slate-500">Most booked service</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 sm:p-5">
+          <h3 className="text-sm font-medium text-slate-400 mb-3">Top Performer</h3>
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-gold-500/10 p-3">
+              <Users className="h-6 w-6 text-gold-400" />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-white">{summary.topStaff || 'N/A'}</p>
+              <p className="text-xs text-slate-500">Highest revenue generator</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
