@@ -1,0 +1,59 @@
+name: Deploy Client PWA
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: salon-saas-487508
+  REGION: us-central1
+  CLIENT_SERVICE: salonos-client-frontend
+
+jobs:
+  deploy-client:
+    name: Deploy Client PWA
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+      
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io
+      
+      - name: Build and push Client PWA Docker image
+        run: |
+          cd frontend
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.CLIENT_SERVICE }}:${{ github.sha }} .
+          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.CLIENT_SERVICE }}:${{ github.sha }}
+      
+      - name: Deploy Client PWA to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.CLIENT_SERVICE }}
+          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.CLIENT_SERVICE }}:${{ github.sha }}
+          region: ${{ env.REGION }}
+          flags: |
+            --allow-unauthenticated
+            --port=8080
+            --memory=256Mi
+            --cpu=1
+            --concurrency=80
+            --timeout=60
+            --max-instances=5
+            --set-env-vars="VITE_API_URL=https://salonos-backend-rgvcleapsa-uc.a.run.app"
