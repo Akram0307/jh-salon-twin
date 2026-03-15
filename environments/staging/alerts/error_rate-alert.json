@@ -1,0 +1,32 @@
+{
+  "displayName": "SalonOS - High Error Rate (>10/min)",
+  "combiner": "OR",
+  "conditions": [
+    {
+      "displayName": "Error Rate > 10/min",
+      "conditionThreshold": {
+        "filter": "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"salonos-backend\" metric.type=\"custom.googleapis.com/api/error_count\"",
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 10,
+        "duration": "60s",
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_RATE"
+          }
+        ],
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "notificationChannels": [],
+  "alertStrategy": {
+    "autoClose": "1800s"
+  },
+  "documentation": {
+    "content": "Error rate has exceeded 10 errors/minute. Check backend logs for error patterns.\n\nRunbook: https://salonos.dev/runbooks/high-error-rate",
+    "mimeType": "text/markdown"
+  }
+}

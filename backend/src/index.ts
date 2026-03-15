@@ -3,7 +3,6 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
-
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -11,6 +10,8 @@ import cors from 'cors';
 // Now import modules that depend on env vars
 import pool from './config/db';
 import clientRoutes from './routes/clientRoutes';
+import clientNotesRoutes from './routes/clientNotesRoutes';
+import clientSearchRoutes from './routes/clientSearchRoutes';
 import ownerRoutes from './routes/ownerRoutes';
 import qrRoutes from './routes/qrRoutes';
 import staffRoutes from './routes/staffRoutes';
@@ -29,18 +30,36 @@ import aiRoutes from './routes/aiRoutes';
 import activityRoutes from './routes/activityRoutes';
 import authRoutes from './routes/authRoutes';
 import upsellRoutes from './routes/upsellRoutes';
+import feedbackRoutes from './routes/feedbackRoutes';
 import aiConciergeRoutes from './routes/aiConciergeRoutes';
 import revenueActionRoutes from './routes/revenueActionRoutes';
 import settingsRoutes from './routes/settingsRoutes';
+import userProfileRoutes from './routes/userProfileRoutes';
+import salonSettingsRoutes from './routes/salonSettingsRoutes';
+import staffProfileRoutes from './routes/staffProfileRoutes';
+import healthRoutes from './routes/healthRoutes';
 import notificationRoutes from './routes/notificationRoutes';
+import slotSuggestionRoutes from './routes/slotSuggestionRoutes';
 import clientBookingRoutes from './routes/clientBookingRoutes';
 import staffWorkspaceRoutes from './routes/staffWorkspaceRoutes';
+import appointmentStatusRoutes from './routes/appointmentStatusRoutes';
 import { webSocketService } from './services/WebSocketService';
+import { requestLogger, errorHandler, notFoundHandler } from './middleware/requestLogger';
 import { twilioWebhook } from './webhooks/twilio';
 import { loadSecrets } from './config/secrets';
 import { startTelemetry } from './config/telemetry';
 import redis from './config/redis';
 import { RevenueScheduler } from './services/RevenueScheduler';
+import actionHistoryRoutes from './routes/actionHistoryRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+
+// TASK-057: Import error tracking middleware and routes
+import { errorTracking, notFoundHandler as errorNotFoundHandler } from './middleware/errorTracking';
+import adminErrorRoutes from './routes/adminErrors';
+import exportRoutes from './routes/exportRoutes';
+
+// TASK-056: Import performance monitoring middleware
+import { performanceMiddleware, getHealthStatus } from './config/monitoring';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -49,13 +68,27 @@ const PORT = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
+// TASK-056: Add performance monitoring middleware
+app.use(performanceMiddleware);
+
+// Request logging middleware
+app.use(requestLogger);
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// TASK-056: Enhanced health check with monitoring data
+app.get('/api/health/detailed', (req, res) => {
+  const healthStatus = getHealthStatus();
+  res.json(healthStatus);
+});
+
 // Routes
 app.use('/api/clients', clientRoutes);
+app.use('/api/clients', clientNotesRoutes);
+app.use('/api/clients', clientSearchRoutes);
 app.use('/api/owner', ownerRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/staff', staffRoutes);
@@ -74,50 +107,77 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/upsell', upsellRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/health', healthRoutes);
 app.use('/api/ai-concierge', aiConciergeRoutes);
 app.use('/api/revenue-actions', revenueActionRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/user-profile', userProfileRoutes);
+app.use('/api/salon-settings', salonSettingsRoutes);
+app.use('/api/staff-profile', staffProfileRoutes);
+app.use('/api', healthRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api', actionHistoryRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/client', clientBookingRoutes);
 app.use('/api/staff', staffWorkspaceRoutes);
-app.use('/webhooks/twilio', twilioWebhook);
+app.use('/api/appointments', appointmentStatusRoutes);
 
-// Initialize services
-async function startServer() {
-  try {
-    console.log('🔐 Loading secrets from Secret Manager...');
-    await loadSecrets();
-    
-    console.log('📊 Starting OpenTelemetry...');
-    startTelemetry();
-    console.log('✅ OpenTelemetry started');
-    
-    console.log('⚡ Connecting Redis...');
-    await redis.ping();
-    console.log('✅ Redis connected');
-    
-    // Test database connection (non-fatal for Cloud Run startup)
-    try {
-      const client = await pool.connect();
-      console.log('✅ PostgreSQL connected');
-    } catch (dbErr: any) {
-      console.warn('⚠️ PostgreSQL connection deferred:', dbErr.message);
-      console.log('Server will start and retry DB connection on first request');
-    }
-    
-    const server = http.createServer(app);
+// TASK-057: Add admin error routes
+app.use('/api/admin/errors', adminErrorRoutes);
+app.use('/api/exports', exportRoutes);
 
-    // Initialize WebSocket server
-    webSocketService.initialize(server);
+// 404 handler
+app.use(notFoundHandler);
 
-    server.listen(PORT, () => {
-      console.log(`🚀 JH Salon Twin Backend running on port ${PORT}`);
-      console.log(`🔌 WebSocket server available at ws://localhost:${PORT}/ws`);
-    });
-  } catch (err) {
-    console.error('❌ Failed to start server:', err);
-    process.exit(1);
-  }
+// TASK-057: Add error tracking middleware (must be last)
+app.use(errorTracking);
+
+// Start server
+const server = http.createServer(app);
+
+// Initialize WebSocket service
+webSocketService.initialize(server);
+
+// Start telemetry if configured
+if (process.env.OTEL_ENABLED === 'true') {
+  startTelemetry();
 }
 
-startServer();
+// Load secrets
+loadSecrets().then(() => {
+  console.log('Secrets loaded successfully');
+}).catch(err => {
+  console.error('Failed to load secrets:', err);
+});
+
+// Start revenue scheduler
+const revenueScheduler = new RevenueScheduler();
+revenueScheduler.start();
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`Detailed health: http://localhost:${PORT}/api/health/detailed`);
+  console.log(`Error stats: http://localhost:${PORT}/api/admin/errors/stats`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+export { app, server };

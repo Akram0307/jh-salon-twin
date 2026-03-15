@@ -11,11 +11,24 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-  },
+  ,
+  expect: {
+    visual: {
+      threshold: 0.2,
+      maxDiffPixels: 1000,
+      animations: 'disabled'
+    }
+  }
+}},
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'
+    {
+      name: 'mobile',
+      use: { ...devices['iPhone 12'] },
+    },
+  ] },
     },
   ],
   webServer: {

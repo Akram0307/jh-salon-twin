@@ -1,0 +1,66 @@
+# SalonOS Staging Cloud Run Configuration
+# This file defines the Cloud Run services for the staging environment
+
+# Frontend Service
+frontend:
+  name: salonos-owner-frontend-staging
+  image: gcr.io/salon-saas-487508/salonos-owner-frontend-staging:latest
+  region: us-central1
+  port: 8080
+  memory: 512Mi
+  cpu: 1
+  concurrency: 80
+  min_instances: 0
+  max_instances: 5
+  env_vars:
+    - name: NEXT_PUBLIC_API_BASE_URL
+      value: https://salonos-backend-staging-rgvcleapsa-uc.a.run.app
+    - name: NEXT_PUBLIC_ENVIRONMENT
+      value: staging
+    - name: NEXT_PUBLIC_SENTRY_DSN
+      value: https://staging-sentry-dsn-placeholder
+  secrets:
+    - name: GCP_SA_KEY
+      secret: gcp-sa-key-staging
+      mount_path: /secrets
+  allow_unauthenticated: false  # Basic auth will be handled separately
+  service_account: staging-service-account@salon-saas-487508.iam.gserviceaccount.com
+
+# Backend Service
+backend:
+  name: salonos-backend-staging
+  image: gcr.io/salon-saas-487508/salonos-backend-staging:latest
+  region: us-central1
+  port: 3000
+  memory: 1Gi
+  cpu: 1
+  concurrency: 80
+  min_instances: 0
+  max_instances: 5
+  env_vars:
+    - name: DATABASE_URL
+      value: postgresql://staging-user:staging-password@staging-db-host:5432/salonos_staging
+    - name: JWT_SECRET
+      value: staging-jwt-secret-placeholder
+    - name: NODE_ENV
+      value: staging
+    - name: CORS_ORIGIN
+      value: https://staging.salonos.example.com
+  secrets:
+    - name: GCP_SA_KEY
+      secret: gcp-sa-key-staging
+      mount_path: /secrets
+  allow_unauthenticated: false
+  service_account: staging-service-account@salon-saas-487508.iam.gserviceaccount.com
+
+# Database Configuration
+database:
+  instance: salonos-staging-db
+  tier: db-f1-micro
+  region: us-central1
+  database_name: salonos_staging
+  user: staging-user
+  password: staging-password-placeholder
+  backup_enabled: true
+  backup_start_time: "02:00"
+  deletion_protection: false

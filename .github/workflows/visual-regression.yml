@@ -1,0 +1,139 @@
+name: Visual Regression Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend-next/**'
+      - 'e2e/**'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  visual-regression:
+    name: Visual Regression Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend-next/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend-next
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd frontend-next
+          npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:4000
+
+      - name: Install Playwright browsers
+        run: |
+          cd e2e
+          npx playwright install --with-deps chromium
+
+      - name: Start frontend server
+        run: |
+          cd frontend-next
+          npm start &
+          sleep 10
+          curl -f http://localhost:3000 || exit 1
+
+      - name: Run visual comparison
+        run: |
+          cd e2e
+          npx playwright test visual-comparison.spec.ts --reporter=html
+        continue-on-error: true
+
+      - name: Generate visual report
+        if: always()
+        run: |
+          cd e2e
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+
+          const diffDir = path.join(__dirname, 'screenshots/diff');
+          const report = {
+            timestamp: new Date().toISOString(),
+            hasDiffs: fs.existsSync(diffDir) && fs.readdirSync(diffDir).length > 0
+          };
+
+          fs.writeFileSync('visual-report.json', JSON.stringify(report, null, 2));
+          console.log('Visual report generated:', report);
+          "
+
+      - name: Upload visual diff artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diff-${{ github.run_id }}
+          path: |
+            e2e/screenshots/diff/
+            e2e/screenshots/current/
+            e2e/playwright-report/
+          retention-days: 7
+
+      - name: Comment on PR with visual changes
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            let reportContent = '## 📸 Visual Regression Test Results
+
+';
+
+            try {
+              const report = JSON.parse(fs.readFileSync('e2e/visual-report.json', 'utf8'));
+
+              if (report.hasDiffs) {
+                reportContent += '⚠️ **Visual changes detected!**
+
+';
+                reportContent += 'Please review the attached artifacts for diff images.
+
+';
+                reportContent += '**To update baselines:**
+';
+                reportContent += '1. Download the artifacts
+';
+                reportContent += '2. Review the diff images
+';
+                reportContent += '3. If changes are intentional, run `npm run update-baselines`
+';
+              } else {
+                reportContent += '✅ **No visual changes detected.**
+';
+              }
+            } catch (e) {
+              reportContent += 'Unable to generate detailed report. Check workflow logs.
+';
+            }
+
+            reportContent += '
+---
+*Generated: ' + new Date().toISOString() + '*';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reportContent
+            });

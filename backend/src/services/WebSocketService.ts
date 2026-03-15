@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
 import { query } from '../config/db';
 import jwt from 'jsonwebtoken';
-import { secrets } from '../config/secrets';
+
 import { pwaConciergeService, ConciergeMessage } from './PWAConciergeService';
 
 interface ClientConnection {
@@ -73,7 +73,7 @@ class WebSocketService {
 
     if (isPWA && token) {
       try {
-        const decoded = jwt.verify(token, secrets.jwtSecret) as any;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as any;
         authenticatedUserId = decoded.userId || decoded.sub;
         isAuthenticated = true;
         console.log(`✅ PWA client authenticated: ${authenticatedUserId}`);

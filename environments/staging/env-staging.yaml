@@ -1,0 +1,64 @@
+# SalonOS Staging Environment Variables
+# This file contains environment variables for the staging environment
+
+# Frontend Environment Variables
+frontend:
+  NEXT_PUBLIC_API_BASE_URL: https://salonos-backend-staging-rgvcleapsa-uc.a.run.app
+  NEXT_PUBLIC_ENVIRONMENT: staging
+  NEXT_PUBLIC_SENTRY_DSN: https://staging-sentry-dsn-placeholder
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: G-STAGING-ID
+  NEXT_PUBLIC_ENABLE_MOCK_DATA: false
+  NEXT_PUBLIC_DEBUG_MODE: true
+
+# Backend Environment Variables
+backend:
+  DATABASE_URL: postgresql://staging-user:staging-password@staging-db-host:5432/salonos_staging
+  JWT_SECRET: staging-jwt-secret-placeholder
+  NODE_ENV: staging
+  CORS_ORIGIN: https://staging.salonos.example.com
+  PORT: 3000
+  LOG_LEVEL: debug
+  ENABLE_SWAGGER: true
+  SWAGGER_PATH: /api-docs
+  
+  # Email Configuration (for staging)
+  SMTP_HOST: smtp.mailtrap.io
+  SMTP_PORT: 2525
+  SMTP_USER: staging-smtp-user
+  SMTP_PASS: staging-smtp-password
+  EMAIL_FROM: noreply@staging.salonos.example.com
+  
+  # SMS Configuration (for staging)
+  TWILIO_ACCOUNT_SID: staging-twilio-sid
+  TWILIO_AUTH_TOKEN: staging-twilio-token
+  TWILIO_PHONE_NUMBER: +1234567890
+  
+  # Redis Configuration (for caching and sessions)
+  REDIS_URL: redis://staging-redis-host:6379
+  
+  # File Storage
+  GCS_BUCKET_NAME: salonos-staging-uploads
+  GCP_PROJECT_ID: salon-saas-487508
+
+# Database Configuration
+database:
+  host: staging-db-host
+  port: 5432
+  database: salonos_staging
+  user: staging-user
+  password: staging-password-placeholder
+  ssl: true
+  max_connections: 20
+  
+# Monitoring and Logging
+monitoring:
+  SENTRY_DSN: https://staging-sentry-dsn-placeholder
+  DATADOG_API_KEY: staging-datadog-key
+  NEW_RELIC_LICENSE_KEY: staging-newrelic-key
+  
+# Feature Flags
+feature_flags:
+  ENABLE_AI_CONCIERGE: true
+  ENABLE_PAYMENT_PROCESSING: false
+  ENABLE_MULTI_TENANT: false
+  ENABLE_ADVANCED_ANALYTICS: true

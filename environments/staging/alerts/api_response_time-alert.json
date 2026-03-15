@@ -1,0 +1,32 @@
+{
+  "displayName": "SalonOS - High API Response Time (p95 > 5s)",
+  "combiner": "OR",
+  "conditions": [
+    {
+      "displayName": "API Response Time p95 > 5000ms",
+      "conditionThreshold": {
+        "filter": "resource.type=\"cloud_run_revision\" resource.labels.service_name=\"salonos-backend\" metric.type=\"custom.googleapis.com/api/response_time_p95\"",
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 5000,
+        "duration": "300s",
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_MEAN"
+          }
+        ],
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "notificationChannels": [],
+  "alertStrategy": {
+    "autoClose": "1800s"
+  },
+  "documentation": {
+    "content": "API response time p95 has exceeded 5 seconds for 5 minutes. Check backend logs and database performance.\n\nRunbook: https://salonos.dev/runbooks/high-api-latency",
+    "mimeType": "text/markdown"
+  }
+}

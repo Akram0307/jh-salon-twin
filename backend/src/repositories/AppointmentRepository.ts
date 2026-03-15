@@ -239,4 +239,44 @@ export class AppointmentRepository {
     );
     return res.rows[0] || null;
   }
+
+  static async getAppointmentRevenue(appointmentId: string) {
+    const res = await query(
+      `SELECT id, appointment_id, base_price, charged_price
+       FROM appointment_services
+       WHERE appointment_id = $1
+       LIMIT 1`,
+      [appointmentId]
+    );
+    return res.rows[0] || null;
+  }
+
+  static async getTotalRevenue(startDate: string, endDate: string) {
+    const res = await query(
+      `SELECT 
+          COALESCE(SUM(aps.charged_price), 0) as total,
+          COUNT(DISTINCT a.id) as count
+       FROM appointments a
+       JOIN appointment_services aps ON a.id = aps.appointment_id
+       WHERE a.appointment_time BETWEEN $1 AND $2`,
+      [startDate, endDate]
+    );
+    return res.rows[0];
+  }
+
+  static async getRevenueByService(startDate: string, endDate: string) {
+    const res = await query(
+      `SELECT 
+          s.name as service_name,
+          SUM(aps.charged_price) as total,
+          COUNT(aps.id) as count
+       FROM appointment_services aps
+       JOIN appointments a ON aps.appointment_id = a.id
+       JOIN services s ON aps.service_id = s.id
+       WHERE a.appointment_time BETWEEN $1 AND $2
+       GROUP BY s.name`,
+      [startDate, endDate]
+    );
+    return res.rows;
+  }
 }

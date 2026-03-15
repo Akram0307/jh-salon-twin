@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-03-15T02:06:22+00:00",
+  "project": "SalonOS",
+  "findings": [
+    {
+      "severity": "medium",
+      "category": "configuration",
+      "message": ".env files present in repository",
+      "file": ".env"
+    },
+    {
+      "severity": "low",
+      "category": "configuration",
+      "message": ".gitignore missing entry: *.key",
+      "file": ".gitignore"
+    },
+    {
+      "severity": "low",
+      "category": "configuration",
+      "message": ".gitignore missing entry: *.pem",
+      "file": ".gitignore"
+    },
+    {
+      "severity": "medium",
+      "category": "configuration",
+      "message": "No rate limiting detected",
+      "file": "backend/src"
+    },
+    {
+      "severity": "high",
+      "category": "database",
+      "message": "Potential unsafe SQL query construction",
+      "file": "backend/src"
+    },
+    {
+      "severity": "low",
+      "category": "database",
+      "message": "No explicit encryption configuration found",
+      "file": "backend/src"
+    },
+    {
+      "severity": "high",
+      "category": "webhooks",
+      "message": "Webhook signature validation not implemented",
+      "file": "backend/src"
+    }
+  ]
+}
