@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import fs from 'fs';
+const { test, expect } = require('@playwright/test');
+const fs = require('fs');
 
 test('inspect owner dashboard live content', async ({ page }) => {
   const events = [];

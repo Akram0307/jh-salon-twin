@@ -1,126 +1,140 @@
-import { useState, useRef, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { getSlots } from '../../services/api'
-import { getTodayDate } from './bookingConfig'
+import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
+import { Send, User, Bot, Sparkles } from 'lucide-react';
 
-interface SlotChip {
-  label: string
-  value: string
+interface Message {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
 }
 
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-}
+const ClientChat: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    { id: '1', text: 'Hello! I am the Jawed Habib digital receptionist. How can I help you today?', sender: 'bot' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-export default function ClientChat() {
-  const { salonId } = useParams<{ salonId: string }>()
-  const [input, setInput] = useState('')
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [isTyping, setIsTyping] = useState(false)
-  const [selectedService, setSelectedService] = useState<{ id: string; name: string } | null>(null)
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  // Mock sender phone number for testing
+  const senderPhone = '+1234567890';
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isTyping])
+    scrollToBottom();
+  }, [messages]);
 
-  const sendMessage = async (userInput: string) => {
-    setMessages(prev => [...prev, { role: 'user', content: userInput }])
-    setIsTyping(true)
+  const handleSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!input.trim()) return;
 
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'I can help you book an appointment. What service are you looking for?' }])
-      setIsTyping(false)
-    }, 1000)
-  }
+    const userMsg: Message = { id: Date.now().toString(), text: input, sender: 'user' };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsLoading(true);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    const userInput = input
-    setInput('')
-    await sendMessage(userInput)
-  }
-
-  const handleServiceSelect = async (serviceId: string) => {
-    if (!salonId) return
-    
-    setSelectedService({ id: serviceId, name: 'Service' })
-    
     try {
-      const res = await getSlots(salonId, serviceId, getTodayDate())
-      const rawSlots = (res as { slots?: unknown[] })?.slots || ((res as { data?: { slots?: unknown[] } })?.data?.slots) || []
-
-      const slots: SlotChip[] = rawSlots.slice(0, 6).map((slot: unknown, index: number) => {
-        if (typeof slot === 'string') {
-          return { label: slot, value: slot }
-        }
-
-        const slotObj = slot as { start?: string; time?: string; staff_name?: string }
-        const value = slotObj?.start || slotObj?.time || `slot-${index}`
-        const time = slotObj?.start ? new Date(slotObj.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : slotObj?.time
-        const stylist = slotObj?.staff_name || 'Any stylist'
-
-        return { 
-          label: time ? `${time} with ${stylist}` : value, 
-          value 
-        }
-      })
-
-      if (slots.length > 0) {
-        setSelectedSlot(slots[0].value)
-        await sendMessage(`I want to book ${slots[0].value}`)
-      }
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/chat`, {
+        message: userMsg.text,
+        sender: senderPhone
+      });
+      
+      const botMsg: Message = { 
+        id: (Date.now() + 1).toString(), 
+        text: response.data.response || 'Sorry, I encountered an error.', 
+        sender: 'bot' 
+      };
+      setMessages(prev => [...prev, botMsg]);
     } catch (error) {
-      console.error('Failed to load slots:', error)
+      console.error('Chat error:', error);
+      const errorMsg: Message = { 
+        id: (Date.now() + 1).toString(), 
+        text: 'Network error. Please ensure the backend server is running.', 
+        sender: 'bot' 
+      };
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center text-zinc-400 py-8">
-            <p className="text-lg mb-2">👋 Hi! I'm your AI stylist</p>
-            <p className="text-sm">Tell me what you're looking for today</p>
-          </div>
-        )}
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-              msg.role === 'user' 
-                ? 'bg-emerald-500 text-white' 
-                : 'bg-zinc-800 text-zinc-100'
-            }`}>
-              {msg.content}
+    <div className="flex flex-col h-screen max-w-md mx-auto bg-gray-50 shadow-xl overflow-hidden">
+      {/* Header */}
+      <div className="bg-white px-4 py-3 border-b flex items-center shadow-sm z-10">
+        <div className="bg-gradient-to-tr from-pink-500 to-orange-400 p-2 rounded-full mr-3">
+          <Sparkles className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h1 className="font-bold text-gray-800 text-lg">Jawed Habib Kurnool</h1>
+          <p className="text-xs text-green-500 font-medium flex items-center">
+            <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span> Online
+          </p>
+        </div>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex max-w-[80%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+              <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                msg.sender === 'user' ? 'bg-blue-100 ml-2' : 'bg-pink-100 mr-2'
+              }`}>
+                {msg.sender === 'user' ? <User className="w-4 h-4 text-blue-600" /> : <Bot className="w-4 h-4 text-pink-600" />}
+              </div>
+              <div className={`px-4 py-2 rounded-2xl text-sm ${
+                msg.sender === 'user' 
+                  ? 'bg-blue-600 text-white rounded-tr-none' 
+                  : 'bg-white text-gray-800 border border-gray-100 shadow-sm rounded-tl-none'
+              }`}>
+                {msg.text}
+              </div>
             </div>
           </div>
         ))}
-        {isTyping && (
-          <div className="text-zinc-400 text-sm">Typing...</div>
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="flex max-w-[80%] flex-row">
+              <div className="flex-shrink-0 h-8 w-8 rounded-full bg-pink-100 mr-2 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-pink-600" />
+              </div>
+              <div className="px-4 py-3 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-none flex space-x-1 items-center">
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+            </div>
+          </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-800">
-        <div className="flex gap-2">
+
+      {/* Input Area */}
+      <div className="bg-white p-3 border-t">
+        <form onSubmit={handleSend} className="flex items-center bg-gray-100 rounded-full px-4 py-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
+            placeholder="Type a message..."
+            className="flex-1 bg-transparent outline-none text-sm text-gray-700"
+            disabled={isLoading}
           />
-          <button
-            type="submit"
-            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full px-4 py-2 font-medium"
+          <button 
+            type="submit" 
+            disabled={!input.trim() || isLoading}
+            className="ml-2 text-blue-600 disabled:text-gray-400 transition-colors"
           >
-            Send
+            <Send className="w-5 h-5" />
           </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default ClientChat;

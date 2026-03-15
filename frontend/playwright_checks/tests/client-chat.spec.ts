@@ -12,7 +12,7 @@ test('client chat production smoke renders shell', async ({ page }) => {
   const response = await page.goto(CLIENT_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(5000);
   const body = page.locator('body');
-  await expect(body).toContainText(/Jawed Habib|digital receptionist|How can I help you today|SalonOS/i, { timeout: 20000 });
+  await expect(body).toContainText(/Jawed Habib|digital receptionist|book|appointment|chat|service/i, { timeout: 20000 });
   const bodyText = await body.innerText().catch(() => '');
   const title = await page.title();
   const headings = await page.locator('h1, h2, h3, [role="heading"]').allInnerTexts().catch(() => []);

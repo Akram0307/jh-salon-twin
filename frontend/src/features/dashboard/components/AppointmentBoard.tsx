@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { getAppointmentsToday, AppointmentsTodayResponse } from '../../../services/api';
+import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../../../core/api/client';
 import { asArray } from '../../../core/api/utils';
 
 type Appointment = {
@@ -16,8 +16,8 @@ export default function AppointmentBoard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getAppointmentsToday()
-      .then((data) => setAppointments(((data as AppointmentsTodayResponse).appointments || []) as unknown as Appointment[]))
+    apiFetch<any>('/api/appointments/today')
+      .then((data) => setAppointments(asArray<Appointment>(data)))
       .catch(() => setAppointments([]))
       .finally(() => setLoading(false));
   }, []);

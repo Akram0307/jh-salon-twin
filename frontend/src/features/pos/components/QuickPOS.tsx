@@ -2,23 +2,10 @@ import { useState } from "react";
 import PosServiceSelection from "./PosServiceSelection";
 import PosCheckout from "./PosCheckout";
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  type: 'service' | 'product';
-}
-
-interface Draft {
-  items: CartItem[];
-  total: number;
-  client: string | null;
-}
-
 export default function QuickPOS() {
-  const [draft, setDraft] = useState<Draft | null>(null);
+  const [draft, setDraft] = useState<any>(null);
 
-  const handleCheckout = (items: CartItem[], total: number, client: string | null) => {
+  const handleCheckout = (items:any[], total:number, client?: string) => {
     setDraft({ items, total, client });
   };
 

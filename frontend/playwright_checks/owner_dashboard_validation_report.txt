@@ -1,249 +1,41 @@
 Status: 200
-Title: SalonOS
+Title: Vite + React + TS
 
 Probe results:
-- Owner: FOUND
-- Revenue: FOUND
-- Opportunity: FOUND
-- Campaign: FOUND
-- Health: FOUND
-- Waitlist: FOUND
-- POS: FOUND
-- Dashboard: FOUND
-- Staff: FOUND
-- Services: FOUND
-- Schedule: FOUND
+- Owner: missing
+- Revenue: missing
+- Opportunity: missing
+- Campaign: missing
+- Health: missing
+- Waitlist: missing
+- POS: missing
+- Dashboard: missing
+- Staff: missing
+- Services: missing
+- Schedule: missing
 
 Headings:
-- Owner Command
-- Owner Control Tower
-- Command the salon like a live revenue business, not a passive booking app.
-- Owner Control Tower
-- See the business state in one glance
-- Four persistent owner lenses
-- Start with business signals, not raw widgets
-- Performance snapshot
-- Revenue Trend
-- Revenue Trend
-- AI Revenue Forecast
-- AI Revenue Opportunity Engine
-- Move from observation to intervention
-- AI Action Center
-- Run the floor, calendar, and client flow
-- Today's Appointments
-- Salon pulse
-- Staff Utilization Heatmap
-- Staff productivity
-- Client profiles
-- Protect financial confidence and platform integrity
-- POS intelligence
-- System health
 
 Buttons:
-- 
-- Review
-- Approve
-- Review
-- Approve
-- Review
-- Approve
-- Review
-- Approve
-- $0
-- $0
 
 Events:
-[console:warning] The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[console:error] EventSource's response has a MIME type ("text/html") that is not "text/event-stream". Aborting the connection.
-[requestfailed] https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/api/activity/live :: net::ERR_ABORTED
+[console:error] TypeError: d.map is not a function
+    at Bv (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:116:6791)
+    at Bs (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:38:16960)
+    at Ho (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:3134)
+    at ld (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:44540)
+    at td (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:39560)
+    at mm (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:39491)
+    at Yl (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:39347)
+    at Zo (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:35751)
+    at Gf (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:40:34707)
+    at C (https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/assets/index-DoVs-5IK.js:25:1562)
+[pageerror] d.map is not a function
+[requestfailed] https://salonos-backend-687369167038.us-central1.run.app/api/activity/live :: net::ERR_ABORTED
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[console:error] Failed to load resource: the server responded with a status of 404 ()
+[console:error] Failed to load resource: the server responded with a status of 500 ()
+[console:log] App ready to work offline
 
 Body excerpt:
-SalonOS
-
-Owner Command
-
-Navigation
-
-Dashboard
-Staff
-Services
-Schedule
-Clients
-Reports
-Settings
-Owner
-Dashboard
-Owner Control Tower
-
-Monitor revenue, operational velocity, AI automation, and system health from the canonical SalonOS command surface.
-
-Revenue operating system
-Command the salon like a live revenue business, not a passive booking app.
-
-This Control Tower is the master design canon for SalonOS: one surface for forecasting, staff efficiency, live client flow, campaign actions, and service-system reliability.
-
-AI demand engine active
-Owner design canon source
-Mobile-first control shell
-Focus
-Protect daily revenue and fill underutilized capacity
-Autonomy
-Campaign, waitlist, and intelligence workflows available
-Operations
-Frontdesk and staff shells aligned to this owner model
-Owner command brief
-Owner Control Tower
-
-One premium operating surface for revenue posture, staff performance, live capacity, campaign automation, and system trust.
-
-Control mode
-Live operations
-AI layer
-Revenue automation armed
-Priority
-Protect capacity and conversion
-
-Executive snapshot
-
-See the business state in one glance
-
-Lead with the four metrics that tell the owner whether today is healthy, underbooked, or accelerating ahead of plan.
-
-Revenue Today
-
-₹48,260
-
-Live business velocity across POS and bookings
-
-Bookings Today
-
-27
-
-Confirmed appointment activity on today's schedule
-
-New Clients
-
-6
-
-Fresh acquisition entering the salon pipeline
-
-Upcoming Appointments
-
-5
-
-Near-term demand already committed in the calendar
-
-Command lanes
-
-Four persistent owner lenses
-
-Organize the dashboard around monetization, capacity, actionability, and trust so operators always know where to look next.
-
-Revenue posture
-Live monetization
-
-Track gross flow, recovery opportunities, and POS performance in one command view.
-
-Capacity posture
-Schedule aware
-
-See today's appointments, staffing pressure, and waitlist recovery in the same canvas.
-
-Decision layer
-Action oriented
-
-Drive campaigns, monitor recovery, and react to AI-identified revenue opportunities instantly.
-
-System layer
-Operational trust
-
-Health signals and resilient modules keep the owner cockpit premium under real production load.
-
-Revenue intelligence
-
-Start with business signals, not raw widgets
-
-Put aggregated intelligence first so the owner sees momentum, forecast posture, and intervention urgency before reviewing module detail.
-
-Revenue intelligence
-
-Performance snapshot
-
-Live intelligence is syncing. Showing a polished operating snapshot so the dashboard remains presentation-ready.
-
-Updated moments ago
-9 open slots can still be monetized this weekAction Required
-14 clients are ready for reactivationHigh Priority
-Revenue Trend
-Revenue Trend
-Chart loading...
-AI Revenue Forecast
-
-Forecast data unavailable
-
-AI Revenue Opportunity Engine
-
-Live demand recovery signals for the next 7 days
-
-Expected JSON but received text/html
-
-Autonomous actions
-
-Move from observation to intervention
-
-Keep AI actions directly after revenue intelligence so the owner can immediately act on what the system detects.
-
-AI Action Center
-Rebookable
-12
-ReviewApprove
-Low Capacity
-3
-ReviewApprove
-Active
-5
-ReviewApprove
-Paused
-2
-ReviewApprove
-Predictive Intervention
-High churn risk: Client #882CRITICAL
-Capacity optimization: TuesdayHIGH
-Staff schedule conflictMEDIUM
-
-Daily operations
-
-Run the floor, calendar, and client flow
-
-Cluster today's appointment execution, live activity, staff efficiency, and client insight into a single operational zone optimized for frequent checks.
-
-Today's Appointments
-No appointments today
-
-Live activity stream
-
-Salon pulse
-
-Track bookings, revenue events, recoveries, and operational signals in one premium stream.
-
-Live feed
-No live activity yet. New bookings and operational events will appear here automatically.
-Attach Client
-Select client
-Client
-$0
-Retail Upsells
-$0
-No waitlist data
-Staff Utilization Heatmap
-
-No utilization data yet
-
-Team performance
-
-Staff productivity
-
-Monitor revenue contribution, a

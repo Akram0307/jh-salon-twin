@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { asArray } from '../../../core/api/utils'
-import type { Client } from '../../../core/types/api';
 
 interface Service {
   id: string
@@ -16,30 +15,19 @@ interface Product {
   price: number
 }
 
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  type: 'service' | 'product'
-}
-
-interface PosServiceSelectionProps {
-  onCheckout: (cart: CartItem[], total: number, clientId: string | null) => void
-}
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || ''
 
-export default function PosServiceSelection({ onCheckout }: PosServiceSelectionProps) {
+export default function PosServiceSelection({ onCheckout }: any) {
   const [services, setServices] = useState<Service[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [recent, setRecent] = useState<Service[]>([])
-  const [cart, setCart] = useState<CartItem[]>([])
-  const [client, setClient] = useState<string | null>(null)
-  const [clients, setClients] = useState<Client[]>([])
+  const [cart, setCart] = useState<any[]>([])
+  const [client, setClient] = useState<any>(null)
+  const [clients, setClients] = useState<any[]>([])
 
   useEffect(() => {
     axios.get(`${API_BASE}/api/services`).then(r => setServices(asArray<Service>(r.data))).catch(() => setServices([]))
-    axios.get(`${API_BASE}/api/clients`).then(r => setClients(asArray<Client>(r.data))).catch(() => setClients([]))
+    axios.get(`${API_BASE}/api/clients`).then(r => setClients(asArray<any>(r.data))).catch(() => setClients([]))
     axios.get(`${API_BASE}/api/products`).then(r => setProducts(asArray<Product>(r.data))).catch(() => setProducts([]))
 
     const r = localStorage.getItem('recent_services')
@@ -55,12 +43,11 @@ export default function PosServiceSelection({ onCheckout }: PosServiceSelectionP
   const safeServices = useMemo(() => asArray<Service>(services), [services])
   const safeProducts = useMemo(() => asArray<Product>(products), [products])
   const safeRecent = useMemo(() => asArray<Service>(recent), [recent])
-  const safeClients = useMemo(() => asArray<Client>(clients), [clients])
-  const safeCart = useMemo(() => asArray<CartItem>(cart), [cart])
+  const safeClients = useMemo(() => asArray<any>(clients), [clients])
+  const safeCart = useMemo(() => asArray<any>(cart), [cart])
 
   const addService = (s: Service) => {
-    const cartItem: CartItem = { ...s, type: 'service' }
-    const updated = [...safeCart, cartItem]
+    const updated = [...safeCart, s]
     setCart(updated)
 
     const rec = [s, ...safeRecent.filter(x => x.id !== s.id)].slice(0, 5)
@@ -69,8 +56,7 @@ export default function PosServiceSelection({ onCheckout }: PosServiceSelectionP
   }
 
   const addProduct = (p: Product) => {
-    const cartItem: CartItem = { ...p, type: 'product' }
-    setCart([...safeCart, cartItem])
+    setCart([...safeCart, p])
   }
 
   const removeItem = (index: number) => {
@@ -79,7 +65,7 @@ export default function PosServiceSelection({ onCheckout }: PosServiceSelectionP
     setCart(updated)
   }
 
-  const total = safeCart.reduce((t: number, i: CartItem) => t + Number(i?.price || 0), 0)
+  const total = safeCart.reduce((t: number, i: any) => t + Number(i?.price || 0), 0)
 
   return (
     <div style={{ paddingBottom: 160 }}>
@@ -104,7 +90,7 @@ export default function PosServiceSelection({ onCheckout }: PosServiceSelectionP
         <div style={{ fontWeight: 700 }}>Attach Client</div>
         <select value={client ?? ''} onChange={(e) => setClient(e.target.value)} style={{ width: '100%', padding: 10, borderRadius: 10 }}>
           <option value="">Select client</option>
-          {safeClients.map((c: Client) => (
+          {safeClients.map((c: any) => (
             <option key={c.id} value={c.id}>{c.name || c.full_name || 'Client'}</option>
           ))}
         </select>

@@ -1,117 +1,42 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Scissors, Plus, Search, ChevronRight, Clock, DollarSign, Tag } from 'lucide-react'
-import { glass, semantic, component } from '../../lib/design-tokens'
-import OwnerLayout from '../../components/layout/OwnerLayout'
+import { asArray, createService, getServices, ServiceRecord, updateService } from '../../services/api'
 
-interface Service {
-  id: string
+type ServiceFormState = {
   name: string
-  category: string
+  description: string
   duration_minutes: number
-  price: number
+  price: string
+  category: string
   is_active: boolean
-  description?: string
 }
 
-const mockServices: Service[] = [
-  { id: '1', name: 'Balayage', category: 'Color', duration_minutes: 120, price: 250, is_active: true, description: 'Hand-painted highlights for natural dimension' },
-  { id: '2', name: 'Haircut & Style', category: 'Cuts', duration_minutes: 60, price: 85, is_active: true, description: 'Precision cut with blowout styling' },
-  { id: '3', name: 'Full Color', category: 'Color', duration_minutes: 90, price: 150, is_active: true, description: 'Single-process color application' },
-  { id: '4', name: 'Deep Conditioning', category: 'Treatments', duration_minutes: 45, price: 65, is_active: true, description: 'Intensive moisture repair treatment' },
-  { id: '5', name: 'Blowout', category: 'Styling', duration_minutes: 45, price: 55, is_active: false, description: 'Professional blowout styling' },
-]
-
-const categories = ['All', 'Color', 'Cuts', 'Treatments', 'Styling']
-
-function ServiceCard({ service, isSelected, onSelect }: {
-  service: Service
-  isSelected: boolean
-  onSelect: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`w-full rounded-2xl border p-4 text-left transition-all ${
-        isSelected
-          ? 'border-emerald-300/40 bg-emerald-400/10'
-          : `${semantic.border.default} bg-white/[0.03] hover:${glass.default}`
-      }`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="font-medium text-white">{service.name}</p>
-          <p className="text-sm text-zinc-400">{service.category || 'General'} • {service.duration_minutes} min</p>
-        </div>
-        <div className="text-right">
-          <p className="font-semibold text-emerald-200">${service.price.toFixed(0)}</p>
-          <p className={`text-[11px] uppercase tracking-[0.18em] ${service.is_active ? 'text-zinc-400' : 'text-zinc-600'}`}>
-            {service.is_active ? 'Active' : 'Archived'}
-          </p>
-        </div>
-      </div>
-    </button>
-  )
-}
-
-function ServiceDetail({ service }: { service: Service }) {
-  return (
-    <div className="space-y-4">
-      <div>
-        <h4 className="text-base font-semibold text-white">{service.name}</h4>
-        <p className="mt-1 text-sm text-zinc-400">{service.description || 'No description provided.'}</p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-3">
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <Clock className="h-3 w-3" />
-            Duration
-          </div>
-          <div className="mt-1 text-lg font-semibold text-white">{service.duration_minutes} min</div>
-        </div>
-        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-3">
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <DollarSign className="h-3 w-3" />
-            Price
-          </div>
-          <div className="mt-1 text-lg font-semibold text-white">${service.price.toFixed(0)}</div>
-        </div>
-        <div className="rounded-xl border border-white/[0.04] bg-white/[0.02] p-3">
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <Tag className="h-3 w-3" />
-            Category
-          </div>
-          <div className="mt-1 text-lg font-semibold text-white">{service.category}</div>
-        </div>
-      </div>
-      <div className="flex gap-2">
-        <button className="rounded-xl bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 transition-colors">
-          Edit Service
-        </button>
-        <button className={`rounded-xl border ${semantic.border.default} px-4 py-2 text-sm text-zinc-300 hover:bg-white/[0.04] transition-colors`}>
-          {service.is_active ? 'Archive' : 'Restore'}
-        </button>
-      </div>
-    </div>
-  )
+const emptyForm: ServiceFormState = {
+  name: '',
+  description: '',
+  duration_minutes: 60,
+  price: '0',
+  category: 'General',
+  is_active: true,
 }
 
 export default function ServicesManager() {
-  const [services, setServices] = useState<Service[]>(mockServices)
-  const [search, setSearch] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('All')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [services, setServices] = useState<ServiceRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [selectedId, setSelectedId] = useState('')
+  const [form, setForm] = useState<ServiceFormState>(emptyForm)
 
-  const loadServices = async () => {
+  async function loadServices() {
     setLoading(true)
-    setError(null)
+    setError('')
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      setServices(mockServices)
-    } catch (err) {
-      setError('Failed to load services')
+      const response = await getServices()
+      const rows = asArray<ServiceRecord>(response)
+      setServices(rows)
+      if (rows.length && !selectedId) setSelectedId(rows[0].id)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to load services')
     } finally {
       setLoading(false)
     }
@@ -121,97 +46,144 @@ export default function ServicesManager() {
     loadServices()
   }, [])
 
-  const filteredServices = useMemo(() => {
-    return services.filter((service) => {
-      const matchesSearch = !search || service.name.toLowerCase().includes(search.toLowerCase())
-      const matchesCategory = categoryFilter === 'All' || service.category === categoryFilter
-      return matchesSearch && matchesCategory
-    })
-  }, [services, search, categoryFilter])
+  const selectedService = useMemo(
+    () => services.find((service) => service.id === selectedId) || null,
+    [services, selectedId]
+  )
 
-  const selectedService = services.find((s) => s.id === selectedId) || null
+  useEffect(() => {
+    if (selectedService) {
+      setForm({
+        name: selectedService.name || '',
+        description: selectedService.description || '',
+        duration_minutes: Number(selectedService.duration_minutes || 60),
+        price: String(selectedService.price ?? '0'),
+        category: selectedService.category || 'General',
+        is_active: selectedService.is_active ?? true,
+      })
+    } else {
+      setForm(emptyForm)
+    }
+  }, [selectedService])
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSaving(true)
+    setError('')
+    try {
+      const payload = {
+        name: form.name,
+        description: form.description,
+        duration_minutes: Number(form.duration_minutes),
+        price: Number(form.price),
+        category: form.category,
+        is_active: form.is_active,
+      }
+      if (selectedService) {
+        await updateService(selectedService.id, payload)
+      } else {
+        await createService(payload)
+      }
+      await loadServices()
+      if (!selectedService) setForm(emptyForm)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to save service')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
-    <OwnerLayout
-      title="Service Catalog"
-      subtitle="Manage your service offerings, pricing, and availability."
-    >
-      <div className="grid gap-6 lg:grid-cols-5">
-        {/* Service List */}
-        <section className="lg:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
-              Services ({filteredServices.length})
-            </h3>
-            <button className="flex items-center gap-1 rounded-xl bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-300 hover:bg-emerald-500/20 transition-colors">
-              <Plus className="h-3 w-3" />
-              Add Service
-            </button>
+    <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+      <section className="rounded-3xl border border-white/10 bg-zinc-950/40 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h4 className="text-base font-semibold text-white">Service catalog</h4>
+            <p className="text-sm text-zinc-400">Normalize pricing, duration, and merchandising inputs for reliable booking flows.</p>
           </div>
+          <button type="button" onClick={() => setSelectedId('')} className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-sm font-medium text-emerald-200">
+            New service
+          </button>
+        </div>
 
-          {/* Search and Filter */}
-          <div className="mb-4 flex flex-col gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search services"
-                className={`w-full rounded-2xl border ${semantic.border.default} bg-zinc-950/60 pl-10 pr-3 py-2 text-sm text-white outline-none`}
-              />
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
-                    categoryFilter === cat
-                      ? 'bg-emerald-500/10 text-emerald-300'
-                      : 'bg-white/[0.03] text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
+        {loading ? <p className="mt-4 text-sm text-zinc-400">Loading services…</p> : null}
+        {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
 
-          {loading ? <p className="mt-4 text-sm text-zinc-400">Loading services...</p> : null}
-          {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
-
-          <div className="space-y-3">
-            {filteredServices.map((service) => (
-              <ServiceCard
+        <div className="mt-4 space-y-3">
+          {services.map((service) => {
+            const active = service.id === selectedId
+            return (
+              <button
                 key={service.id}
-                service={service}
-                isSelected={service.id === selectedId}
-                onSelect={() => setSelectedId(service.id)}
-              />
-            ))}
-            {!loading && filteredServices.length === 0 ? (
-              <p className="text-sm text-zinc-500">No services found.</p>
+                type="button"
+                onClick={() => setSelectedId(service.id)}
+                className={[
+                  'w-full rounded-2xl border p-4 text-left transition',
+                  active ? 'border-emerald-300/40 bg-emerald-400/10' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.05]',
+                ].join(' ')}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-white">{service.name}</p>
+                    <p className="text-sm text-zinc-400">{service.category || 'General'} • {service.duration_minutes} min</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-emerald-200">₹{Number(service.price || 0).toFixed(0)}</p>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">{service.is_active ? 'Active' : 'Inactive'}</p>
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+          {!loading && !services.length ? <p className="text-sm text-zinc-500">No services found yet.</p> : null}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="mb-4">
+          <h4 className="text-base font-semibold text-white">{selectedService ? 'Edit service' : 'Create service'}</h4>
+          <p className="text-sm text-zinc-400">Keep catalog records consistent across booking, POS checkout, and analytics.</p>
+        </div>
+
+        <form className="space-y-3" onSubmit={handleSubmit}>
+          <label className="block text-sm">
+            <span className="mb-1 block text-zinc-300">Service name</span>
+            <input className="w-full rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-white outline-none" value={form.name} onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))} required />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-zinc-300">Description</span>
+            <textarea className="min-h-24 w-full rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-white outline-none" value={form.description} onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))} />
+          </label>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-sm">
+              <span className="mb-1 block text-zinc-300">Duration (minutes)</span>
+              <input type="number" min={5} step={5} className="w-full rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-white outline-none" value={form.duration_minutes} onChange={(e) => setForm((s) => ({ ...s, duration_minutes: Number(e.target.value) }))} required />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block text-zinc-300">Price</span>
+              <input type="number" min={0} step={50} className="w-full rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-white outline-none" value={form.price} onChange={(e) => setForm((s) => ({ ...s, price: e.target.value }))} required />
+            </label>
+          </div>
+          <label className="block text-sm">
+            <span className="mb-1 block text-zinc-300">Category</span>
+            <input className="w-full rounded-2xl border border-white/10 bg-zinc-950/60 px-3 py-2 text-white outline-none" value={form.category} onChange={(e) => setForm((s) => ({ ...s, category: e.target.value }))} />
+          </label>
+          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/40 px-3 py-3 text-sm text-zinc-300">
+            <input type="checkbox" checked={form.is_active} onChange={(e) => setForm((s) => ({ ...s, is_active: e.target.checked }))} />
+            Visible in booking and POS
+          </label>
+          <div className="flex flex-wrap gap-3 pt-2">
+            <button type="submit" disabled={saving} className="rounded-2xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-50">
+              {saving ? 'Saving…' : selectedService ? 'Save changes' : 'Create service'}
+            </button>
+            {selectedService ? (
+              <button type="button" onClick={() => setSelectedId('')} className="rounded-2xl border border-white/10 px-4 py-2 text-sm text-zinc-200">
+                Create new instead
+              </button>
             ) : null}
           </div>
-        </section>
-
-        {/* Service Detail */}
-        <section className="lg:col-span-3">
-          {selectedService ? (
-            <div className={`${component.card} p-6`}>
-              <ServiceDetail service={selectedService} />
-            </div>
-          ) : (
-            <div className={`${component.card} flex h-full items-center justify-center p-8`}>
-              <div className="text-center">
-                <Scissors className="mx-auto h-12 w-12 text-zinc-600" />
-                <p className="mt-4 text-sm text-zinc-500">Select a service to view details</p>
-              </div>
-            </div>
-          )}
-        </section>
-      </div>
-    </OwnerLayout>
+        </form>
+      </section>
+    </div>
   )
 }

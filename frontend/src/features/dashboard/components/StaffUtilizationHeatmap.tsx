@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { getUtilizationHeatmap, UtilizationHeatmapResponse } from '../../../services/api';
+import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../../../core/api/client';
 import { asArray } from '../../../core/api/utils';
 
 interface HeatCell {
@@ -14,8 +14,8 @@ export default function StaffUtilizationHeatmap() {
   const [data, setData] = useState<HeatCell[]>([]);
 
   useEffect(() => {
-    getUtilizationHeatmap()
-      .then((res) => setData((((res as UtilizationHeatmapResponse).heatmap || []).flat()) as unknown as HeatCell[]))
+    apiFetch<any>('/api/analytics/utilization-heatmap')
+      .then((res) => setData(asArray<HeatCell>(res)))
       .catch(() => setData([]));
   }, []);
 

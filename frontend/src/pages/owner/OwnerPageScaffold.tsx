@@ -1,102 +1,35 @@
-import type { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import OwnerLayout from '../../components/layout/OwnerLayout'
-import { glass, semantic, component } from '../../lib/design-tokens';
 
 type OwnerPageScaffoldProps = {
   title: string
   subtitle: string
   children?: ReactNode
-  actions?: ReactNode
-  intro?: ReactNode
   nextSteps?: Array<{ label: string; to: string }>
 }
 
-type OwnerSectionProps = {
-  eyebrow: string
-  title: string
-  description: string
-  children: ReactNode
-  tone?: 'default' | 'strong'
-}
-
-export function OwnerHeroBand({ badge, title, description, aside, stats }: {
-  badge: string
-  title: string
-  description: string
-  aside?: ReactNode
-  stats?: ReactNode
-}) {
+export default function OwnerPageScaffold({ title, subtitle, children, nextSteps = [] }: OwnerPageScaffoldProps) {
   return (
-    <section className="relative overflow-hidden owner-kpi-band rounded-[32px] p-5 sm:p-6 xl:p-7">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),transparent_34%,transparent_72%,rgba(255,255,255,0.02))]" />
-      <div className="relative grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_320px] xl:items-start">
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
-            <span>{badge}</span>
-          </div>
-          <h2 className="mt-4 max-w-3xl text-2xl font-semibold tracking-tight text-white sm:text-[2.15rem] xl:text-[2.45rem]">{title}</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">{description}</p>
-          {stats ? <div className="mt-6">{stats}</div> : null}
-        </div>
-        {aside ? <div className="space-y-3">{aside}</div> : null}
-      </div>
-    </section>
-  )
-}
-
-export function OwnerSection({ eyebrow, title, description, children, tone = 'default' }: OwnerSectionProps) {
-  const shellClass =
-    tone === 'strong'
-      ? 'rounded-[28px] border semantic.border.default bg-[linear-gradient(180deg,rgba(24,24,27,0.8),rgba(10,14,26,0.74))] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.22)] backdrop-blur-lg sm:p-6'
-      : 'rounded-[28px] border semantic.border.default bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.022))] p-5 shadow-[0_18px_56px_rgba(0,0,0,0.18)] backdrop-blur-lg sm:p-6'
-
-  return (
-    <section className={shellClass}>
-      <div className="space-y-4 sm:space-y-5">
-        <div className="flex flex-col gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">{eyebrow}</p>
-          <div>
-            <h3 className="text-lg font-semibold tracking-tight text-white sm:text-xl">{title}</h3>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">{description}</p>
-          </div>
-        </div>
+    <OwnerLayout title={title} subtitle={subtitle}>
+      <div className="space-y-6">
         {children}
-      </div>
-    </section>
-  )
-}
-
-export function OwnerNextSteps({ nextSteps }: { nextSteps: Array<{ label: string; to: string }> }) {
-  if (!nextSteps.length) return null
-  return (
-    <section className="rounded-[28px] owner-panel p-5 sm:p-6">
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-500">Owner navigation</p>
-        <h3 className="mt-2 text-lg font-semibold tracking-tight text-white">Next actions</h3>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-          Move into the next management area without overloading the current page.
-        </p>
-      </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {nextSteps.map((step) => (
-          <Link key={step.to} to={step.to} className="rounded-[22px] owner-panel px-4 py-4 text-sm font-medium text-zinc-200 transition hover:border-white/20 hover:text-white">
-            <span className="block text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Next area</span>
-            <span className="mt-2 block text-base font-semibold tracking-tight">{step.label}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-export default function OwnerPageScaffold({ title, subtitle, children, actions, intro, nextSteps = [] }: OwnerPageScaffoldProps) {
-  return (
-    <OwnerLayout title={title} subtitle={subtitle} actions={actions}>
-      <div className="space-y-6 lg:space-y-7">
-        {intro}
-        {children}
-        <OwnerNextSteps nextSteps={nextSteps} />
+        {nextSteps.length ? (
+          <section className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-400">Phase 0 Route Scaffold</h3>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {nextSteps.map((step) => (
+                <Link
+                  key={step.to}
+                  to={step.to}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-200 transition hover:bg-white/10"
+                >
+                  {step.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
     </OwnerLayout>
   )

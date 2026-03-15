@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
-    react(),
+    react(), 
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -35,17 +35,6 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-      }
-    }
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['recharts', 'lucide-react', 'react-icons'],
-          utils: ['axios', 'zod', 'clsx', 'tailwind-merge']
-        }
       }
     }
   }
