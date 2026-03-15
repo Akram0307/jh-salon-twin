@@ -9,8 +9,18 @@ import OwnerClientsPage from './pages/owner/OwnerClientsPage'
 import OwnerReportsPage from './pages/owner/OwnerReportsPage'
 import OwnerSettingsPage from './pages/owner/OwnerSettingsPage'
 import ClientChat from './pages/client/ClientChat'
+import ClientApp from './ClientApp'
+
+// Check if this is a Client PWA deployment
+const isClientPWA = import.meta.env.VITE_APP_TYPE === 'client'
 
 export default function App() {
+  // If this is a Client PWA deployment, render only client routes
+  if (isClientPWA) {
+    return <ClientApp />
+  }
+
+  // Default: Owner PWA with full routing
   return (
     <Router>
       <Routes>

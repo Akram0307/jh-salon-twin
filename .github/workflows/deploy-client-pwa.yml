@@ -39,7 +39,10 @@ jobs:
       - name: Build and push Client PWA Docker image
         run: |
           cd frontend
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.CLIENT_SERVICE }}:${{ github.sha }} .
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.CLIENT_SERVICE }}:${{ github.sha }} \
+            --build-arg VITE_APP_TYPE=client \
+            --build-arg VITE_API_URL=https://salonos-backend-rgvcleapsa-uc.a.run.app \
+            .
           docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.CLIENT_SERVICE }}:${{ github.sha }}
       
       - name: Deploy Client PWA to Cloud Run
@@ -56,4 +59,6 @@ jobs:
             --concurrency=80
             --timeout=60
             --max-instances=5
-            --set-env-vars="VITE_API_URL=https://salonos-backend-rgvcleapsa-uc.a.run.app"
+          env_vars: |
+            VITE_APP_TYPE=client
+            VITE_API_URL=https://salonos-backend-rgvcleapsa-uc.a.run.app
