@@ -1,6 +1,12 @@
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+let client: import('@google-cloud/secret-manager').SecretManagerServiceClient | null = null;
 
-const client = new SecretManagerServiceClient();
+function getClient(): import('@google-cloud/secret-manager').SecretManagerServiceClient {
+  if (!client) {
+    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+    client = new SecretManagerServiceClient();
+  }
+  return client;
+}
 
 async function accessSecret(secretName: string): Promise<string | undefined> {
   try {
@@ -8,12 +14,8 @@ async function accessSecret(secretName: string): Promise<string | undefined> {
     if (!projectId) return undefined;
 
     const name = `projects/${projectId}/secrets/${secretName}/versions/latest`;
-
-    const [version] = await client.accessSecretVersion({ name });
-
-    const payload = version.payload?.data?.toString();
-
-    return payload;
+    const [version] = await getClient().accessSecretVersion({ name });
+    return version.payload?.data?.toString();
   } catch (err) {
     console.warn(`Secret ${secretName} not found in Secret Manager.`);
     return undefined;

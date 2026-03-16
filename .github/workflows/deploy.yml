@@ -101,6 +101,7 @@ jobs:
             REDIS_HOST=${{ secrets.REDIS_HOST }}
             REDIS_PORT=${{ secrets.REDIS_PORT }}
             INSTANCE_CONNECTION_NAME=${{ secrets.INSTANCE_CONNECTION_NAME }}
+            NODE_ENV=production
           flags: |
             --allow-unauthenticated
             --port=8080
@@ -200,6 +201,7 @@ jobs:
             REDIS_HOST=${{ secrets.REDIS_HOST_PROD }}
             REDIS_PORT=${{ secrets.REDIS_PORT_PROD }}
             INSTANCE_CONNECTION_NAME=${{ secrets.INSTANCE_CONNECTION_NAME_PROD }}
+            NODE_ENV=production
           flags: |
             --allow-unauthenticated
             --port=8080
