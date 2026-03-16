@@ -77,3 +77,19 @@ export const requireStaffOrOwner = (req: AuthRequest, res: Response, next: NextF
   }
   next();
 };
+
+// Generic authorize middleware - checks if user has any of the specified roles
+export const authorize = (...roles: string[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const userRole = req.user.role || req.user.user_type;
+    if (!roles.includes(userRole)) {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+    
+    next();
+  };
+};
