@@ -1,0 +1,87 @@
+name: Direct Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend-next/**'
+
+env:
+  PROJECT_ID: salon-saas-487508
+  REGION: us-central1
+  GAR_LOCATION: us-central1
+  GAR_REPOSITORY: salonos-images
+  FRONTEND_SERVICE: salonos-owner-frontend
+  BACKEND_SERVICE: salonos-backend
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Build and push backend image
+        run: |
+          cd backend
+          IMAGE_TAG=$(git rev-parse --short HEAD)
+          IMAGE=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$GAR_REPOSITORY/salonos-backend:$IMAGE_TAG
+          gcloud builds submit --tag $IMAGE
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+      
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.BACKEND_SERVICE }} \
+            --image ${{ env.IMAGE }} \
+            --region $REGION \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 1Gi \
+            --cpu 1 \
+            --timeout 300 \
+            --set-env-vars "NODE_ENV=production"
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Build and push frontend image
+        run: |
+          cd frontend-next
+          IMAGE_TAG=$(git rev-parse --short HEAD)
+          IMAGE=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$GAR_REPOSITORY/salonos-owner-frontend:$IMAGE_TAG
+          gcloud builds submit --tag $IMAGE
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+      
+      - name: Deploy to Cloud Run
+        run: |
+          BACKEND_URL=$(gcloud run services describe ${{ env.BACKEND_SERVICE }} --region $REGION --format 'value(status.url)')
+          gcloud run deploy ${{ env.FRONTEND_SERVICE }} \
+            --image ${{ env.IMAGE }} \
+            --region $REGION \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 1Gi \
+            --cpu 1 \
+            --set-env-vars "NEXT_PUBLIC_API_BASE_URL=$BACKEND_URL"
