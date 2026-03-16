@@ -1,5 +1,4 @@
 import { WebSocket } from 'ws'
-import { v4 as uuidv4 } from 'uuid'
 import { ConversationContextStore, PWAConversationContext, ConversationMessage } from './ConversationContextStore'
 import { AIConciergeBookingService, BookingIntent } from './AIConciergeBookingService'
 import { BookingOrchestrator } from './BookingOrchestrator'
@@ -356,9 +355,11 @@ export class PWAConciergeService {
         
         const text = `Excellent! Your appointment has been booked successfully. Your confirmation code is: ${bookingResult.appointmentId}. We've sent a confirmation to your phone. Is there anything else I can help you with?`
         
-        const richMedia = this.config.enableRichMedia
+        const bookingSummary = this.config.enableRichMedia
           ? await RichMediaFormatter.formatBookingSummary(context.salonId, context.bookingIntent, bookingResult.appointmentId)
           : undefined
+        
+        const richMedia = bookingSummary ? { type: 'booking_summary' as const, data: bookingSummary } : undefined
         
         return { text, richMedia }
       } else {
@@ -374,9 +375,11 @@ export class PWAConciergeService {
       `Stylist: ${context.bookingIntent.staffName || 'Any available stylist'}\n\n` +
       `Does everything look correct?`
     
-    const richMedia = this.config.enableRichMedia
+    const bookingSummary = this.config.enableRichMedia
       ? await RichMediaFormatter.formatBookingSummary(context.salonId, context.bookingIntent)
       : undefined
+    
+    const richMedia = bookingSummary ? { type: 'booking_summary' as const, data: bookingSummary } : undefined
     
     return { text, richMedia }
   }

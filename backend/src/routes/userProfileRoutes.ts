@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
@@ -60,10 +60,10 @@ router.post('/avatar', upload.single('avatar'), async (req: AuthRequest, res) =>
     if (!userId || !userType) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    if (!req.file) {
+    if (!(req as any).file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    const avatarUrl = `/uploads/avatars/${(req as any).file.filename}`;
     await userProfileService.updateAvatar(userId, userType, avatarUrl);
     res.json({ success: true, data: { avatar_url: avatarUrl } });
   } catch (err) {

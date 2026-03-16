@@ -162,8 +162,8 @@ export class SlotSuggestionService extends EventEmitter {
   /**
    * Parse natural language query for slot search
    */
-  async parseNaturalLanguageQuery(query: NaturalLanguageQuery): Promise<ParsedQueryIntent> {
-    const text = query.query.toLowerCase();
+  async parseNaturalLanguageQuery(nlQuery: NaturalLanguageQuery): Promise<ParsedQueryIntent> {
+    const text = nlQuery.query.toLowerCase();
     const intent: ParsedQueryIntent = {
       urgency: 'medium',
       confidence: 0.5
@@ -265,17 +265,17 @@ export class SlotSuggestionService extends EventEmitter {
   /**
    * Get slots matching natural language query
    */
-  async getSlotsFromNaturalLanguage(query: NaturalLanguageQuery): Promise<RankedSlot[]> {
-    const intent = await this.parseNaturalLanguageQuery(query);
+  async getSlotsFromNaturalLanguage(nlQuery: NaturalLanguageQuery): Promise<RankedSlot[]> {
+    const intent = await this.parseNaturalLanguageQuery(nlQuery);
 
-    if (!query.serviceId && !intent.serviceId) {
+    if (!nlQuery.serviceId && !intent.serviceId) {
       throw new Error('Service ID required for slot search');
     }
 
     // Get service details
     const serviceResult = await query(
       `SELECT id, duration_minutes, price FROM services WHERE id = $1`,
-      [query.serviceId || intent.serviceId]
+      [nlQuery.serviceId || intent.serviceId]
     );
 
     if (serviceResult.rows.length === 0) {
@@ -290,9 +290,9 @@ export class SlotSuggestionService extends EventEmitter {
     endDate.setDate(endDate.getDate() + (intent.urgency === 'high' ? 3 : 7));
 
     const request: SlotSuggestionRequest = {
-      clientId: query.clientId,
-      salonId: query.salonId,
-      serviceId: query.serviceId || intent.serviceId!,
+      clientId: nlQuery.clientId,
+      salonId: nlQuery.salonId,
+      serviceId: nlQuery.serviceId || intent.serviceId!,
       serviceDurationMinutes: service.duration_minutes,
       servicePrice: parseFloat(service.price),
       preferredDate: intent.preferredDate,

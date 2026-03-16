@@ -1,3 +1,4 @@
+import { pool } from '../config/db';
 import { Router } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { SalonSettingsService } from '../services/SalonSettingsService';
@@ -212,7 +213,7 @@ router.put('/services/:serviceId', async (req: AuthRequest, res) => {
     if (!userId || !userType) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const { serviceId } = req.params;
+    const { serviceId } = req.params as any;
     const updates = req.body;
     await salonSettingsService.updateService(serviceId, updates);
     res.json({ success: true, message: 'Service updated' });

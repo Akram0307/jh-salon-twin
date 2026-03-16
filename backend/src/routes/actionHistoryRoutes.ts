@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { ActionHistoryService } from '../services/ActionHistoryService';
-import { authenticateToken } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 import { z } from 'zod';
 
 const router = Router();
@@ -29,9 +29,9 @@ const getHistoryQuerySchema = z.object({
   end_date: z.string().optional()
 });
 
-router.post('/salons/:salonId/actions', authenticateToken, async (req: Request, res: Response) => {
+router.post('/salons/:salonId/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const { salonId } = req.params;
+    const { salonId } = req.params as any;
     const validation = logActionSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({ error: 'Invalid request body', details: validation.error.errors });
@@ -44,9 +44,9 @@ router.post('/salons/:salonId/actions', authenticateToken, async (req: Request, 
   }
 });
 
-router.get('/salons/:salonId/actions', authenticateToken, async (req: Request, res: Response) => {
+router.get('/salons/:salonId/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const { salonId } = req.params;
+    const { salonId } = req.params as any;
     const queryValidation = getHistoryQuerySchema.safeParse(req.query);
     if (!queryValidation.success) {
       return res.status(400).json({ error: 'Invalid query parameters', details: queryValidation.error.errors });
@@ -67,9 +67,9 @@ router.get('/salons/:salonId/actions', authenticateToken, async (req: Request, r
   }
 });
 
-router.get('/salons/:salonId/actions/undoable', authenticateToken, async (req: Request, res: Response) => {
+router.get('/salons/:salonId/actions/undoable', authenticate, async (req: Request, res: Response) => {
   try {
-    const { salonId } = req.params;
+    const { salonId } = req.params as any;
     const userId = req.query.user_id as string | undefined;
     const actions = await actionHistoryService.getUndoableActions(salonId, userId);
     res.json(actions);
@@ -79,9 +79,9 @@ router.get('/salons/:salonId/actions/undoable', authenticateToken, async (req: R
   }
 });
 
-router.get('/salons/:salonId/actions/redoable', authenticateToken, async (req: Request, res: Response) => {
+router.get('/salons/:salonId/actions/redoable', authenticate, async (req: Request, res: Response) => {
   try {
-    const { salonId } = req.params;
+    const { salonId } = req.params as any;
     const userId = req.query.user_id as string | undefined;
     const actions = await actionHistoryService.getRedoableActions(salonId, userId);
     res.json(actions);
@@ -91,9 +91,9 @@ router.get('/salons/:salonId/actions/redoable', authenticateToken, async (req: R
   }
 });
 
-router.post('/salons/:salonId/actions/:actionId/undo', authenticateToken, async (req: Request, res: Response) => {
+router.post('/salons/:salonId/actions/:actionId/undo', authenticate, async (req: Request, res: Response) => {
   try {
-    const { salonId, actionId } = req.params;
+    const { salonId, actionId } = req.params as any;
     const userId = (req as any).user?.id;
     const userType = (req as any).user?.role || 'staff';
     const result = await actionHistoryService.undoAction({ actionId, salonId, userId, userType });
@@ -107,9 +107,9 @@ router.post('/salons/:salonId/actions/:actionId/undo', authenticateToken, async 
   }
 });
 
-router.post('/salons/:salonId/actions/:actionId/redo', authenticateToken, async (req: Request, res: Response) => {
+router.post('/salons/:salonId/actions/:actionId/redo', authenticate, async (req: Request, res: Response) => {
   try {
-    const { salonId, actionId } = req.params;
+    const { salonId, actionId } = req.params as any;
     const userId = (req as any).user?.id;
     const userType = (req as any).user?.role || 'staff';
     const result = await actionHistoryService.redoAction({ actionId, salonId, userId, userType });
@@ -123,9 +123,9 @@ router.post('/salons/:salonId/actions/:actionId/redo', authenticateToken, async 
   }
 });
 
-router.get('/actions/:actionId', authenticateToken, async (req: Request, res: Response) => {
+router.get('/actions/:actionId', authenticate, async (req: Request, res: Response) => {
   try {
-    const { actionId } = req.params;
+    const { actionId } = req.params as any;
     const action = await actionHistoryService.getActionById(actionId);
     if (!action) {
       return res.status(404).json({ error: 'Action not found' });

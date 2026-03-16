@@ -70,7 +70,7 @@ const PORT = process.env.PORT || 8080;
 // Secure CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [];
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -96,8 +96,7 @@ app.use(performanceMiddleware);
 app.use(requestLogger);
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', (req: any, res: any) => { res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // TASK-056: Enhanced health check with monitoring data
@@ -174,7 +173,7 @@ loadSecrets().then(() => {
 
 // Start revenue scheduler
 const revenueScheduler = new RevenueScheduler();
-revenueScheduler.start();
+revenueScheduler.start(process.env.SALON_ID || 'salon_1');
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

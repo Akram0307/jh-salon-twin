@@ -54,8 +54,7 @@ const extractSalonId = (req: Request, res: Response, next: Function) => {
   }
   
   req.body.salon_id = salon_id;
-  req.params.salon_id = salon_id;
-  next();
+    next();
 };
 
 // GET /api/payments/stats - Get payment statistics
@@ -152,7 +151,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const payment = await PaymentRecordingService.createPayment({
       ...validatedData,
       salon_id,
-      recorded_by: req.user?.id || req.body.recorded_by
+      recorded_by: (req as any).user?.id || req.body.recorded_by
     });
     
     res.status(201).json({ success: true, data: payment });
@@ -181,7 +180,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     }
 
     const payment = await PaymentRecordingService.getPaymentById(
-      req.params.id,
+      String(req.params.id),
       salon_id
     );
     
@@ -206,7 +205,7 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
     const validatedData = updatePaymentSchema.parse(req.body);
     
     const payment = await PaymentRecordingService.updatePayment(
-      req.params.id,
+      String(req.params.id),
       salon_id,
       validatedData
     );
@@ -236,7 +235,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Salon ID is required' });
     }
 
-    await PaymentRecordingService.deletePayment(req.params.id, salon_id);
+    await PaymentRecordingService.deletePayment(String(req.params.id), salon_id);
     
     res.json({ success: true, message: 'Payment deleted successfully' });
   } catch (error: any) {
@@ -259,7 +258,7 @@ router.post('/:id/refund', authenticate, async (req: Request, res: Response) => 
     const { notes } = req.body;
     
     const payment = await PaymentRecordingService.refundPayment(
-      req.params.id,
+      String(req.params.id),
       salon_id,
       notes
     );
@@ -289,7 +288,7 @@ router.post('/z-report/generate', authenticate, async (req: Request, res: Respon
     const report = await PaymentRecordingService.generateZReport(
       salon_id,
       validatedData.report_date,
-      req.user?.id || req.body.generated_by
+      (req as any).user?.id || req.body.generated_by
     );
     
     res.json({ success: true, data: report });
@@ -319,7 +318,7 @@ router.get('/z-report/:date', authenticate, async (req: Request, res: Response) 
 
     const report = await PaymentRecordingService.getZReport(
       salon_id,
-      req.params.date
+      String(req.params.date)
     );
     
     if (!report) {
@@ -383,7 +382,7 @@ router.patch('/z-report/:id/notes', authenticate, async (req: Request, res: Resp
     const validatedData = updateZReportNotesSchema.parse(req.body);
     
     const report = await PaymentRecordingService.updateZReportNotes(
-      req.params.id,
+      String(req.params.id),
       salon_id,
       validatedData.notes
     );

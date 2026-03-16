@@ -101,7 +101,7 @@ router.get('/stats', (req: Request, res: Response) => {
  */
 router.get('/:errorId', (req: Request, res: Response) => {
   try {
-    const { errorId } = req.params;
+    const { errorId } = req.params as any;
     const error = getErrorById(errorId);
     
     if (!error) {
@@ -132,7 +132,7 @@ router.get('/:errorId', (req: Request, res: Response) => {
  */
 router.patch('/:errorId/resolve', (req: Request, res: Response) => {
   try {
-    const { errorId } = req.params;
+    const { errorId } = req.params as any;
     const resolved = markErrorResolved(errorId);
     
     if (!resolved) {

@@ -9,7 +9,7 @@ export interface ActionHistory {
   action_type: string;
   entity_type: string;
   entity_id: string;
-  action_data: any;
+  action_data?: any;
   previous_state?: any;
   new_state?: any;
   is_undoable: boolean;
@@ -27,7 +27,7 @@ export interface LogActionParams {
   action_type: string;
   entity_type: string;
   entity_id: string;
-  action_data: any;
+  action_data?: any;
   previous_state?: any;
   new_state?: any;
   is_undoable?: boolean;

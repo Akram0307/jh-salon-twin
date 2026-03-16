@@ -202,7 +202,10 @@ export class SlotGenerator {
           scheduleOptimizationScore: 0,
           staffAvailabilityScore: 0,
           serviceDurationFitScore: 0,
-          revenueOptimizationScore: 0
+          revenueOptimizationScore: 0,
+          historicalPatternScore: 0,
+          contextAwareScore: 0,
+          realTimeOptimizationScore: 0
         },
         metadata: {}
       })).sort((a, b) => b.totalScore - a.totalScore);

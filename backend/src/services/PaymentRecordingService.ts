@@ -79,7 +79,7 @@ export class PaymentRecordingService {
       throw new AppError('Payment not found', 404);
     }
 
-    return payment;
+    return payment!;
   }
 
   async getPaymentsByFilters(filters: PaymentFilters): Promise<{
@@ -139,7 +139,7 @@ export class PaymentRecordingService {
       }
     }
 
-    return this.repository.updatePayment(id, salon_id, updates);
+    return this.repository.updatePayment(id, salon_id, updates) as Promise<PaymentRecord>;
   }
 
   async deletePayment(id: string, salon_id: string): Promise<void> {
@@ -179,10 +179,12 @@ export class PaymentRecordingService {
       throw new AppError('Only completed payments can be refunded', 400);
     }
 
-    return this.repository.updatePayment(id, salon_id, {
+    const updated = await this.repository.updatePayment(id, salon_id, {
       payment_status: 'refunded',
       notes: notes || `Refunded from payment ${id}`
     });
+    if (!updated) throw new AppError("Refund failed", 500);
+    return updated;
   }
 
   async getPaymentStats(
@@ -266,7 +268,11 @@ export class PaymentRecordingService {
       throw new AppError('Z-Report not found', 404);
     }
 
-    return this.repository.updateZReportNotes(id, salon_id, notes);
+    const updated = await this.repository.updateZReportNotes(id, salon_id, notes);
+    if (!updated) {
+      throw new AppError('Failed to update Z-Report notes', 500);
+    }
+    return updated;
   }
 
   // Helper method to get today's payment summary

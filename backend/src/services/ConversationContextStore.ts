@@ -16,6 +16,7 @@ export interface BookingIntent {
   preferredTime?: string
   duration?: number
   price?: number
+  confirmationCode?: string
 }
 
 export interface PWAConversationContext {

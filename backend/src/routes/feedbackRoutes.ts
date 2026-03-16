@@ -62,7 +62,7 @@ const dateRangeSchema = z.object({
 
 // Helper to get salon_id from request
 const getSalonId = (req: Request): string => {
-  return (req as any).user?.salon_id || req.params.salonId;
+  return (req as any).user?.salon_id || String((req.params as any).salonId);
 };
 
 // Helper to get user_id from request
@@ -155,7 +155,7 @@ router.get('/stats', authenticate, async (req: Request, res: Response, next: Nex
 router.get('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const salon_id = getSalonId(req);
-    const { id } = req.params;
+    const { id } = req.params as Record<string, string>;
     
     const feedback = await FeedbackAnalyticsService.getFeedbackById(id, salon_id);
     
@@ -172,10 +172,10 @@ router.get('/:id', authenticate, async (req: Request, res: Response, next: NextF
  * PATCH /api/feedback/:id
  * Update feedback (status, priority, admin notes)
  */
-router.patch('/:id', authenticate, authorize(['owner', 'manager', 'admin']), async (req: Request, res: Response, next: NextFunction) => {
+router.patch('/:id', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const salon_id = getSalonId(req);
-    const { id } = req.params;
+    const { id } = req.params as Record<string, string>;
     
     const updates = updateFeedbackSchema.parse(req.body);
     
@@ -194,10 +194,10 @@ router.patch('/:id', authenticate, authorize(['owner', 'manager', 'admin']), asy
  * DELETE /api/feedback/:id
  * Delete feedback
  */
-router.delete('/:id', authenticate, authorize(['owner', 'admin']), async (req: Request, res: Response, next: NextFunction) => {
+router.delete('/:id', authenticate, authorize('owner', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const salon_id = getSalonId(req);
-    const { id } = req.params;
+    const { id } = req.params as Record<string, string>;
     
     await FeedbackAnalyticsService.deleteFeedback(id, salon_id);
     
@@ -286,7 +286,7 @@ router.post('/analytics/track/batch', authenticate, async (req: Request, res: Re
  * GET /api/feedback/analytics
  * Get analytics events with filters
  */
-router.get('/analytics', authenticate, authorize(['owner', 'manager', 'admin']), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/analytics', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const salon_id = getSalonId(req);
     
@@ -316,7 +316,7 @@ router.get('/analytics', authenticate, authorize(['owner', 'manager', 'admin']),
  * GET /api/feedback/analytics/summary
  * Get analytics summary
  */
-router.get('/analytics/summary', authenticate, authorize(['owner', 'manager', 'admin']), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/analytics/summary', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const salon_id = getSalonId(req);
     const { start_date, end_date } = req.query as { start_date?: string; end_date?: string };
@@ -336,7 +336,7 @@ router.get('/analytics/summary', authenticate, authorize(['owner', 'manager', 'a
  * GET /api/feedback/analytics/daily
  * Get daily analytics summary
  */
-router.get('/analytics/daily', authenticate, authorize(['owner', 'manager', 'admin']), async (req: Request, res: Response, next: NextFunction) => {
+router.get('/analytics/daily', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const salon_id = getSalonId(req);
     const { start_date, end_date } = dateRangeSchema.parse(req.query);

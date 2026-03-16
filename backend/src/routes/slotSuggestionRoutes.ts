@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { SlotSuggestionService, SlotSuggestionRequest, NaturalLanguageQuery, WaitlistFitRequest } from '../services/SlotSuggestionService';
 import { SmartSlotRanker } from '../services/SmartSlotRanker';
-import { authenticateToken } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 const slotSuggestionService = SlotSuggestionService.getInstance();
@@ -10,7 +10,7 @@ const slotSuggestionService = SlotSuggestionService.getInstance();
  * GET /api/slots/smart-suggestions
  * Get AI-ranked slot suggestions based on client preferences, schedule optimization, and context
  */
-router.get('/smart-suggestions', authenticateToken, async (req: Request, res: Response) => {
+router.get('/smart-suggestions', authenticate, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -90,7 +90,7 @@ router.get('/smart-suggestions', authenticateToken, async (req: Request, res: Re
  * POST /api/slots/rank
  * Rank a custom list of slots using the AI ranking algorithm
  */
-router.post('/rank', authenticateToken, async (req: Request, res: Response) => {
+router.post('/rank', authenticate, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -162,7 +162,7 @@ router.post('/rank', authenticateToken, async (req: Request, res: Response) => {
  * GET /api/slots/optimal-times
  * Get optimal booking times for a service across a date range
  */
-router.get('/optimal-times', authenticateToken, async (req: Request, res: Response) => {
+router.get('/optimal-times', authenticate, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -220,7 +220,7 @@ router.get('/optimal-times', authenticateToken, async (req: Request, res: Respon
  * GET /api/slots/waitlist-fit
  * Find slots that fit waitlist preferences
  */
-router.get('/waitlist-fit', authenticateToken, async (req: Request, res: Response) => {
+router.get('/waitlist-fit', authenticate, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -286,7 +286,7 @@ router.get('/waitlist-fit', authenticateToken, async (req: Request, res: Respons
  * POST /api/slots/natural-language
  * Parse natural language query and return matching slots
  */
-router.post('/natural-language', authenticateToken, async (req: Request, res: Response) => {
+router.post('/natural-language', authenticate, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -335,7 +335,7 @@ router.post('/natural-language', authenticateToken, async (req: Request, res: Re
  * POST /api/slots/compare
  * Compare slots across multiple dates
  */
-router.post('/compare', authenticateToken, async (req: Request, res: Response) => {
+router.post('/compare', authenticate, async (req: Request, res: Response) => {
   const startTime = Date.now();
 
   try {
@@ -399,7 +399,7 @@ router.post('/compare', authenticateToken, async (req: Request, res: Response) =
  * POST /api/slots/interaction
  * Record user interaction with slot suggestion (accept/reject)
  */
-router.post('/interaction', authenticateToken, async (req: Request, res: Response) => {
+router.post('/interaction', authenticate, async (req: Request, res: Response) => {
   try {
     const { clientId, salonId, slotTime, accepted } = req.body;
 
@@ -434,7 +434,7 @@ router.post('/interaction', authenticateToken, async (req: Request, res: Respons
  * GET /api/slots/interaction-history
  * Get client's slot interaction history for preference learning
  */
-router.get('/interaction-history', authenticateToken, async (req: Request, res: Response) => {
+router.get('/interaction-history', authenticate, async (req: Request, res: Response) => {
   try {
     const { clientId, salonId, limit } = req.query;
 

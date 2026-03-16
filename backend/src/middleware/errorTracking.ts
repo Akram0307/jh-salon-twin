@@ -59,7 +59,7 @@ function logError(errorId: string, err: Error, req: Request): void {
     stack: err.stack,
     path: req.path,
     method: req.method,
-    ip: req.ip,
+    ip: req.ip ?? "unknown",
     userAgent: req.get('user-agent'),
     timestamp: new Date().toISOString()
   };
@@ -75,7 +75,7 @@ function storeError(errorId: string, err: Error, req: Request, severity: 'low' |
     stack: err.stack,
     path: req.path,
     method: req.method,
-    ip: req.ip,
+    ip: req.ip ?? "unknown",
     userAgent: req.get('user-agent'),
     timestamp: new Date().toISOString(),
     severity,
@@ -120,7 +120,7 @@ export const notFoundHandler = (req: Request, res: Response): void => {
     message: 'Route not found',
     path: req.path,
     method: req.method,
-    ip: req.ip,
+    ip: req.ip ?? "unknown",
     timestamp: new Date().toISOString()
   };
   

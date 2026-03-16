@@ -1,4 +1,3 @@
-import { Pool } from 'pg';
 import { stringify } from 'csv-stringify/sync';
 import { Storage } from '@google-cloud/storage';
 import { query } from '../config/db';
@@ -12,18 +11,16 @@ const writeFile = promisify(fs.writeFile);
 const unlink = promisify(fs.unlink);
 
 export class DataExportService {
-  private pool: Pool;
   private storage: Storage;
   private bucketName: string;
 
   constructor() {
-    this.pool = pool;
     this.storage = new Storage();
     this.bucketName = process.env.EXPORT_BUCKET_NAME || 'salonos-exports';
   }
 
   async exportClients(format: 'csv' | 'json' | 'excel' = 'csv', salonId?: string): Promise<{ data: string | Buffer; filename: string }> {
-    let query = `
+    let sqlQuery = `
       SELECT
         id, phone_number, full_name, email, preferences,
         total_visits, last_visit, created_at, salon_id
@@ -32,13 +29,13 @@ export class DataExportService {
 
     const params: any[] = [];
     if (salonId) {
-      query += ' WHERE salon_id = $1';
+      sqlQuery += ' WHERE salon_id = $1';
       params.push(salonId);
     }
 
-    query += ' ORDER BY created_at DESC';
+    sqlQuery += ' ORDER BY created_at DESC';
 
-    const result = await this.query(query, params);
+    const result = await query(sqlQuery, params);
     const clients = result.rows;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -63,7 +60,7 @@ export class DataExportService {
       return { data: csvData, filename };
     }
   }async exportAppointments(format: 'csv' | 'json' | 'excel' = 'csv', salonId?: string, startDate?: string, endDate?: string): Promise<{ data: string | Buffer; filename: string }> {
-    let query = `
+    let sqlQuery = `
       SELECT
         a.id, a.client_id, c.full_name as client_name, c.phone_number as client_phone,
         a.appointment_time, a.status, a.notes, a.created_at, a.salon_id,
@@ -98,12 +95,12 @@ export class DataExportService {
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      sqlQuery += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' GROUP BY a.id, c.full_name, c.phone_number ORDER BY a.appointment_time DESC';
+    sqlQuery += ' GROUP BY a.id, c.full_name, c.phone_number ORDER BY a.appointment_time DESC';
 
-    const result = await this.query(query, params);
+    const result = await query(sqlQuery, params);
     const appointments = result.rows;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -130,7 +127,7 @@ export class DataExportService {
       return { data: csvData, filename };
     }
   }async exportServices(format: 'csv' | 'json' | 'excel' = 'csv', salonId?: string): Promise<{ data: string | Buffer; filename: string }> {
-    let query = `
+    let sqlQuery = `
       SELECT
         id, name, description, duration_minutes, price,
         is_active, salon_id
@@ -139,13 +136,13 @@ export class DataExportService {
 
     const params: any[] = [];
     if (salonId) {
-      query += ' WHERE salon_id = $1';
+      sqlQuery += ' WHERE salon_id = $1';
       params.push(salonId);
     }
 
-    query += ' ORDER BY name';
+    sqlQuery += ' ORDER BY name';
 
-    const result = await this.query(query, params);
+    const result = await query(sqlQuery, params);
     const services = result.rows;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -171,7 +168,7 @@ export class DataExportService {
     }
   }
   async exportRevenue(format: 'csv' | 'json' | 'excel' = 'csv', salonId?: string, startDate?: string, endDate?: string): Promise<{ data: string | Buffer; filename: string }> {
-    let query = `
+    let sqlQuery = `
       SELECT
         DATE_TRUNC('''day''', a.appointment_time) as date,
         COUNT(DISTINCT a.id) as appointment_count,
@@ -205,12 +202,12 @@ export class DataExportService {
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      sqlQuery += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ` GROUP BY DATE_TRUNC('day', a.appointment_time) ORDER BY date DESC`;
+    sqlQuery += ` GROUP BY DATE_TRUNC('day', a.appointment_time) ORDER BY date DESC`;
 
-    const result = await this.query(query, params);
+    const result = await query(sqlQuery, params);
     const revenueData = result.rows;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -237,7 +234,7 @@ export class DataExportService {
   }
 
   async exportStaffPerformance(format: 'csv' | 'json' | 'excel' = 'csv', salonId?: string, startDate?: string, endDate?: string): Promise<{ data: string | Buffer; filename: string }> {
-    let query = `
+    let sqlQuery = `
       SELECT
         s.id as staff_id,
         s.first_name || ' ' || s.last_name as staff_name,
@@ -274,12 +271,12 @@ export class DataExportService {
     }
 
     if (conditions.length > 0) {
-      query += ' WHERE ' + conditions.join(' AND ');
+      sqlQuery += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' GROUP BY s.id, s.first_name, s.last_name ORDER BY total_revenue_generated DESC';
+    sqlQuery += ' GROUP BY s.id, s.first_name, s.last_name ORDER BY total_revenue_generated DESC';
 
-    const result = await this.query(query, params);
+    const result = await query(sqlQuery, params);
     const staffPerformance = result.rows;
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -384,7 +381,7 @@ async uploadToCloudStorage(data: string | Buffer, filename: string, contentType:
 
     // Generate buffer
     const buffer = await workbook.xlsx.writeBuffer();
-    return buffer as Buffer;
+    return Buffer.from(buffer);
   }
 
 }

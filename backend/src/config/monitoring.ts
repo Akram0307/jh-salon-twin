@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { logger } from './logger';
+import logger from './logger';
 
 // Performance metrics storage
 interface PerformanceMetric {
@@ -59,7 +59,7 @@ export const performanceMiddleware = (req: Request, res: Response, next: NextFun
     
     // Log slow requests (> 1 second)
     if (responseTime > 1000) {
-      logger.warn('Slow request detected', {
+      logger.warn({ msg: 'Slow request detected',
         method: req.method,
         path: req.path,
         responseTime: `${responseTime.toFixed(2)}ms`,
@@ -68,7 +68,7 @@ export const performanceMiddleware = (req: Request, res: Response, next: NextFun
     }
     
     // Call original end
-    return originalEnd.call(this, chunk, encoding, callback);
+    return originalEnd.call(this, chunk, encoding as BufferEncoding, callback);
   };
   
   next();

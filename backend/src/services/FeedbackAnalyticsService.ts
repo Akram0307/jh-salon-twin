@@ -101,7 +101,7 @@ export class FeedbackAnalyticsService {
       throw new AppError('Feedback not found', 404);
     }
 
-    return feedback || null;
+    return feedback;
   }
 
   async getFeedbackByFilters(filters: FeedbackFilters): Promise<{
@@ -162,7 +162,9 @@ export class FeedbackAnalyticsService {
       updates.resolved_by = updates.resolved_by || existingFeedback.user_id;
     }
 
-    return this.repository.updateFeedback(id, salon_id, updates);
+    const updated = await this.repository.updateFeedback(id, salon_id, updates);
+    if (!updated) throw new AppError("Feedback update failed", 500);
+    return updated;
   }
 
   async deleteFeedback(id: string, salon_id: string): Promise<void> {

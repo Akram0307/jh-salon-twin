@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { DataExportService } from '../services/DataExportService';
-import { authenticateToken } from '../middleware/auth';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 const exportService = new DataExportService();
 
 // Middleware to require authentication for all export routes
-router.use(authenticateToken);
+router.use(authenticate);
 
 /**
  * GET /api/exports/clients

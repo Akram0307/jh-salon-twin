@@ -191,7 +191,7 @@ export class PaymentRecordingRepository {
   async deletePayment(id: string, salon_id: string): Promise<boolean> {
     const query = 'DELETE FROM payment_records WHERE id = $1 AND salon_id = $2';
     const result = await pool.query(query, [id, salon_id]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getPaymentStats(salon_id: string, start_date?: string, end_date?: string): Promise<PaymentStats> {

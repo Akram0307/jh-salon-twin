@@ -154,7 +154,7 @@ export class ClientNoteRepository {
       `DELETE FROM client_notes WHERE id = $1 AND salon_id = $2`,
       [noteId, salonId]
     )
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 
   async searchNotes(

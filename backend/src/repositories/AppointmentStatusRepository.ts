@@ -107,7 +107,7 @@ export class AppointmentStatusRepository {
     changedByStaffId?: string,
     changeReason?: string
   ): Promise<{ updated: number, failed: string[] }> {
-    const client = await db.getClient()
+    const client = await db.connect()
     const failed: string[] = []
     let updated = 0
 
