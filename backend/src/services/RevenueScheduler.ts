@@ -28,36 +28,37 @@ export class RevenueScheduler {
 }
 
 // Automatic Rebooking AI nightly scan
-async function runAutomaticRebookingScan() {
-  const salons = await query(`SELECT id FROM salons`)
-
-  for (const salon of salons.rows) {
-    const reminders = await AutomaticRebookingEngine.scanClientsNeedingRebook(salon.id)
-
-    console.log('Auto‑rebook opportunities', salon.id, reminders.length)
-
-    // TODO: publish reminders to messaging pipeline
+export async function runAutomaticRebookingScan() {
+  try {
+    const salons = await query(`SELECT id FROM salons`);
+    for (const salon of salons.rows) {
+      const reminders = await AutomaticRebookingEngine.scanClientsNeedingRebook(salon.id);
+      console.log('Auto-rebook opportunities', salon.id, reminders.length);
+    }
+  } catch (err) {
+    console.error('[AutoRebook] Scan error:', err);
   }
 }
 
-// schedule at 3AM
-setInterval(() => {
-  runAutomaticRebookingScan().catch(console.error)
-}, 24 * 60 * 60 * 1000)
-
-
-// Auto‑rebooking messaging dispatch
-async function dispatchAutoRebookMessages(){
-
-  const salons = await query(`SELECT id FROM salons`)
-
-  for(const salon of salons.rows){
-
-    const count = await AutoRebookNotifier.processSalon(salon.id)
-
-    console.log('Auto rebook reminders sent', salon.id, count)
-
+// Auto-rebooking messaging dispatch
+export async function dispatchAutoRebookMessages() {
+  try {
+    const salons = await query(`SELECT id FROM salons`);
+    for (const salon of salons.rows) {
+      const count = await AutoRebookNotifier.processSalon(salon.id);
+      console.log('Auto rebook reminders sent', salon.id, count);
+    }
+  } catch (err) {
+    console.error('[AutoRebook] Dispatch error:', err);
   }
-
 }
 
+// Schedule background jobs - call this AFTER server starts
+export function startBackgroundJobs() {
+  // Run auto-rebook scan every 24 hours
+  setInterval(() => {
+    runAutomaticRebookingScan().catch(console.error);
+  }, 24 * 60 * 60 * 1000);
+  
+  console.log('[BackgroundJobs] Scheduled background jobs started');
+}

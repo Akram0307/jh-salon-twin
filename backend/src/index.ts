@@ -51,7 +51,7 @@ import { twilioWebhook } from './webhooks/twilio';
 import { loadSecrets } from './config/secrets';
 import { startTelemetry } from './config/telemetry';
 import redis from './config/redis';
-import { RevenueScheduler } from './services/RevenueScheduler';
+import { RevenueScheduler, startBackgroundJobs } from './services/RevenueScheduler';
 import actionHistoryRoutes from './routes/actionHistoryRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 
@@ -174,6 +174,9 @@ loadSecrets().then(() => {
 // Start revenue scheduler
 const revenueScheduler = new RevenueScheduler();
 revenueScheduler.start(process.env.SALON_ID || 'salon_1');
+
+// Start background jobs after server is listening
+startBackgroundJobs();
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
