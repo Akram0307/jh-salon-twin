@@ -57,10 +57,30 @@ import { performanceMiddleware, getHealthStatus } from './config/monitoring';
 
 console.log('[STARTUP] 2. Modules loaded');
 
+// Crash detection - log any uncaught errors
+process.on('uncaughtException', (err) => {
+  console.error('[CRASH] Uncaught Exception:', err);
+  console.error('[CRASH] Stack:', err.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[CRASH] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
 console.log('[STARTUP] 3. Configuring middleware...');
+console.log('[STARTUP] NODE_ENV:', process.env.NODE_ENV);
+console.log('[STARTUP] PORT:', PORT);
+
+// Validate required environment variables
+const requiredEnvVars = ['JWT_SECRET', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
+if (missingEnvVars.length > 0) {
+  console.warn('[STARTUP] Warning: Missing environment variables:', missingEnvVars.join(', '));
+}
 
 // CORS
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [];
@@ -85,7 +105,7 @@ app.use(requestLogger);
 console.log('[STARTUP] 4. Middleware configured');
 
 // Health check - responds immediately
-app.get('/health', (req: any, res: any) => { 
+app.get('/health', (req: any, res: any) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 app.get('/api/health/detailed', (req, res) => {
@@ -152,21 +172,29 @@ server.listen(PORT, () => {
   console.log(`[STARTUP] ✓ Server listening on port ${PORT}`);
   console.log(`[STARTUP] Environment: ${process.env.NODE_ENV || 'development'}`);
   
-  // Load secrets asynchronously
+  // Load secrets asynchronously (non-blocking)
   loadSecrets().then(() => {
     console.log('[STARTUP] Secrets loaded');
   }).catch(err => {
     console.error('[STARTUP] Failed to load secrets:', err);
   });
   
-  // Background jobs after server starts
+  // Background jobs after server starts (delayed to ensure server is ready)
   setTimeout(() => {
     console.log('[STARTUP] Initializing background jobs...');
-    const revenueScheduler = new RevenueScheduler();
-    revenueScheduler.start(process.env.SALON_ID || 'salon_1');
-    startBackgroundJobs();
-    console.log('[STARTUP] Background jobs initialized');
-  }, 1000);
+    try {
+      const revenueScheduler = new RevenueScheduler();
+      revenueScheduler.start(process.env.SALON_ID || 'salon_1');
+      startBackgroundJobs();
+      console.log('[STARTUP] Background jobs initialized');
+    } catch (err) {
+      console.error('[STARTUP] Background job init error (non-fatal):', err);
+    }
+  }, 2000);
+});
+
+server.on('error', (err) => {
+  console.error('[STARTUP] Server error:', err);
 });
 
 process.on('SIGTERM', () => {
