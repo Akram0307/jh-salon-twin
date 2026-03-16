@@ -13,6 +13,40 @@ import ServiceBreakdownChart from '@/components/staff/earnings/ServiceBreakdownC
 import CommissionDetails from '@/components/staff/earnings/CommissionDetails';
 import PeriodComparison from '@/components/staff/earnings/PeriodComparison';
 
+// Type definitions for earnings data
+interface EarningsData {
+  daily: {
+    amount: number;
+    change: number;
+  };
+  weekly: {
+    amount: number;
+    change: number;
+  };
+  monthly: {
+    amount: number;
+    change: number;
+  };
+  serviceBreakdown: Array<{
+    service: string;
+    amount: number;
+    percentage: number;
+  }>;
+  commission: {
+    rate: number;
+    totalEarnings: number;
+    commissionAmount: number;
+    tips: number;
+    totalCompensation: number;
+  };
+  periodComparison: {
+    currentWeek: number;
+    previousWeek: number;
+    change: number;
+    trend: 'up' | 'down';
+  };
+}
+
 // Mock data for development
 const mockEarningsData = {
   daily: {
