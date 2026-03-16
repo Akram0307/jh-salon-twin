@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'salonos-dev-secret-2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required but not set.');
+}
 
 export interface AuthRequest extends Request {
   user?: {

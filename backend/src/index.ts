@@ -6,6 +6,8 @@ if (process.env.NODE_ENV !== "production") {
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import { rateLimiter } from './middleware/rateLimiter';
+import { securityHeaders } from './middleware/securityHeaders';
 
 // Now import modules that depend on env vars
 import pool from './config/db';
@@ -65,8 +67,27 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
-app.use(cors());
+// Secure CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
 app.use(express.json());
+
+// Security: Rate limiting
+app.use(rateLimiter);
+
+// Security: Headers
+app.use(securityHeaders);
 
 // TASK-056: Add performance monitoring middleware
 app.use(performanceMiddleware);
