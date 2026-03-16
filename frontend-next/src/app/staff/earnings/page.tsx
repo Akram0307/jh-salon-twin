@@ -44,13 +44,13 @@ const mockEarningsData = {
     currentWeek: 2850,
     previousWeek: 2635,
     change: 8.2,
-    trend: 'up',
+    trend: 'up' as const,
   },
 };
 
 export default function StaffEarningsPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [earningsData, setEarningsData] = useState(mockEarningsData);
+  const [earningsData, setEarningsData] = useState<EarningsData>(mockEarningsData);
   const [selectedPeriod, setSelectedPeriod] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
 
   useEffect(() => {
