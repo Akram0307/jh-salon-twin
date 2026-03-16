@@ -9,12 +9,15 @@
 
 import { useState, useEffect } from 'react';
 import StaffScheduleTimeline from '@/components/staff/StaffScheduleTimeline';
-import { Appointment } from '@/types/appointment';
+import { StaffAppointment } from '@/types/appointment';
 
-// Mock data for development
-const mockAppointments: Appointment[] = [
+// Mock data for development - FIXED with all required properties
+const mockAppointments: StaffAppointment[] = [
   {
     id: '1',
+    clientId: 'client-001',
+    staffId: 'staff-001',
+    serviceId: 'service-001',
     clientName: 'Sarah Johnson',
     serviceName: 'Women\'s Haircut',
     startTime: new Date().setHours(9, 0, 0, 0).toString(),
@@ -22,9 +25,20 @@ const mockAppointments: Appointment[] = [
     clientPreferences: 'Prefers shorter layers, sensitive scalp',
     notes: 'Regular client, likes to chat about travel',
     status: 'confirmed',
+    price: 65,
+    total: 65,
+    paymentStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    durationMinutes: 45,
+    isUpcoming: true,
+    isCurrent: false,
   },
   {
     id: '2',
+    clientId: 'client-002',
+    staffId: 'staff-001',
+    serviceId: 'service-002',
     clientName: 'Emily Chen',
     serviceName: 'Balayage Highlights',
     startTime: new Date().setHours(10, 0, 0, 0).toString(),
@@ -32,9 +46,20 @@ const mockAppointments: Appointment[] = [
     clientPreferences: 'Natural-looking highlights, low maintenance',
     notes: 'Allergic to ammonia-based products',
     status: 'confirmed',
+    price: 250,
+    total: 250,
+    paymentStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    durationMinutes: 120,
+    isUpcoming: true,
+    isCurrent: false,
   },
   {
     id: '3',
+    clientId: 'client-003',
+    staffId: 'staff-001',
+    serviceId: 'service-003',
     clientName: 'Michael Brown',
     serviceName: 'Men\'s Haircut + Beard Trim',
     startTime: new Date().setHours(12, 30, 0, 0).toString(),
@@ -42,9 +67,20 @@ const mockAppointments: Appointment[] = [
     clientPreferences: 'Classic side part, fade on sides',
     notes: '',
     status: 'confirmed',
+    price: 45,
+    total: 45,
+    paymentStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    durationMinutes: 45,
+    isUpcoming: true,
+    isCurrent: false,
   },
   {
     id: '4',
+    clientId: 'client-004',
+    staffId: 'staff-001',
+    serviceId: 'service-004',
     clientName: 'Jessica Williams',
     serviceName: 'Keratin Treatment',
     startTime: new Date().setHours(14, 0, 0, 0).toString(),
@@ -52,9 +88,20 @@ const mockAppointments: Appointment[] = [
     clientPreferences: 'Curly hair, wants frizz control',
     notes: 'First time getting keratin, explain process',
     status: 'confirmed',
+    price: 300,
+    total: 300,
+    paymentStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    durationMinutes: 150,
+    isUpcoming: true,
+    isCurrent: false,
   },
   {
     id: '5',
+    clientId: 'client-005',
+    staffId: 'staff-001',
+    serviceId: 'service-005',
     clientName: 'David Lee',
     serviceName: 'Hair Color + Style',
     startTime: new Date().setHours(17, 0, 0, 0).toString(),
@@ -62,8 +109,17 @@ const mockAppointments: Appointment[] = [
     clientPreferences: 'Covering gray, warm chestnut tone',
     notes: 'Prefers appointment at end of day',
     status: 'confirmed',
+    price: 180,
+    total: 180,
+    paymentStatus: 'pending',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    durationMinutes: 90,
+    isUpcoming: true,
+    isCurrent: false,
   },
 ];
+
 
 export default function StaffSchedulePage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
