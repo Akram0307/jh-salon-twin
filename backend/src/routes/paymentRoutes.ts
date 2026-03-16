@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import PaymentRecordingService from '../services/PaymentRecordingService';
 import { authenticate } from '../middleware/auth';
 import { z } from 'zod';
