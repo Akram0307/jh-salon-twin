@@ -1,11 +1,6 @@
 name: Visual Regression Tests
 
 on:
-  pull_request:
-    branches: [main, develop]
-    paths:
-      - 'frontend-next/**'
-      - 'e2e/**'
   workflow_dispatch:
 
 env:
