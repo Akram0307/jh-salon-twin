@@ -47,7 +47,7 @@ export async function getClient() {
 export const pool = {
   query: (text: string, params?: any[]) => getPool().query(text, params),
   connect: () => getPool().connect(),
-  on: (event: "error" | "connect" | "acquire" | "release" | "remove", handler: Function) => getPool().on(event, handler as any),
+  on: (event: "error" | "connect" | "acquire" | "release" | "remove", handler: (...args: any[]) => void) => getPool().on(event, handler as any),
   end: () => getPool().end(),
 };
 

@@ -19,28 +19,28 @@ export function createMockQueryResult<T extends QueryResultRow = any>(rows: T[])
  */
 export function createMockPoolClient(): PoolClient {
   return {
-    query: jest.fn(),
-    release: jest.fn(),
-    connect: jest.fn(),
-    copyFrom: jest.fn(),
-    copyTo: jest.fn(),
-    pauseDrain: jest.fn(),
-    resumeDrain: jest.fn(),
-    escapeIdentifier: jest.fn(),
-    escapeLiteral: jest.fn(),
-    setTypeParser: jest.fn(),
-    getTypeParser: jest.fn(),
-    on: jest.fn(),
-    off: jest.fn(),
-    once: jest.fn(),
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    removeAllListeners: jest.fn(),
-    emit: jest.fn(),
-    eventNames: jest.fn(),
-    listenerCount: jest.fn(),
-    prependListener: jest.fn(),
-    prependOnceListener: jest.fn(),
+    query: vi.fn(),
+    release: vi.fn(),
+    connect: vi.fn(),
+    copyFrom: vi.fn(),
+    copyTo: vi.fn(),
+    pauseDrain: vi.fn(),
+    resumeDrain: vi.fn(),
+    escapeIdentifier: vi.fn(),
+    escapeLiteral: vi.fn(),
+    setTypeParser: vi.fn(),
+    getTypeParser: vi.fn(),
+    on: vi.fn(),
+    off: vi.fn(),
+    once: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    removeAllListeners: vi.fn(),
+    emit: vi.fn(),
+    eventNames: vi.fn(),
+    listenerCount: vi.fn(),
+    prependListener: vi.fn(),
+    prependOnceListener: vi.fn(),
     raw: false,
     binary: false,
     rows: [],
@@ -52,7 +52,7 @@ export function createMockPoolClient(): PoolClient {
  * Creates a mock that returns a QueryResult
  */
 export function mockQueryResult<T extends QueryResultRow = any>(rows: T[]) {
-  return jest.fn().mockResolvedValue(createMockQueryResult(rows));
+  return vi.fn().mockResolvedValue(createMockQueryResult(rows));
 }
 
 /**

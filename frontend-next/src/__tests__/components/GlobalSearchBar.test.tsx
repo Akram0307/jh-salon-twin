@@ -1,138 +1,169 @@
 /**
  * GlobalSearchBar Component Tests
- * Tests for search functionality, keyboard navigation, and results display
+ * Tests for global search functionality
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GlobalSearchBar } from '@/components/search/GlobalSearchBar';
+import { SearchProvider } from '@/contexts/SearchContext';
 
-// Mock fetch for search API
-global.fetch = vi.fn();
+// Mock the SearchContext
+const mockOpenSearch = vi.fn();
+const mockCloseSearch = vi.fn();
+const mockSetQuery = vi.fn();
+const mockSearch = vi.fn();
+const mockSetActiveTab = vi.fn();
+const mockAddToRecentSearches = vi.fn();
+
+interface MockSearchContext {
+  isOpen: boolean;
+  openSearch: () => void;
+  closeSearch: () => void;
+  query: string;
+  setQuery: (q: string) => void;
+  search: () => void;
+  isLoading: boolean;
+  suggestions: Array<{ id: string; title: string; type: string }>;
+  recentSearches: string[];
+  addToRecentSearches: (q: string) => void;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
+
+let mockSearchContext: MockSearchContext = {
+  isOpen: true,
+  openSearch: mockOpenSearch,
+  closeSearch: mockCloseSearch,
+  query: '',
+  setQuery: mockSetQuery,
+  search: mockSearch,
+  isLoading: false,
+  suggestions: [],
+  recentSearches: [],
+  addToRecentSearches: mockAddToRecentSearches,
+  activeTab: 'all',
+  setActiveTab: mockSetActiveTab,
+};
+
+// Mock the useSearch hook
+vi.mock('@/contexts/SearchContext', () => ({
+  useSearch: () => mockSearchContext,
+  SearchProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
 
 describe('GlobalSearchBar', () => {
-  const defaultProps = {
-    onResultSelect: vi.fn(),
-    placeholder: 'Search clients, appointments...',
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
-    (global.fetch as any).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({
-        results: [
-          { id: '1', type: 'client', name: 'John Doe', subtitle: 'Regular client' },
-          { id: '2', type: 'appointment', name: 'Haircut - 10:00 AM', subtitle: 'Tomorrow' },
-        ],
-      }),
-    });
+    // Reset mock context to default values
+    mockSearchContext = {
+      isOpen: true,
+      openSearch: mockOpenSearch,
+      closeSearch: mockCloseSearch,
+      query: '',
+      setQuery: mockSetQuery,
+      search: mockSearch,
+      isLoading: false,
+      suggestions: [],
+      recentSearches: [],
+      addToRecentSearches: mockAddToRecentSearches,
+      activeTab: 'all',
+      setActiveTab: mockSetActiveTab,
+    };
   });
 
   it('renders without crashing', () => {
-    render(<GlobalSearchBar {...defaultProps} />);
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
     expect(screen.getByPlaceholderText(/search/i)).toBeInTheDocument();
   });
 
-  it('displays custom placeholder', () => {
-    render(<GlobalSearchBar {...defaultProps} placeholder="Find anything..." />);
-    expect(screen.getByPlaceholderText('Find anything...')).toBeInTheDocument();
+  it('displays search input', () => {
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
-  it('shows search input that accepts text', () => {
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-    expect(input).toHaveValue('John');
+  it('calls setQuery when typing', () => {
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'test' } });
+    expect(mockSetQuery).toHaveBeenCalledWith('test');
   });
 
-  it('triggers search on input change', async () => {
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
-    });
+  it('calls search when pressing enter', () => {
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    const input = screen.getByRole('textbox');
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+    expect(mockSearch).toHaveBeenCalled();
   });
 
-  it('displays search results', async () => {
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-      expect(screen.getByText('Haircut - 10:00 AM')).toBeInTheDocument();
-    });
+  it('shows loading state when isLoading is true', () => {
+    mockSearchContext.isLoading = true;
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
   });
 
-  it('calls onResultSelect when a result is clicked', async () => {
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText('John Doe'));
-    expect(defaultProps.onResultSelect).toHaveBeenCalled();
+  it('displays suggestions when available', () => {
+    mockSearchContext.suggestions = [
+      { id: '1', title: 'Suggestion 1', type: 'client' },
+      { id: '2', title: 'Suggestion 2', type: 'appointment' },
+    ];
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    expect(screen.getByText('Suggestion 1')).toBeInTheDocument();
+    expect(screen.getByText('Suggestion 2')).toBeInTheDocument();
   });
 
-  it('shows loading state while searching', async () => {
-    (global.fetch as any).mockImplementation(() => new Promise(() => {})); // Never resolves
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('search-loading') || screen.getByRole('progressbar')).toBeInTheDocument();
-    });
+  it('displays recent searches when available', () => {
+    mockSearchContext.recentSearches = ['recent1', 'recent2'];
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    expect(screen.getByText('recent1')).toBeInTheDocument();
+    expect(screen.getByText('recent2')).toBeInTheDocument();
   });
 
-  it('clears search when clear button is clicked', async () => {
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-    });
-
-    const clearButton = screen.getByRole('button', { name: /clear/i });
-    fireEvent.click(clearButton);
-    expect(input).toHaveValue('');
+  it('calls closeSearch when close button is clicked', () => {
+    render(
+      <SearchProvider>
+        <GlobalSearchBar />
+      </SearchProvider>
+    );
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    fireEvent.click(closeButton);
+    expect(mockCloseSearch).toHaveBeenCalled();
   });
 
-  it('navigates results with keyboard', async () => {
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'John' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-    });
-
-    // Press arrow down to select first result
-    fireEvent.keyDown(input, { key: 'ArrowDown' });
-    // Press Enter to select
-    fireEvent.keyDown(input, { key: 'Enter' });
-
-    expect(defaultProps.onResultSelect).toHaveBeenCalled();
-  });
-
-  it('shows no results message when search returns empty', async () => {
-    (global.fetch as any).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ results: [] }),
-    });
-    render(<GlobalSearchBar {...defaultProps} />);
-    const input = screen.getByPlaceholderText(/search/i);
-    fireEvent.change(input, { target: { value: 'xyz123' } });
-
-    await waitFor(() => {
-      expect(screen.getByText(/no results/i)).toBeInTheDocument();
-    });
+  it('applies custom className', () => {
+    const { container } = render(
+      <SearchProvider>
+        <GlobalSearchBar className="custom-class" />
+      </SearchProvider>
+    );
+    expect(container.firstChild).toHaveClass('custom-class');
   });
 });

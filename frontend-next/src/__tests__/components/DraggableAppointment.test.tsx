@@ -1,107 +1,118 @@
 /**
  * DraggableAppointment Component Tests
- * Tests for drag-and-drop functionality, rendering, and interactions
+ * Tests for appointment drag and drop functionality
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { DraggableAppointment } from '@/components/schedule/DraggableAppointment';
 
-// Mock @dnd-kit/core
-vi.mock('@dnd-kit/core', () => ({
-  useDraggable: () => ({
+// Mock the @dnd-kit/sortable hook
+vi.mock('@dnd-kit/sortable', () => ({
+  useSortable: () => ({
     attributes: {},
-    listeners: { onMouseDown: vi.fn() },
+    listeners: {},
     setNodeRef: vi.fn(),
     transform: null,
+    transition: null,
     isDragging: false,
   }),
 }));
 
 describe('DraggableAppointment', () => {
   const mockAppointment = {
-    id: 'apt-123',
-    clientName: 'Jane Smith',
+    id: 'appointment-1',
+    clientName: 'John Doe',
     serviceName: 'Haircut',
-    staffName: 'John Doe',
+    staffName: 'Jane Smith',
     startTime: '10:00',
     endTime: '11:00',
-    status: 'confirmed' as const,
+    status: 'confirmed',
     color: '#3b82f6',
   };
 
-  const defaultProps = {
-    appointment: mockAppointment,
-    onClick: vi.fn(),
-  };
+  const mockOnClick = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('renders without crashing', () => {
-    render(<DraggableAppointment {...defaultProps} />);
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 
   it('displays client name', () => {
-    render(<DraggableAppointment {...defaultProps} />);
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
 
   it('displays service name', () => {
-    render(<DraggableAppointment {...defaultProps} />);
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
     expect(screen.getByText('Haircut')).toBeInTheDocument();
   });
 
   it('displays staff name', () => {
-    render(<DraggableAppointment {...defaultProps} />);
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
+    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
 
   it('calls onClick when clicked', () => {
-    render(<DraggableAppointment {...defaultProps} />);
-    const appointmentElement = screen.getByText('Jane Smith').closest('div[class*="cursor"]') || screen.getByText('Jane Smith').parentElement;
-    if (appointmentElement) {
-      fireEvent.click(appointmentElement);
-      expect(defaultProps.onClick).toHaveBeenCalled();
-    }
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
+    const appointmentElement = screen.getByText('John Doe').closest('div');
+    fireEvent.click(appointmentElement!);
+    expect(mockOnClick).toHaveBeenCalled();
   });
 
-  it('shows status badge', () => {
-    render(<DraggableAppointment {...defaultProps} />);
-    expect(screen.getByText(/confirmed/i)).toBeInTheDocument();
+  it('displays appointment time', () => {
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
+    expect(screen.getByText('10:00 - 11:00')).toBeInTheDocument();
   });
 
-  it('applies custom color when provided', () => {
-    const { container } = render(<DraggableAppointment {...defaultProps} />);
-    const appointmentElement = container.firstChild as HTMLElement;
-    // Check that the component renders with some styling
-    expect(appointmentElement).toBeInTheDocument();
-  });
-
-  it('renders with correct appointment data', () => {
-    render(<DraggableAppointment {...defaultProps} />);
-    // All appointment data should be rendered
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-    expect(screen.getByText('Haircut')).toBeInTheDocument();
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-  });
-
-  it('renders with different appointment data', () => {
-    const differentAppointment = {
-      id: 'apt-456',
-      clientName: 'Bob Wilson',
-      serviceName: 'Color',
-      staffName: 'Alice Brown',
-      startTime: '14:00',
-      endTime: '15:30',
-      status: 'pending' as const,
-    };
-
-    render(<DraggableAppointment appointment={differentAppointment} onClick={vi.fn()} />);
-    expect(screen.getByText('Bob Wilson')).toBeInTheDocument();
-    expect(screen.getByText('Color')).toBeInTheDocument();
-    expect(screen.getByText('Alice Brown')).toBeInTheDocument();
+  it('displays status badge', () => {
+    render(
+      <DraggableAppointment
+        id="appointment-1"
+        appointment={mockAppointment}
+        onClick={mockOnClick}
+      />
+    );
+    expect(screen.getByText('confirmed')).toBeInTheDocument();
   });
 });

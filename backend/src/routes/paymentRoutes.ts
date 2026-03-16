@@ -44,7 +44,7 @@ const updateZReportNotesSchema = z.object({
 });
 
 // Middleware to extract salon_id from request
-const extractSalonId = (req: Request, res: Response, next: Function) => {
+const extractSalonId = (req: Request, res: Response, next: NextFunction) => {
   // In a real app, this would come from the authenticated user's session
   // For now, we'll use a header or query param
   const salon_id = req.headers['x-salon-id'] as string || req.query.salon_id as string;
