@@ -11,6 +11,29 @@ import { useState, useEffect } from 'react';
 import StaffScheduleTimeline from '@/components/staff/StaffScheduleTimeline';
 import { StaffAppointment } from '@/types/appointment';
 
+// Type definitions for appointment data
+interface Appointment {
+  id: string;
+  clientId: string;
+  staffId: string;
+  serviceId: string;
+  clientName: string;
+  serviceName: string;
+  startTime: string;
+  endTime: string;
+  clientPreferences?: string;
+  notes?: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no-show';
+  price: number;
+  total: number;
+  paymentStatus: 'pending' | 'paid' | 'refunded';
+  createdAt: string;
+  updatedAt: string;
+  durationMinutes: number;
+  isUpcoming: boolean;
+  isCurrent: boolean;
+}
+
 // Mock data for development - FIXED with all required properties
 const mockAppointments: StaffAppointment[] = [
   {
