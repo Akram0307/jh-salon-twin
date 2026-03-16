@@ -3,14 +3,13 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+console.log('[STARTUP] 1. Loading modules...');
+
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { rateLimiter } from './middleware/rateLimiter';
 import { securityHeaders } from './middleware/securityHeaders';
-
-// Now import modules that depend on env vars
-import pool from './config/db';
 import clientRoutes from './routes/clientRoutes';
 import clientNotesRoutes from './routes/clientNotesRoutes';
 import clientSearchRoutes from './routes/clientSearchRoutes';
@@ -41,33 +40,29 @@ import salonSettingsRoutes from './routes/salonSettingsRoutes';
 import staffProfileRoutes from './routes/staffProfileRoutes';
 import healthRoutes from './routes/healthRoutes';
 import notificationRoutes from './routes/notificationRoutes';
-import slotSuggestionRoutes from './routes/slotSuggestionRoutes';
 import clientBookingRoutes from './routes/clientBookingRoutes';
 import staffWorkspaceRoutes from './routes/staffWorkspaceRoutes';
 import appointmentStatusRoutes from './routes/appointmentStatusRoutes';
 import { webSocketService } from './services/WebSocketService';
-import { requestLogger, errorHandler, notFoundHandler } from './middleware/requestLogger';
-import { twilioWebhook } from './webhooks/twilio';
+import { requestLogger, notFoundHandler } from './middleware/requestLogger';
 import { loadSecrets } from './config/secrets';
 import { startTelemetry } from './config/telemetry';
-import redis from './config/redis';
 import { RevenueScheduler, startBackgroundJobs } from './services/RevenueScheduler';
 import actionHistoryRoutes from './routes/actionHistoryRoutes';
 import paymentRoutes from './routes/paymentRoutes';
-
-// TASK-057: Import error tracking middleware and routes
-import { errorTracking, notFoundHandler as errorNotFoundHandler } from './middleware/errorTracking';
+import { errorTracking } from './middleware/errorTracking';
 import adminErrorRoutes from './routes/adminErrors';
 import exportRoutes from './routes/exportRoutes';
-
-// TASK-056: Import performance monitoring middleware
 import { performanceMiddleware, getHealthStatus } from './config/monitoring';
+
+console.log('[STARTUP] 2. Modules loaded');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
-// Secure CORS configuration
+console.log('[STARTUP] 3. Configuring middleware...');
+
+// CORS
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : [];
 app.use(cors({
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -82,28 +77,22 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 app.use(express.json());
-
-// Security: Rate limiting
 app.use(rateLimiter);
-
-// Security: Headers
 app.use(securityHeaders);
-
-// TASK-056: Add performance monitoring middleware
 app.use(performanceMiddleware);
-
-// Request logging middleware
 app.use(requestLogger);
 
-// Health check
-app.get('/health', (req: any, res: any) => { res.json({ status: 'ok', timestamp: new Date().toISOString() });
+console.log('[STARTUP] 4. Middleware configured');
+
+// Health check - responds immediately
+app.get('/health', (req: any, res: any) => { 
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+app.get('/api/health/detailed', (req, res) => {
+  res.json(getHealthStatus());
 });
 
-// TASK-056: Enhanced health check with monitoring data
-app.get('/api/health/detailed', (req, res) => {
-  const healthStatus = getHealthStatus();
-  res.json(healthStatus);
-});
+console.log('[STARTUP] 5. Registering routes...');
 
 // Routes
 app.use('/api/clients', clientRoutes);
@@ -135,74 +124,57 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/user-profile', userProfileRoutes);
 app.use('/api/salon-settings', salonSettingsRoutes);
 app.use('/api/staff-profile', staffProfileRoutes);
-app.use('/api', healthRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api', actionHistoryRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/client', clientBookingRoutes);
 app.use('/api/staff', staffWorkspaceRoutes);
 app.use('/api/appointments', appointmentStatusRoutes);
-
-// TASK-057: Add admin error routes
 app.use('/api/admin/errors', adminErrorRoutes);
 app.use('/api/exports', exportRoutes);
-
-// 404 handler
 app.use(notFoundHandler);
-
-// TASK-057: Add error tracking middleware (must be last)
 app.use(errorTracking);
 
-// Start server
+console.log('[STARTUP] 6. Routes registered');
+
 const server = http.createServer(app);
 
-// Initialize WebSocket service
+console.log('[STARTUP] 7. Initializing WebSocket...');
 webSocketService.initialize(server);
 
-// Start telemetry if configured
 if (process.env.OTEL_ENABLED === 'true') {
   startTelemetry();
 }
 
-// Load secrets
-loadSecrets().then(() => {
-  console.log('Secrets loaded successfully');
-}).catch(err => {
-  console.error('Failed to load secrets:', err);
-});
+console.log('[STARTUP] 8. Starting server on port', PORT);
 
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Detailed health: http://localhost:${PORT}/api/health/detailed`);
-  console.log(`Error stats: http://localhost:${PORT}/api/admin/errors/stats`);
+  console.log(`[STARTUP] ✓ Server listening on port ${PORT}`);
+  console.log(`[STARTUP] Environment: ${process.env.NODE_ENV || 'development'}`);
   
-  // Initialize background jobs AFTER server is listening
-  // This prevents blocking Cloud Run health checks
+  // Load secrets asynchronously
+  loadSecrets().then(() => {
+    console.log('[STARTUP] Secrets loaded');
+  }).catch(err => {
+    console.error('[STARTUP] Failed to load secrets:', err);
+  });
+  
+  // Background jobs after server starts
   setTimeout(() => {
+    console.log('[STARTUP] Initializing background jobs...');
     const revenueScheduler = new RevenueScheduler();
     revenueScheduler.start(process.env.SALON_ID || 'salon_1');
     startBackgroundJobs();
-    console.log('Background jobs initialized');
+    console.log('[STARTUP] Background jobs initialized');
   }, 1000);
 });
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
+  console.log('SIGTERM received. Shutting down...');
+  server.close(() => process.exit(0));
 });
 
 process.on('SIGINT', () => {
-  console.log('SIGINT received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
+  console.log('SIGINT received. Shutting down...');
+  server.close(() => process.exit(0));
 });
-
-export { app, server };

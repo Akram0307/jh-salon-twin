@@ -69,7 +69,7 @@ jobs:
           flags: |
             --allow-unauthenticated
             --port=8080
-            --memory=512Mi
+            --memory=1Gi
             --cpu=1
             --concurrency=80
             --timeout=300
@@ -106,7 +106,7 @@ jobs:
           flags: |
             --allow-unauthenticated
             --port=8080
-            --memory=512Mi
+            --memory=1Gi
             --cpu=1
             --concurrency=80
             --timeout=300
@@ -170,7 +170,7 @@ jobs:
           flags: |
             --allow-unauthenticated
             --port=8080
-            --memory=512Mi
+            --memory=1Gi
             --cpu=1
             --concurrency=80
             --timeout=300
@@ -207,7 +207,7 @@ jobs:
           flags: |
             --allow-unauthenticated
             --port=8080
-            --memory=512Mi
+            --memory=1Gi
             --cpu=1
             --concurrency=80
             --timeout=300
