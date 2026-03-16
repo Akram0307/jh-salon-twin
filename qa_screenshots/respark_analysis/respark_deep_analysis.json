@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-03-16T07:06:54.750Z",
+  "login": {
+    "url": "https://dashboard.respark.in/#/login",
+    "title": "Respark Dashboard",
+    "hasUsernameField": true,
+    "hasPasswordField": true,
+    "hasLoginButton": true
+  },
+  "dashboard": {
+    "url": "https://dashboard.respark.in/#/quick-sale",
+    "title": "Respark Dashboard",
+    "navigation": []
+  },
+  "sections": {
+    "Quick Sale": {
+      "captured": false
+    },
+    "Appointments": {
+      "captured": false
+    },
+    "Services": {
+      "captured": false
+    },
+    "Staff": {
+      "captured": false
+    },
+    "Clients": {
+      "captured": false
+    },
+    "Reports": {
+      "captured": false
+    },
+    "Settings": {
+      "captured": false
+    }
+  },
+  "design": {
+    "frameworks": [
+      "Material UI",
+      "Vue.js",
+      "React"
+    ],
+    "colors": {
+      "background": "rgb(238, 236, 241)",
+      "text": "rgb(0, 0, 0)",
+      "font": "Poppins, sans-serif"
+    },
+    "elements": {
+      "buttons": 15,
+      "inputs": 19,
+      "tables": 0,
+      "forms": 0,
+      "cards": 8,
+      "modals": 44
+    }
+  },
+  "features": [
+    "POS",
+    "Invoice",
+    "Payment",
+    "Cash",
+    "Card",
+    "Appointment",
+    "Calendar",
+    "Staff",
+    "Service",
+    "Price",
+    "Member",
+    "Report",
+    "Dashboard",
+    "Inventory",
+    "Product",
+    "Settings",
+    "Configuration"
+  ]
+}

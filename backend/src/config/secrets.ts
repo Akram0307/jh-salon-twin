@@ -1,11 +1,12 @@
-let client: import('@google-cloud/secret-manager').SecretManagerServiceClient | null = null;
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-function getClient(): import('@google-cloud/secret-manager').SecretManagerServiceClient {
+let client: SecretManagerServiceClient | null = null;
+
+function getClient(): SecretManagerServiceClient {
   if (!client) {
-    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
     client = new SecretManagerServiceClient();
   }
-  return client;
+  return client!; // Non-null assertion since we just initialized it
 }
 
 async function accessSecret(secretName: string): Promise<string | undefined> {

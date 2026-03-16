@@ -1,0 +1,87 @@
+{
+  "screenshots": [
+    "final_01_login.png",
+    "final_02_login_filled.png",
+    "final_03_dashboard.png"
+  ],
+  "sections": [
+    {
+      "name": "Quick Sale",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Dashboard",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Appointments",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Services",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Staff",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Clients",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Reports",
+      "captured": false,
+      "reason": "Link not found"
+    },
+    {
+      "name": "Settings",
+      "captured": false,
+      "reason": "Link not found"
+    }
+  ],
+  "uiElements": {
+    "navigation": [],
+    "pageStructure": {
+      "hasSidebar": false,
+      "hasHeader": true,
+      "hasFooter": true,
+      "forms": 0,
+      "tables": 0,
+      "buttons": 15,
+      "inputs": 19,
+      "cards": 8
+    }
+  },
+  "designAnalysis": {
+    "frameworks": [
+      "Material UI",
+      "Bootstrap"
+    ],
+    "backgroundColor": "rgb(238, 236, 241)",
+    "colors": [
+      "rgb(238, 236, 241)",
+      "rgba(255, 255, 255, 0.8)",
+      "rgb(0, 0, 0)",
+      "rgb(96, 98, 110)",
+      "rgb(116, 116, 117)",
+      "rgb(70, 71, 80)",
+      "rgb(255, 255, 255)",
+      "rgba(222, 225, 236, 0.08)",
+      "rgba(174, 208, 235, 0.47)",
+      "rgb(239, 239, 239)"
+    ],
+    "fonts": [
+      "poppins-regular",
+      "Poppins, sans-serif",
+      "Roboto, \"Helvetica Neue\", sans-serif"
+    ],
+    "bodyClasses": ""
+  }
+}
