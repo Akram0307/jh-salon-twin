@@ -171,19 +171,21 @@ loadSecrets().then(() => {
   console.error('Failed to load secrets:', err);
 });
 
-// Start revenue scheduler
-const revenueScheduler = new RevenueScheduler();
-revenueScheduler.start(process.env.SALON_ID || 'salon_1');
-
-// Start background jobs after server is listening
-startBackgroundJobs();
-
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Detailed health: http://localhost:${PORT}/api/health/detailed`);
   console.log(`Error stats: http://localhost:${PORT}/api/admin/errors/stats`);
+  
+  // Initialize background jobs AFTER server is listening
+  // This prevents blocking Cloud Run health checks
+  setTimeout(() => {
+    const revenueScheduler = new RevenueScheduler();
+    revenueScheduler.start(process.env.SALON_ID || 'salon_1');
+    startBackgroundJobs();
+    console.log('Background jobs initialized');
+  }, 1000);
 });
 
 // Graceful shutdown
