@@ -18,7 +18,10 @@ import {
   QrCode
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import QRCode from 'qrcode.react';
+// QRCode placeholder - qrcode.react not installed
+const QRCode = ({ value, size, level }: { value: string; size?: number; level?: string }) => (
+  <div style={{ width: size || 64, height: size || 64, border: '1px dashed #666', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: '#666' }}>QR</div>
+);
 
 // Types
 interface Appointment {
@@ -48,8 +51,8 @@ const STATUS_COLORS = {
 };
 
 // Format time for display
-function formatTime(dateString: string): string {
-  const date = new Date(dateString);
+function formatTime(dateString: string | Date): string {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
   return date.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',
@@ -58,8 +61,8 @@ function formatTime(dateString: string): string {
 }
 
 // Format date for display
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+function formatDate(dateString: string | Date): string {
+  const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
   return date.toLocaleDateString('en-US', { 
     weekday: 'long',
     year: 'numeric',

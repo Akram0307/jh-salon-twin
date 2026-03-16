@@ -11,12 +11,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { tokens } from '@/lib/design-tokens';
-import { 
-  CreditCard, 
-  Smartphone, 
-  Banknote, 
-  Receipt, 
-  Plus, 
+import {
+  CreditCard,
+  Smartphone,
+  Banknote,
+  Receipt,
+  Plus,
   History,
   DollarSign,
   Percent,
@@ -51,24 +51,21 @@ interface Payment {
 
 interface PaymentRecordingFormProps {
   salonId: string;
-  staffId?: string;
   appointmentId?: string;
   clientName?: string;
   serviceTotal?: number;
-  onPaymentRecorded?: () => void;
+  onPaymentRecorded?: (payment: Payment) => void;
 }
 
-// Payment methods configuration
 const PAYMENT_METHODS: PaymentMethod[] = [
-  { id: 'cash', name: 'Cash', icon: <Banknote className="h-4 w-4" />, color: 'bg-green-500/20 text-green-300' },
-  { id: 'phonepe', name: 'PhonePe', icon: <Smartphone className="h-4 w-4" />, color: 'bg-purple-500/20 text-purple-300' },
-  { id: 'upi', name: 'UPI', icon: <Smartphone className="h-4 w-4" />, color: 'bg-blue-500/20 text-blue-300' },
-  { id: 'card', name: 'Card', icon: <CreditCard className="h-4 w-4" />, color: 'bg-amber-500/20 text-amber-300' }
+  { id: 'cash', name: 'Cash', icon: <Banknote className="h-5 w-5" />, color: 'bg-green-500/20 text-green-400' },
+  { id: 'card', name: 'Card', icon: <CreditCard className="h-5 w-5" />, color: 'bg-blue-500/20 text-blue-400' },
+  { id: 'upi', name: 'UPI', icon: <Smartphone className="h-5 w-5" />, color: 'bg-purple-500/20 text-purple-400' },
+  { id: 'other', name: 'Other', icon: <Receipt className="h-5 w-5" />, color: 'bg-slate-500/20 text-slate-400' },
 ];
 
 export function PaymentRecordingForm({
   salonId,
-  staffId,
   appointmentId,
   clientName,
   serviceTotal = 0,
@@ -87,19 +84,17 @@ export function PaymentRecordingForm({
   const [paymentHistory, setPaymentHistory] = useState<Payment[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  // Update amount when service total changes
   useEffect(() => {
-    if (serviceTotal > 0) {
-      setAmount(serviceTotal.toString());
+    if (showHistory) {
+      fetchPaymentHistory();
     }
-  }, [serviceTotal]);
+  }, [showHistory]);
 
-  // Fetch payment history
   const fetchPaymentHistory = async () => {
+    setHistoryLoading(true);
     try {
-      setHistoryLoading(true);
       const params = new URLSearchParams({ salon_id: salonId });
-      if (staffId) params.append('staff_id', staffId);
+      if (appointmentId) params.append('appointment_id', appointmentId);
 
       const response = await fetch(`/api/payments?${params}`);
       if (!response.ok) throw new Error('Failed to fetch payment history');
@@ -118,32 +113,29 @@ export function PaymentRecordingForm({
     }
   };
 
-  // Record payment
   const handleRecordPayment = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       toast({
-        title: 'Validation Error',
-        description: 'Please enter a valid amount',
+        title: 'Invalid Amount',
+        description: 'Please enter a valid payment amount',
         variant: 'destructive'
       });
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
-
       const paymentData = {
         salon_id: salonId,
-        staff_id: staffId,
         appointment_id: appointmentId,
         client_name: clientName,
         amount: parseFloat(amount),
         tip: parseFloat(tip) || 0,
         discount: parseFloat(discount) || 0,
-        discount_reason: discountReason || undefined,
+        discount_reason: discountReason,
         method: selectedMethod,
-        reference: reference || undefined,
-        notes: notes || undefined
+        reference,
+        notes
       };
 
       const response = await fetch('/api/payments', {
@@ -154,16 +146,18 @@ export function PaymentRecordingForm({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to record payment');
+        throw new Error(error.message || 'Failed to record payment');
       }
 
+      const payment = await response.json();
+
       toast({
-        title: 'Success',
-        description: 'Payment recorded successfully'
+        title: 'Payment Recorded',
+        description: `Payment of ${amount} recorded successfully`
       });
 
       // Reset form
-      setAmount(serviceTotal > 0 ? serviceTotal.toString() : '0');
+      setAmount(serviceTotal.toString());
       setTip('0');
       setDiscount('0');
       setDiscountReason('');
@@ -171,7 +165,7 @@ export function PaymentRecordingForm({
       setNotes('');
 
       if (onPaymentRecorded) {
-        onPaymentRecorded();
+        onPaymentRecorded(payment);
       }
     } catch (error) {
       console.error('Error recording payment:', error);
@@ -185,7 +179,6 @@ export function PaymentRecordingForm({
     }
   };
 
-  // Generate Z-report
   const generateZReport = async () => {
     try {
       const params = new URLSearchParams({
@@ -198,41 +191,39 @@ export function PaymentRecordingForm({
 
       const data = await response.json();
 
-      // Create and download report
-      const reportContent = `
-DAILY Z-REPORT
-================
-Date: ${new Date().toLocaleDateString()}
-Salon: ${salonId}
+      // Create and download report using string concatenation
+      const methodLines = (data.method_breakdown || []).map((m: { method: string; total: number; count: number }) =>
+        m.method + ': \u20B9' + m.total.toFixed(2) + ' (' + m.count + ' transactions)'
+      ).join('\n');
 
-SUMMARY
--------
-Total Transactions: ${data.total_transactions || 0}
-Total Revenue: ₹${(data.total_revenue || 0).toFixed(2)}
-Total Tips: ₹${(data.total_tips || 0).toFixed(2)}
-Total Discounts: ₹${(data.total_discounts || 0).toFixed(2)}
-Net Revenue: ₹${(data.net_revenue || 0).toFixed(2)}
+      const serviceLines = (data.top_services || []).map((s: { service_name: string; revenue: number; count: number }, i: number) =>
+        (i + 1) + '. ' + s.service_name + ': \u20B9' + s.revenue.toFixed(2) + ' (' + s.count + ' bookings)'
+      ).join('\n');
 
-PAYMENT METHODS
----------------
-${(data.method_breakdown || []).map((m: any) => 
-        `${m.method}: ₹${m.total.toFixed(2)} (${m.count} transactions)`
-      ).join('
-')}
-
-TOP SERVICES
-------------
-${(data.top_services || []).map((s: any, i: number) => 
-        `${i + 1}. ${s.service_name}: ₹${s.revenue.toFixed(2)} (${s.count} bookings)`
-      ).join('
-')}
-      `;
+      const reportContent =
+        'DAILY Z-REPORT\n' +
+        '================\n' +
+        'Date: ' + new Date().toLocaleDateString() + '\n' +
+        'Salon: ' + salonId + '\n\n' +
+        'SUMMARY\n' +
+        '-------\n' +
+        'Total Transactions: ' + (data.total_transactions || 0) + '\n' +
+        'Total Revenue: \u20B9' + (data.total_revenue || 0).toFixed(2) + '\n' +
+        'Total Tips: \u20B9' + (data.total_tips || 0).toFixed(2) + '\n' +
+        'Total Discounts: \u20B9' + (data.total_discounts || 0).toFixed(2) + '\n' +
+        'Net Revenue: \u20B9' + (data.net_revenue || 0).toFixed(2) + '\n\n' +
+        'PAYMENT METHODS\n' +
+        '---------------\n' +
+        methodLines + '\n\n' +
+        'TOP SERVICES\n' +
+        '------------\n' +
+        serviceLines;
 
       const blob = new Blob([reportContent], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `z-report-${new Date().toISOString().split('T')[0]}.txt`;
+      a.download = 'z-report-' + new Date().toISOString().split('T')[0] + '.txt';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -260,40 +251,34 @@ ${(data.top_services || []).map((s: any, i: number) =>
 
   return (
     <div className="space-y-6">
-      {/* Payment Form */}
       <Card className="bg-slate-900 border-slate-800">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-white flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-gold-400" />
-              Record Payment
-            </CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  fetchPaymentHistory();
-                  setShowHistory(true);
-                }}
-                className="border-slate-700 text-slate-300"
-              >
-                <History className="h-4 w-4 mr-1" />
-                History
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={generateZReport}
-                className="border-slate-700 text-slate-300"
-              >
-                <FileText className="h-4 w-4 mr-1" />
-                Z-Report
-              </Button>
-            </div>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-white flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-gold-400" />
+            Record Payment
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowHistory(true)}
+              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            >
+              <History className="h-4 w-4 mr-2" />
+              History
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateZReport}
+              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Z-Report
+            </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           {/* Client Info */}
           {clientName && (
             <div className="p-3 bg-slate-800/50 rounded-lg">
@@ -311,8 +296,8 @@ ${(data.top_services || []).map((s: any, i: number) =>
                   key={method.id}
                   variant="outline"
                   className={`h-auto py-3 flex flex-col items-center gap-2 ${
-                    selectedMethod === method.id 
-                      ? 'border-gold-500 bg-gold-500/10' 
+                    selectedMethod === method.id
+                      ? 'border-gold-500 bg-gold-500/10'
                       : 'border-slate-700 hover:bg-slate-800'
                   }`}
                   onClick={() => setSelectedMethod(method.id)}
@@ -329,7 +314,7 @@ ${(data.top_services || []).map((s: any, i: number) =>
           {/* Amount Fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label className="text-slate-400 text-xs">Amount (₹)</Label>
+              <Label className="text-slate-400 text-xs">Amount (\u20B9)</Label>
               <div className="relative mt-1">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                 <Input
@@ -341,9 +326,8 @@ ${(data.top_services || []).map((s: any, i: number) =>
                 />
               </div>
             </div>
-
             <div>
-              <Label className="text-slate-400 text-xs">Tip (₹)</Label>
+              <Label className="text-slate-400 text-xs">Tip (\u20B9)</Label>
               <div className="relative mt-1">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                 <Input
@@ -355,11 +339,10 @@ ${(data.top_services || []).map((s: any, i: number) =>
                 />
               </div>
             </div>
-
             <div>
-              <Label className="text-slate-400 text-xs">Discount (₹)</Label>
+              <Label className="text-slate-400 text-xs">Discount (\u20B9)</Label>
               <div className="relative mt-1">
-                <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
                 <Input
                   type="number"
                   value={discount}
@@ -375,56 +358,60 @@ ${(data.top_services || []).map((s: any, i: number) =>
           {parseFloat(discount) > 0 && (
             <div>
               <Label className="text-slate-400 text-xs">Discount Reason</Label>
-              <Input
-                value={discountReason}
-                onChange={(e) => setDiscountReason(e.target.value)}
-                className="mt-1 bg-slate-800 border-slate-700 text-white"
-                placeholder="Reason for discount"
-              />
+              <Select value={discountReason} onValueChange={setDiscountReason}>
+                <SelectTrigger className="mt-1 bg-slate-800 border-slate-700 text-white">
+                  <SelectValue placeholder="Select reason" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="loyalty">Loyalty Discount</SelectItem>
+                  <SelectItem value="first-time">First Time Customer</SelectItem>
+                  <SelectItem value="promotion">Promotion</SelectItem>
+                  <SelectItem value="staff">Staff Discount</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
 
-          {/* Reference/UTR Field */}
-          {(selectedMethod === 'phonepe' || selectedMethod === 'upi' || selectedMethod === 'card') && (
+          {/* Reference & Notes */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-slate-400 text-xs">Reference/UTR Number</Label>
+              <Label className="text-slate-400 text-xs">Reference (Optional)</Label>
               <Input
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
                 className="mt-1 bg-slate-800 border-slate-700 text-white"
-                placeholder="Enter transaction reference"
+                placeholder="Transaction ID, UPI ref, etc."
               />
             </div>
-          )}
-
-          {/* Notes */}
-          <div>
-            <Label className="text-slate-400 text-xs">Notes (Optional)</Label>
-            <Input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 bg-slate-800 border-slate-700 text-white"
-              placeholder="Additional notes"
-            />
+            <div>
+              <Label className="text-slate-400 text-xs">Notes (Optional)</Label>
+              <Input
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="mt-1 bg-slate-800 border-slate-700 text-white"
+                placeholder="Additional notes"
+              />
+            </div>
           </div>
 
-          {/* Total */}
-          <div className="p-4 bg-slate-800/50 rounded-lg">
+          {/* Summary */}
+          <div className="p-4 bg-slate-800/50 rounded-lg space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-slate-400">Subtotal:</span>
-              <span className="font-mono">₹{subtotal.toFixed(2)}</span>
+              <span className="font-mono">\u20B9{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center mt-1">
               <span className="text-slate-400">Tip:</span>
-              <span className="font-mono">₹{tipAmount.toFixed(2)}</span>
+              <span className="font-mono">\u20B9{tipAmount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center mt-1">
               <span className="text-slate-400">Discount:</span>
-              <span className="font-mono text-red-400">-₹{discountAmount.toFixed(2)}</span>
+              <span className="font-mono text-red-400">-\u20B9{discountAmount.toFixed(2)}</span>
             </div>
             <div className="border-t border-slate-700 mt-3 pt-3 flex justify-between items-center">
               <span className="font-semibold text-white">Total:</span>
-              <span className="text-xl font-bold text-gold-400">₹{total.toFixed(2)}</span>
+              <span className="text-xl font-bold text-gold-400">\u20B9{total.toFixed(2)}</span>
             </div>
           </div>
 
@@ -461,8 +448,8 @@ ${(data.top_services || []).map((s: any, i: number) =>
               <ScrollArea className="h-[400px]">
                 <div className="space-y-3">
                   {paymentHistory.map(payment => (
-                    <div 
-                      key={payment.id} 
+                    <div
+                      key={payment.id}
                       className="p-4 bg-slate-800/50 rounded-lg border border-slate-700"
                     >
                       <div className="flex items-start justify-between">
@@ -473,7 +460,7 @@ ${(data.top_services || []).map((s: any, i: number) =>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-gold-400">₹{payment.amount.toFixed(2)}</div>
+                          <div className="text-lg font-bold text-gold-400">\u20B9{payment.amount.toFixed(2)}</div>
                           <Badge className="mt-1 bg-slate-700 text-slate-300">
                             {payment.method.toUpperCase()}
                           </Badge>
@@ -482,9 +469,9 @@ ${(data.top_services || []).map((s: any, i: number) =>
 
                       {(payment.tip > 0 || payment.discount > 0) && (
                         <div className="mt-2 text-sm text-slate-400">
-                          {payment.tip > 0 && <span>Tip: ₹{payment.tip.toFixed(2)}</span>}
+                          {payment.tip > 0 && <span>Tip: \u20B9{payment.tip.toFixed(2)}</span>}
                           {payment.tip > 0 && payment.discount > 0 && <span> • </span>}
-                          {payment.discount > 0 && <span>Discount: ₹{payment.discount.toFixed(2)}</span>}
+                          {payment.discount > 0 && <span>Discount: \u20B9{payment.discount.toFixed(2)}</span>}
                         </div>
                       )}
 
@@ -500,8 +487,8 @@ ${(data.top_services || []).map((s: any, i: number) =>
             )}
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setShowHistory(false)}
               className="border-slate-700 text-slate-300"
             >

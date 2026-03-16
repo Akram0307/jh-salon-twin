@@ -10,10 +10,13 @@
 import { useState } from 'react';
 import { Appointment } from '@/types/appointment';
 import { tokens } from '@/lib/design-tokens';
+import { AppointmentDisplay } from '@/app/staff/schedule/page';
+
+
 
 interface StaffScheduleTimelineProps {
-  appointments: Appointment[];
-  onAppointmentClick?: (appointment: Appointment) => void;
+  appointments: AppointmentDisplay[];
+  onAppointmentClick?: (appointment: AppointmentDisplay) => void;
   isLoading?: boolean;
 }
 
@@ -26,7 +29,7 @@ export default function StaffScheduleTimeline({
   
   // Group appointments by hour for timeline view
   const groupByHour = () => {
-    const hours: { [key: number]: Appointment[] } = {};
+    const hours: { [key: number]: AppointmentDisplay[] } = {};
     
     appointments.forEach(appointment => {
       const hour = new Date(appointment.startTime).getHours();

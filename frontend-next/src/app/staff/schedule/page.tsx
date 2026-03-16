@@ -12,30 +12,21 @@ import StaffScheduleTimeline from '@/components/staff/StaffScheduleTimeline';
 import { StaffAppointment } from '@/types/appointment';
 
 // Type definitions for appointment data
-interface Appointment {
-  id: string;
-  clientId: string;
-  staffId: string;
-  serviceId: string;
+// Use imported Appointment type from types/index
+import { Appointment, AppointmentStatus } from '@/types/index';
+
+// Extended interface for display purposes
+export interface AppointmentDisplay extends Appointment {
   clientName: string;
   serviceName: string;
-  startTime: string;
-  endTime: string;
   clientPreferences?: string;
-  notes?: string;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'no-show';
-  price: number;
-  total: number;
-  paymentStatus: 'pending' | 'paid' | 'refunded';
-  createdAt: string;
-  updatedAt: string;
   durationMinutes: number;
   isUpcoming: boolean;
   isCurrent: boolean;
 }
 
 // Mock data for development - FIXED with all required properties
-const mockAppointments: StaffAppointment[] = [
+const mockAppointments: AppointmentDisplay[] = [
   {
     id: '1',
     clientId: 'client-001',
@@ -145,7 +136,7 @@ const mockAppointments: StaffAppointment[] = [
 
 
 export default function StaffSchedulePage() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -162,7 +153,7 @@ export default function StaffSchedulePage() {
     fetchAppointments();
   }, [selectedDate]);
 
-  const handleAppointmentClick = (appointment: Appointment) => {
+  const handleAppointmentClick = (appointment: AppointmentDisplay) => {
     // Navigate to appointment detail or open modal
     console.log('Appointment clicked:', appointment);
   };

@@ -117,7 +117,7 @@ function NoteCard({
               <div className="flex items-center gap-1 mt-2 flex-wrap">
                 <Tag className="h-3 w-3 text-slate-500" />
                 {note.tags.map((tag, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs border-slate-600 text-slate-400">
+                  <Badge key={idx} variant="neutral" className="text-xs border-slate-600 text-slate-400">
                     {tag}
                   </Badge>
                 ))}
@@ -189,7 +189,7 @@ function NoteFormDialog({
   clientId: string;
 }) {
   const [content, setContent] = useState('');
-  const [noteType, setNoteType] = useState<string>('general');
+  const [noteType, setNoteType] = useState<NoteType>('general');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
 
@@ -244,7 +244,7 @@ function NoteFormDialog({
         <div className="space-y-4 py-4">
           <div>
             <Label className="text-slate-400 text-xs">Note Type</Label>
-            <Select value={noteType} onValueChange={setNoteType}>
+            <Select value={noteType} onValueChange={(value) => setNoteType(value as NoteType)}>
               <SelectTrigger className="bg-slate-800 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Select note type" />
               </SelectTrigger>
@@ -281,14 +281,14 @@ function NoteFormDialog({
                 className="bg-slate-800 border-slate-700 text-white flex-1"
                 placeholder="Add a tag..."
               />
-              <Button type="button" onClick={handleAddTag} variant="outline" className="border-slate-700">
+              <Button type="button" onClick={handleAddTag} variant="secondary" className="border-slate-700">
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
             {tags.length > 0 && (
               <div className="flex items-center gap-1 mt-2 flex-wrap">
                 {tags.map((tag, idx) => (
-                  <Badge key={idx} variant="outline" className="border-slate-600 text-slate-300">
+                  <Badge key={idx} variant="neutral" className="border-slate-600 text-slate-300">
                     {tag}
                     <button
                       type="button"
@@ -305,7 +305,7 @@ function NoteFormDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="border-slate-700 text-slate-300">
+          <Button variant="secondary" onClick={onClose} className="border-slate-700 text-slate-300">
             Cancel
           </Button>
           <Button 
@@ -322,7 +322,9 @@ function NoteFormDialog({
 }
 
 // Main ClientNotesPanel component
-export function ClientNotesPanel({ clientId, salonId, staffId }: ClientNotesPanelProps) {
+export type NoteType = 'general' | 'preference' | 'allergy' | 'service_note' | 'follow_up';
+
+function ClientNotesPanel({ clientId, salonId, staffId }: ClientNotesPanelProps) {
   const { toast } = useToast();
   const [notes, setNotes] = useState<ClientNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -602,7 +604,7 @@ export function ClientNotesPanel({ clientId, salonId, staffId }: ClientNotesPane
             </Select>
 
             <Button
-              variant={pinnedOnly ? 'default' : 'outline'}
+              variant={pinnedOnly ? 'primary' : 'outline'}
               size="sm"
               onClick={() => setPinnedOnly(!pinnedOnly)}
               className={pinnedOnly ? 'bg-gold-500 text-slate-950' : 'border-slate-700 text-slate-300'}
