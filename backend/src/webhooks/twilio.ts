@@ -34,6 +34,7 @@ function validateTwilioSignature(req: Request): boolean {
 function sanitizeBody(raw: string): string {
   return raw
     .replace(/<[^>]*>/g, '')
+    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x1F\x7F]/g, '')
     .slice(0, 2000);
 }

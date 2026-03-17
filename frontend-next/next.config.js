@@ -9,6 +9,10 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  transpilePackages: ['framer-motion'],
+  experimental: {
+    optimizePackageImports: ['framer-motion'],
+  },
 };
 
 module.exports = withPWA(nextConfig);
