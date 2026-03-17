@@ -21,10 +21,10 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@v4
       
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@38b3b7bf288d49ccf58644769dc7a6afdccd05eb
+        uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
           queries: security-extended,security-and-quality
@@ -38,20 +38,20 @@ jobs:
               - '.next'
       
       - name: Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c47ff074a7cb1d5f27e5d50e
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       
       - name: Autobuild
-        uses: github/codeql-action/autobuild@38b3b7bf288d49ccf58644769dc7a6afdccd05eb
+        uses: github/codeql-action/autobuild@v3
       
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@38b3b7bf288d49ccf58644769dc7a6afdccd05eb
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:javascript-typescript"
       
       - name: Upload CodeQL results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: codeql-results
