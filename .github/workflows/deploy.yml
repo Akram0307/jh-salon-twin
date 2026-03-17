@@ -18,22 +18,19 @@ env:
   PROJECT_ID: salon-saas-487508
   REGION: us-central1
   GAR_REGISTRY: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images
-  # Production service names
   FRONTEND_SERVICE: salonos-owner-frontend
   BACKEND_SERVICE: salonos-backend
-  # Staging service names (isolated)
   STAGING_FRONTEND_SERVICE: salonos-owner-frontend-staging
   STAGING_BACKEND_SERVICE: salonos-backend-staging
-  # Staging infrastructure
   STAGING_SA: salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com
   VPC_CONNECTOR: salonos-staging-vpc
-  # Production infrastructure
   PROD_SA: salonos-prod-sa@salon-saas-487508.iam.gserviceaccount.com
   PROD_VPC_CONNECTOR: salonos-prod-vpc
 
 concurrency:
   group: ${{ github.event.inputs.environment || 'staging' }}-${{ github.ref }}
   cancel-in-progress: false
+
 jobs:
   docker-build:
     timeout-minutes: 20
@@ -67,7 +64,7 @@ jobs:
           docker push ${{ env.GAR_REGISTRY }}/backend:${{ github.sha }}
 
   deploy-staging:
-    timeout-minutes: 20
+    timeout-minutes: 25
     name: Deploy to Staging
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
     runs-on: ubuntu-latest
@@ -147,26 +144,44 @@ jobs:
               SMTP_USER=salonos-staging-SMTP_USER:latest
               SMTP_PASS=salonos-staging-SMTP_PASS:latest
 
+      - name: Start Cloud SQL Auth Proxy (staging)
+        run: |
+          wget -qO- https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.0/cloud-sql-proxy.linux.amd64 > /usr/local/bin/cloud-sql-proxy
+          chmod +x /usr/local/bin/cloud-sql-proxy
+          cloud-sql-proxy ${{ secrets.STAGING_INSTANCE_CONNECTION_NAME }} --port 5432 &
+          echo "Waiting for Cloud SQL proxy to be ready..."
+          for i in $(seq 1 30); do
+            if nc -z localhost 5432 2>/dev/null; then
+              echo "Cloud SQL proxy ready on port 5432"
+              break
+            fi
+            sleep 1
+          done
+          if ! nc -z localhost 5432 2>/dev/null; then
+            echo "ERROR: Cloud SQL proxy failed to start"
+            exit 1
+          fi
+
       - name: Run database migrations (staging)
         run: |
           cd backend
           DB_USER=$(gcloud secrets versions access latest --secret="salonos-staging-DB_USER")
           DB_PASSWORD=$(gcloud secrets versions access latest --secret="salonos-staging-DB_PASSWORD")
-          DB_HOST=$(gcloud secrets versions access latest --secret="salonos-staging-DB_HOST")
-          DB_PORT=$(gcloud secrets versions access latest --secret="salonos-staging-DB_PORT")
           DB_NAME=$(gcloud secrets versions access latest --secret="salonos-staging-DB_NAME")
-          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
+          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}?sslmode=disable"
           wget -qO- https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 > /usr/local/bin/dbmate
           chmod +x /usr/local/bin/dbmate
           dbmate status
           dbmate up
 
+      - name: Stop Cloud SQL Auth Proxy
+        if: always()
+        run: pkill -f cloud-sql-proxy || true
+
       - name: Smoke test (staging)
         run: |
           sleep 30
           STAGING_URL="https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app"
-
-          # Attempt authenticated health check via identity token
           TOKEN=$(gcloud auth print-identity-token --audiences="$STAGING_URL" 2>/dev/null || echo "")
           if [ -n "$TOKEN" ]; then
             echo "Testing authenticated /health endpoint..."
@@ -184,7 +199,6 @@ jobs:
               fi
             fi
           else
-            # Fallback: try unauthenticated health endpoints
             echo "WARN: Could not obtain ID token, using unauthenticated fallback"
             HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" "$STAGING_URL/api/health/ready")
             if [ "$HTTP_CODE" = "200" ]; then
@@ -197,7 +211,7 @@ jobs:
           echo "Staging smoke tests passed"
 
   deploy-production:
-    timeout-minutes: 20
+    timeout-minutes: 25
     name: Deploy to Production
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
     runs-on: ubuntu-latest
@@ -276,19 +290,39 @@ jobs:
               TWILIO_WHATSAPP_NUMBER=salonos-prod-TWILIO_WHATSAPP_NUMBER:latest
               WAITLIST_TEMPLATE_SID=salonos-prod-WAITLIST_TEMPLATE_SID:latest
 
+      - name: Start Cloud SQL Auth Proxy (production)
+        run: |
+          wget -qO- https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.0/cloud-sql-proxy.linux.amd64 > /usr/local/bin/cloud-sql-proxy
+          chmod +x /usr/local/bin/cloud-sql-proxy
+          cloud-sql-proxy ${{ secrets.PROD_INSTANCE_CONNECTION_NAME }} --port 5432 &
+          echo "Waiting for Cloud SQL proxy to be ready..."
+          for i in $(seq 1 30); do
+            if nc -z localhost 5432 2>/dev/null; then
+              echo "Cloud SQL proxy ready on port 5432"
+              break
+            fi
+            sleep 1
+          done
+          if ! nc -z localhost 5432 2>/dev/null; then
+            echo "ERROR: Cloud SQL proxy failed to start"
+            exit 1
+          fi
+
       - name: Run database migrations (production)
         run: |
           cd backend
           DB_USER=$(gcloud secrets versions access latest --secret="salonos-prod-DB_USER")
           DB_PASSWORD=$(gcloud secrets versions access latest --secret="salonos-prod-DB_PASSWORD")
-          DB_HOST=$(gcloud secrets versions access latest --secret="salonos-prod-DB_HOST")
-          DB_PORT=$(gcloud secrets versions access latest --secret="salonos-prod-DB_PORT")
           DB_NAME=$(gcloud secrets versions access latest --secret="salonos-prod-DB_NAME")
-          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
+          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}?sslmode=disable"
           wget -qO- https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 > /usr/local/bin/dbmate
           chmod +x /usr/local/bin/dbmate
           dbmate status
           dbmate up
+
+      - name: Stop Cloud SQL Auth Proxy
+        if: always()
+        run: pkill -f cloud-sql-proxy || true
 
       - name: Smoke test (production)
         run: |
