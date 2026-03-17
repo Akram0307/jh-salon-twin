@@ -136,7 +136,7 @@ jobs:
     needs: [lint, type-check]
     strategy:
       matrix:
-        project: [frontend-next, backend]
+        project: [backend]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
