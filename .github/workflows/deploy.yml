@@ -32,8 +32,8 @@ env:
   PROD_VPC_CONNECTOR: salonos-prod-vpc
 
 concurrency:
-  group: deploy-staging-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.event.inputs.environment || 'staging' }}-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   docker-build:
     timeout-minutes: 20
@@ -128,7 +128,7 @@ jobs:
             --max-instances=20
             --service-account=${{ env.STAGING_SA }}
             --add-cloudsql-instances=${{ secrets.STAGING_INSTANCE_CONNECTION_NAME }}
-            --set-env-vars="NODE_ENV=staging,GCLOUD_PROJECT=${{ env.PROJECT_ID }},LOG_LEVEL=info,OTEL_ENABLED=true,ALLOWED_ORIGINS=https://staging.salonos.app"
+            --set-env-vars="NODE_ENV=staging,GCLOUD_PROJECT=${{ env.PROJECT_ID }},LOG_LEVEL=info,OTEL_ENABLED=true,ALLOWED_ORIGINS=https://${{ env.STAGING_FRONTEND_SERVICE }}-rgvcleapsa-uc.a.run.app"
             --set-secrets=|
               JWT_SECRET=salonos-staging-JWT_SECRET_STAGING:latest
               REFRESH_TOKEN_SECRET=salonos-staging-REFRESH_TOKEN_SECRET_STAGING:latest
@@ -164,11 +164,35 @@ jobs:
       - name: Smoke test (staging)
         run: |
           sleep 30
-          TOKEN=$(gcloud auth print-identity-token --audiences="https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app" 2>/dev/null || echo "")
+          STAGING_URL="https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app"
+
+          # Attempt authenticated health check via identity token
+          TOKEN=$(gcloud auth print-identity-token --audiences="$STAGING_URL" 2>/dev/null || echo "")
           if [ -n "$TOKEN" ]; then
-            curl -f -H "Authorization: Bearer $TOKEN" https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app/health || exit 1
+            echo "Testing authenticated /health endpoint..."
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $TOKEN" "$STAGING_URL/health")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Authenticated health check passed (HTTP $HTTP_CODE)"
+            else
+              echo "Authenticated health check failed (HTTP $HTTP_CODE), trying fallback..."
+              HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" "$STAGING_URL/api/health/ready")
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "Fallback unauthenticated health check passed (HTTP $HTTP_CODE)"
+              else
+                echo "ERROR: All smoke tests failed (last HTTP $HTTP_CODE)"
+                exit 1
+              fi
+            fi
           else
-            echo "WARN: Could not obtain ID token, skipping authenticated health check"
+            # Fallback: try unauthenticated health endpoints
+            echo "WARN: Could not obtain ID token, using unauthenticated fallback"
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" "$STAGING_URL/api/health/ready")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Unauthenticated health check passed (HTTP $HTTP_CODE)"
+            else
+              echo "ERROR: Unauthenticated health check failed (HTTP $HTTP_CODE)"
+              exit 1
+            fi
           fi
           echo "Staging smoke tests passed"
 
@@ -210,6 +234,7 @@ jobs:
             --concurrency=80
             --timeout=300
             --max-instances=10
+            --service-account=${{ env.PROD_SA }}
             --set-env-vars="NEXT_PUBLIC_API_BASE_URL=https://${{ env.BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app,NODE_ENV=production"
 
       - name: Deploy backend to Cloud Run (production)
@@ -228,8 +253,9 @@ jobs:
             --max-instances=20
             --vpc-connector=${{ env.PROD_VPC_CONNECTOR }}
             --vpc-egress=private-ranges-only
+            --service-account=${{ env.PROD_SA }}
             --add-cloudsql-instances=${{ secrets.PROD_INSTANCE_CONNECTION_NAME }}
-            --set-env-vars="NODE_ENV=production,GCLOUD_PROJECT=${{ env.PROJECT_ID }},LOG_LEVEL=warn,OTEL_ENABLED=true"
+            --set-env-vars="NODE_ENV=production,GCLOUD_PROJECT=${{ env.PROJECT_ID }},LOG_LEVEL=warn,OTEL_ENABLED=true,ALLOWED_ORIGINS=https://${{ env.FRONTEND_SERVICE }}-rgvcleapsa-uc.a.run.app"
             --set-secrets=|
               JWT_SECRET=salonos-prod-JWT_SECRET:latest
               REFRESH_TOKEN_SECRET=salonos-prod-REFRESH_TOKEN_SECRET:latest

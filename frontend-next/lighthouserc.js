@@ -7,7 +7,7 @@ module.exports = {
         'http://localhost:3000/owner/clients',
         'http://localhost:3000/owner/settings',
       ],
-      startServerCommand: 'npm start',
+      startServerCommand: 'cd frontend-next && npm start',
       numberOfRuns: 3,
       settings: {
         preset: 'desktop',

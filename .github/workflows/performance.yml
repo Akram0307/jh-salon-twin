@@ -67,7 +67,7 @@ jobs:
             // Read size-limit results
             let sizeResults;
             try {
-              sizeResults = JSON.parse(fs.readFileSync('frontend-next/.size-limit.json', 'utf8'));
+              sizeResults = JSON.parse(fs.readFileSync('frontend-next/.size-limit.js', 'utf8'));
             } catch (e) {
               console.log('No size-limit results found');
               sizeResults = [];

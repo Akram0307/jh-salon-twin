@@ -236,7 +236,7 @@ jobs:
         env:
           BASE_URL: ${{ secrets.STAGING_URL || 'https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app' }}
         run: |
-          npx playwright test e2e/smoke --reporter=html
+          npx playwright test --grep @smoke --reporter=html
 
       - name: Upload smoke test report
         if: always()

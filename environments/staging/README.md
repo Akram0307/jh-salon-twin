@@ -62,3 +62,68 @@ If alert deployment fails:
 1. Ensure backend has been running for at least 10 minutes
 2. Verify custom metrics exist in Cloud Monitoring
 3. Check IAM permissions for monitoring policies
+
+---
+
+## CI/CD IAM Requirements
+
+### Workload Identity Federation (Recommended)
+For GitHub Actions to authenticate with GCP without storing service account keys:
+
+1. **Create Workload Identity Pool:**
+   ```bash
+   gcloud iam workload-identity-pools create gh-actions-pool --location=global --display-name="GitHub Actions"
+   ```
+
+2. **Create Provider:**
+   ```bash
+   gcloud iam workload-identity-pools providers create gh-provider --location=global      --workload-identity-pool=gh-actions-pool --display-name="GitHub Provider"      --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository"      --attribute-condition="attribute.repository == "Akram0307/jh-salon-twin""
+   ```
+
+3. **Create Service Account:**
+   ```bash
+   gcloud iam service-accounts create salonos-staging-deployer --display-name="SalonOS Staging Deployer"
+   ```
+
+4. **Grant Required Roles:**
+   ```bash
+   PROJECT_ID="salon-saas-487508"
+   SA="salonos-staging-deployer@${PROJECT_ID}.iam.gserviceaccount.com"
+   gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$SA" --role="roles/run.admin"
+   gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$SA" --role="roles/run.invoker"
+   gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$SA" --role="roles/artifactregistry.writer"
+   gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$SA" --role="roles/cloudsql.client"
+   gcloud projects add-iam-policy-binding $PROJECT_ID --member="serviceAccount:$SA" --role="roles/secretmanager.secretAccessor"
+   gcloud iam service-accounts add-iam-policy-binding $SA --member="serviceAccount:$SA" --role="roles/iam.serviceAccountUser"
+   ```
+
+5. **Bind SA to Pool:**
+   ```bash
+   gcloud iam service-accounts add-iam-policy-binding $SA      --role="roles/iam.workloadIdentityUser"      --member="principalSet://iam.googleapis.com/projects/${PROJECT_ID}/locations/global/workloadIdentityPools/gh-actions-pool/attribute.repository/Akram0307/jh-salon-twin"
+   ```
+
+### Smoke Test Approach
+The e2e.yml smoke test job uses `gcloud auth print-identity-token` which requires:
+- Workload Identity Federation configured (above)
+- Service account with `roles/run.invoker`
+- Cloud Run service with ingress allowing internal traffic
+
+**Fallback (if WIF not available):** Replace identity-token auth with HTTP health check:
+```yaml
+- name: Smoke test
+  run: |
+    STATUS=$(curl -sf -o /dev/null -w "%{http_code}" https://staging-salonos-xxxxx-uc.a.run.app/api/health/ready)
+    if [ "$STATUS" != "200" ]; then
+      echo "Health check failed with status $STATUS"
+      exit 1
+    fi
+```
+
+### Required GitHub Secrets
+| Secret | Description | Required |
+|--------|-------------|----------|
+| `GCP_PROJECT_ID` | GCP project ID | Yes |
+| `GCP_SA_KEY` | Service account key JSON (if not using WIF) | Conditional |
+| `GAR_REGISTRY` | Artifact Registry path | Yes |
+| `STAGING_SERVICE_NAME` | Cloud Run service name | Yes |
+| `STAGING_REGION` | GCP region | Yes |

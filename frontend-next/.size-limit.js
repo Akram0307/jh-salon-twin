@@ -1,3 +1,4 @@
+const glob = require('glob');
 const path = require('path');
 const zlib = require('zlib');
 
@@ -10,7 +11,7 @@ function calculateGzipSize(filePath) {
 
 module.exports = [
   {
-    path: '.next/static/chunks/**/*.js',
+    path: glob.sync('.next/static/chunks/**/*.js', { absolute: true, cwd: 'frontend-next' }),
     name: 'Initial JS Bundle',
     limit: '200 kB',
     gzip: true,

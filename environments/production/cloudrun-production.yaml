@@ -5,8 +5,8 @@
 
 # Frontend Service (Next.js)
 frontend:
-  name: salonos-owner-frontend-prod
-  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-repo/salonos-owner-frontend-prod:latest
+  name: salonos-owner-frontend
+  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/salonos-owner-frontend:latest
   region: us-central1
   port: 8080
   memory: 512Mi
@@ -36,8 +36,8 @@ frontend:
 
 # Backend Service
 backend:
-  name: salonos-backend-prod
-  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-repo/salonos-backend-prod:latest
+  name: salonos-backend
+  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/salonos-backend:latest
   region: us-central1
   port: 8080
   memory: 1Gi
@@ -105,6 +105,21 @@ backend:
     - name: TWILIO_PHONE_NUMBER
       secret: salonos-prod-TWILIO_PHONE_NUMBER
       version: latest
+    - name: SALON_ID
+      secret: salonos-prod-SALON_ID
+      version: latest
+    - name: TWILIO_API_KEY_SID
+      secret: salonos-prod-TWILIO_API_KEY_SID
+      version: latest
+    - name: TWILIO_API_KEY_SECRET
+      secret: salonos-prod-TWILIO_API_KEY_SECRET
+      version: latest
+    - name: TWILIO_WHATSAPP_NUMBER
+      secret: salonos-prod-TWILIO_WHATSAPP_NUMBER
+      version: latest
+    - name: WAITLIST_TEMPLATE_SID
+      secret: salonos-prod-WAITLIST_TEMPLATE_SID
+      version: latest
     - name: OPENROUTER_API_KEY
       secret: salonos-prod-OPENROUTER_API_KEY
       version: latest
@@ -122,6 +137,9 @@ backend:
       version: latest
     - name: GCLOUD_PROJECT
       secret: salonos-prod-GCLOUD_PROJECT
+      version: latest
+    - name: ALLOWED_ORIGINS
+      secret: salonos-prod-ALLOWED_ORIGINS
       version: latest
     - name: CORS_ORIGIN
       secret: salonos-prod-CORS_ORIGIN

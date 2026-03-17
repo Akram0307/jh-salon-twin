@@ -35,24 +35,50 @@ Capturing ${viewportName} viewports (${viewport.width}x${viewport.height})...`);
 
     const page = await context.newPage();
 
-    // Login first
+    // Authenticate via API token injection (SalonOS uses modal auth, no /login route)
     try {
-      await page.goto(`${BASE_URL}/login`);
-      await page.waitForLoadState('networkidle', { timeout: 10000 });
+      const testEmail = process.env.E2E_TEST_EMAIL || 'owner@salon.com';
+      const testPassword = process.env.E2E_TEST_PASSWORD || 'test-password';
 
-      // Fill login form
-      const emailInput = page.locator('input[type="email"]').first();
-      const passwordInput = page.locator('input[type="password"]').first();
-      const submitButton = page.locator('button[type="submit"]').first();
+      // Attempt API login for token
+      const loginResp = await page.context().request.post(`${BASE_URL}/api/auth/login`, {
+        data: { email: testEmail, password: testPassword }
+      });
 
-      if (await emailInput.isVisible().catch(() => false)) {
-        await emailInput.fill('owner@salon.com');
-        await passwordInput.fill('password123');
-        await submitButton.click();
-        await page.waitForTimeout(2000);
+      if (loginResp.ok()) {
+        const { token } = await loginResp.json();
+        // Navigate to first page and inject token
+        await page.goto(`${BASE_URL}${PAGES[0].path}`);
+        await page.evaluate((tok) => {
+          localStorage.setItem('auth_token', tok);
+          localStorage.setItem('auth_user', JSON.stringify({
+            email: 'owner@salon.com', role: 'owner'
+          }));
+        }, token);
+        await page.reload();
+        await page.waitForLoadState('networkidle', { timeout: 10000 });
+        console.log('  Authenticated via API token injection');
+      } else {
+        console.warn('  API login failed, attempting UI modal auth fallback');
+        await page.goto(`${BASE_URL}${PAGES[0].path}`);
+        await page.waitForLoadState('networkidle', { timeout: 10000 });
+        // Modal auth fallback - look for auth modal inputs
+        const emailInput = page.locator('input[type="email"]').first();
+        if (await emailInput.isVisible().catch(() => false)) {
+          await emailInput.fill(testEmail);
+          const pwInput = page.locator('input[type="password"]').first();
+          if (await pwInput.isVisible().catch(() => false)) {
+            await pwInput.fill(testPassword);
+          }
+          const submitBtn = page.locator('button[type="submit"]').first();
+          if (await submitBtn.isVisible().catch(() => false)) {
+            await submitBtn.click();
+            await page.waitForTimeout(2000);
+          }
+        }
       }
     } catch (e) {
-      console.log('Login may have failed or already logged in, continuing...');
+      console.log('  Auth failed, continuing without login (screenshots may show auth wall):', e.message);
     }
 
     for (const pageConfig of PAGES) {

@@ -5,14 +5,14 @@
 # Frontend Service
 frontend:
   name: salonos-owner-frontend-staging
-  image: gcr.io/salon-saas-487508/salonos-owner-frontend-staging:latest
+  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/frontend:latest
   region: us-central1
   port: 8080
-  memory: 512Mi
+  memory: 1Gi
   cpu: 1
   concurrency: 80
   min_instances: 0
-  max_instances: 5
+  max_instances: 10
   vpc_connector: salonos-staging-vpc          # S5-I1
   vpc_egress: private-ranges-only
   env_vars:
@@ -32,7 +32,7 @@ frontend:
 # Backend Service
 backend:
   name: salonos-backend-staging
-  image: gcr.io/salon-saas-487508/salonos-backend-staging:latest
+  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/backend:latest
   region: us-central1
   port: 8080
   memory: 1Gi
@@ -49,8 +49,12 @@ backend:
       value: staging
     - name: GCLOUD_PROJECT
       value: salon-saas-487508
-    - name: CORS_ORIGIN
-      value: https://staging.salonos.example.com
+    - name: OTEL_ENABLED
+      value: "true"
+    - name: LOG_LEVEL
+      value: info
+    - name: ALLOWED_ORIGINS
+      value: https://salonos-owner-frontend-staging-rgvcleapsa-uc.a.run.app
   secrets:                                   # S5-I4: All secrets from Secret Manager
     - name: JWT_SECRET
       secret: salonos-staging-JWT_SECRET_STAGING

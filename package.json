@@ -7,7 +7,14 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "e2e": "npx playwright test",
+    "e2e:smoke": "npx playwright test --grep @smoke",
+    "e2e:ui": "npx playwright test --ui",
+    "e2e:debug": "npx playwright test --debug",
+    "e2e:mobile": "npx playwright test --project=mobile",
+    "e2e:list": "npx playwright test --list",
+    "lint": "echo \"Run lint in individual packages\"",
+    "typecheck": "echo \"Run typecheck in individual packages\""
   },
   "repository": {
     "type": "git",

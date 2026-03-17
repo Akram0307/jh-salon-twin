@@ -55,9 +55,5 @@
     "threshold": 0.2,
     "maxDiffPixels": 1000,
     "animations": "disabled"
-  },
-  "credentials": {
-    "email": "owner@salon.com",
-    "password": "password123"
   }
 }

@@ -56,7 +56,8 @@ jobs:
       - name: Run visual comparison
         run: |
           cd e2e
-          npx playwright test visual-comparison.spec.ts --reporter=html
+          mkdir -p e2e/screenshots/{baseline,current,diff}
+        npx playwright test ${{ github.event.inputs.update_baselines == 'true' && '--update-snapshots' || '' }} visual-comparison.spec.ts --reporter=html
         continue-on-error: true
 
       - name: Generate visual report

@@ -1,4 +1,9 @@
 #!/bin/bash
+# ============================================================================
+# DEPRECATED: This script is a manual fallback for local deployments.
+# PRIMARY: Use .github/workflows/deploy.yml for CI/CD deployments.
+# This script must be kept in sync with deploy.yml configuration.
+# ============================================================================
 # SalonOS Staging Environment Deployment Script
 # This script deploys both frontend and backend to the staging environment
 
@@ -9,7 +14,9 @@ PROJECT_ID="salon-saas-487508"
 REGION="us-central1"
 FRONTEND_SERVICE="salonos-owner-frontend-staging"
 BACKEND_SERVICE="salonos-backend-staging"
-GCR_REPO="gcr.io"
+GAR_REGISTRY="us-central1-docker.pkg.dev/salon-saas-487508/salonos-images"
+STAGING_SA="salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com"
+VPC_CONNECTOR="salonos-staging-vpc"
 
 # Colors for output
 RED='\033[0;31m'
@@ -70,7 +77,7 @@ authenticate_gcp() {
 build_and_push() {
     local service_name=$1
     local dockerfile_path=$2
-    local image_tag="$GCR_REPO/$PROJECT_ID/$service_name:$(git rev-parse --short HEAD)"
+    local image_tag="$GAR_REGISTRY/$service_name:$(git rev-parse --short HEAD)"
     
     log_info "Building $service_name Docker image..."
     
@@ -104,13 +111,16 @@ deploy_to_cloud_run() {
         --image $image_tag \
         --platform managed \
         --region $REGION \
-        --allow-unauthenticated \
+        --no-allow-unauthenticated \
         --set-env-vars "$env_vars" \
-        --service-account "$service_name@$PROJECT_ID.iam.gserviceaccount.com" \
-        --memory 512Mi \
+        --service-account salonos-staging-sa@$PROJECT_ID.iam.gserviceaccount.com \
+        --memory 1Gi \
         --cpu 1 \
         --min-instances 0 \
-        --max-instances 5
+        --max-instances 10 \
+        --vpc-connector=salonos-staging-vpc \
+        --vpc-egress=private-ranges-only \
+        --timeout=300
     
     log_info "$service_name deployed successfully."
 }
