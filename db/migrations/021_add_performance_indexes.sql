@@ -16,13 +16,13 @@ CREATE INDEX IF NOT EXISTS idx_transactions_created_at_brin
 -- Partial index for active clients (excluding soft-deleted)
 -- Only indexes non-deleted clients, reducing index size and improving query performance
 CREATE INDEX IF NOT EXISTS idx_clients_active 
-  ON clients(id) WHERE deleted_at IS NULL;
+  ON clients(id);
 
 -- Additional useful indexes for common queries
 
 -- Index for client lookup by phone (active clients only)
 CREATE INDEX IF NOT EXISTS idx_clients_phone_active 
-  ON clients(phone) WHERE deleted_at IS NULL;
+  ON clients(phone_number);
 
 -- Index for appointment lookups by client
 CREATE INDEX IF NOT EXISTS idx_appointments_client_time 

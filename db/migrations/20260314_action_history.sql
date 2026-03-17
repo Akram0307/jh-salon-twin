@@ -1,7 +1,7 @@
 -- Migration: 20260314_action_history.sql
 -- Description: Create action_history table for tracking user actions and supporting undo/redo
 
-CREATE TABLE action_history (
+CREATE TABLE IF NOT EXISTS action_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
   user_id UUID NOT NULL, -- Could be staff_id, owner_id, etc.
@@ -21,10 +21,10 @@ CREATE TABLE action_history (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_action_history_salon_user ON action_history (salon_id, user_id, created_at DESC);
-CREATE INDEX idx_action_history_entity ON action_history (entity_type, entity_id, created_at DESC);
-CREATE INDEX idx_action_history_action_type ON action_history (action_type, created_at DESC);
-CREATE INDEX idx_action_history_undoable ON action_history (is_undoable, undone_at) WHERE is_undoable = true AND undone_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_action_history_salon_user ON action_history (salon_id, user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_action_history_entity ON action_history (entity_type, entity_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_action_history_action_type ON action_history (action_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_action_history_undoable ON action_history (is_undoable, undone_at) WHERE is_undoable = true AND undone_at IS NULL;
 
 -- Trigger to update updated_at
 CREATE OR REPLACE FUNCTION update_action_history_updated_at()
@@ -34,6 +34,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_action_history_updated_at ON action_history;
 
 CREATE TRIGGER update_action_history_updated_at
 BEFORE UPDATE ON action_history

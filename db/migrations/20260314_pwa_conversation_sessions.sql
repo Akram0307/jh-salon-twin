@@ -6,8 +6,8 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS pwa_conversation_sessions (
     session_id VARCHAR(255) PRIMARY KEY,
-    client_id VARCHAR(255) NOT NULL,
-    salon_id VARCHAR(255) NOT NULL,
+    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
     current_state VARCHAR(50) NOT NULL DEFAULT 'GREETING',
     booking_intent JSONB,
     preferences JSONB,

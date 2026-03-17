@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS waitlist_offers (
   expires_at TIMESTAMP NOT NULL,
   claimed_at TIMESTAMP,
   CONSTRAINT fk_waitlist_offer
-    FOREIGN KEY (waitlist_id, salon_id)
-    REFERENCES waitlist_requests(id, salon_id)
+    FOREIGN KEY (waitlist_id)
+    REFERENCES waitlist_requests(id)
     ON DELETE CASCADE
 );
 

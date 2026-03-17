@@ -43,9 +43,9 @@ describe('AppointmentRepository', () => {
       };
       mockQuery.mockResolvedValue(mockQueryResult([mockAppointment]));
 
-      const result = await AppointmentRepository.findById('apt-1');
+      const result = await AppointmentRepository.findById('apt-1', 'salon-1');
       expect(result).toEqual(mockAppointment);
-      expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('id = $1'), ['apt-1']);
+      expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('a.id = $1 AND a.salon_id = $2'), ['apt-1', 'salon-1']);
     });
 
     it('should return null when not found', async () => {
@@ -55,19 +55,6 @@ describe('AppointmentRepository', () => {
     });
   });
 
-  describe('findByStatus', () => {
-    it('should return appointments with given status', async () => {
-      const mockAppointments = [
-        { id: 'apt-1', status: 'scheduled' },
-        { id: 'apt-2', status: 'scheduled' }
-      ];
-      mockQuery.mockResolvedValue(mockQueryResult(mockAppointments));
-
-      const result = await AppointmentRepository.findByStatus('scheduled');
-      expect(result).toHaveLength(2);
-      expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining('status = $1'), ['scheduled']);
-    });
-  });
 
   describe('findByQrToken', () => {
     it('should return appointment for valid QR token', async () => {

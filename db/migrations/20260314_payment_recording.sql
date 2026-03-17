@@ -2,7 +2,7 @@
 -- Description: Create tables for payment recording and daily Z-reports
 
 -- Payment records table for tracking all payment transactions
-CREATE TABLE payment_records (
+CREATE TABLE IF NOT EXISTS payment_records (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
   appointment_id UUID REFERENCES appointments(id) ON DELETE SET NULL,
@@ -20,7 +20,7 @@ CREATE TABLE payment_records (
 );
 
 -- Daily Z-reports table for end-of-day reconciliation
-CREATE TABLE daily_z_reports (
+CREATE TABLE IF NOT EXISTS daily_z_reports (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
   report_date DATE NOT NULL,
@@ -40,12 +40,12 @@ CREATE TABLE daily_z_reports (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_payment_records_salon_date ON payment_records (salon_id, recorded_at DESC);
-CREATE INDEX idx_payment_records_appointment ON payment_records (appointment_id);
-CREATE INDEX idx_payment_records_client ON payment_records (client_id);
-CREATE INDEX idx_payment_records_staff ON payment_records (staff_id);
-CREATE INDEX idx_payment_records_method ON payment_records (payment_method, recorded_at DESC);
-CREATE INDEX idx_daily_z_reports_salon_date ON daily_z_reports (salon_id, report_date DESC);
+CREATE INDEX IF NOT EXISTS idx_payment_records_salon_date ON payment_records (salon_id, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_payment_records_appointment ON payment_records (appointment_id);
+CREATE INDEX IF NOT EXISTS idx_payment_records_client ON payment_records (client_id);
+CREATE INDEX IF NOT EXISTS idx_payment_records_staff ON payment_records (staff_id);
+CREATE INDEX IF NOT EXISTS idx_payment_records_method ON payment_records (payment_method, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_daily_z_reports_salon_date ON daily_z_reports (salon_id, report_date DESC);
 
 -- Trigger to update updated_at for payment_records
 CREATE OR REPLACE FUNCTION update_payment_records_updated_at()
@@ -55,6 +55,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_payment_records_updated_at ON payment_records;
 
 CREATE TRIGGER update_payment_records_updated_at
 BEFORE UPDATE ON payment_records
@@ -69,6 +71,8 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_daily_z_reports_updated_at ON daily_z_reports;
 
 CREATE TRIGGER update_daily_z_reports_updated_at
 BEFORE UPDATE ON daily_z_reports

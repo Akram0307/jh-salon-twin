@@ -2,7 +2,7 @@
 -- Description: Create tables for feedback (bug reports, feature requests) and usage analytics
 
 -- Feedback table for bug reports and feature requests
-CREATE TABLE feedback (
+CREATE TABLE IF NOT EXISTS feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
   user_id UUID NOT NULL, -- staff_id or owner_id who submitted feedback
@@ -22,7 +22,7 @@ CREATE TABLE feedback (
 );
 
 -- Usage analytics events table
-CREATE TABLE usage_analytics (
+CREATE TABLE IF NOT EXISTS usage_analytics (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   salon_id UUID NOT NULL REFERENCES salons(id) ON DELETE CASCADE,
   user_id UUID, -- staff_id or owner_id (nullable for anonymous events)
@@ -40,13 +40,13 @@ CREATE TABLE usage_analytics (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_feedback_salon_status ON feedback (salon_id, status, created_at DESC);
-CREATE INDEX idx_feedback_type ON feedback (feedback_type, created_at DESC);
-CREATE INDEX idx_feedback_user ON feedback (user_id);
-CREATE INDEX idx_usage_analytics_salon_event ON usage_analytics (salon_id, event_name, created_at DESC);
-CREATE INDEX idx_usage_analytics_user ON usage_analytics (user_id, created_at DESC);
-CREATE INDEX idx_usage_analytics_session ON usage_analytics (session_id);
-CREATE INDEX idx_usage_analytics_category ON usage_analytics (event_category, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedback_salon_status ON feedback (salon_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedback_type ON feedback (feedback_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedback_user ON feedback (user_id);
+CREATE INDEX IF NOT EXISTS idx_usage_analytics_salon_event ON usage_analytics (salon_id, event_name, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_analytics_user ON usage_analytics (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_usage_analytics_session ON usage_analytics (session_id);
+CREATE INDEX IF NOT EXISTS idx_usage_analytics_category ON usage_analytics (event_category, created_at DESC);
 
 -- Trigger to update updated_at for feedback
 CREATE OR REPLACE FUNCTION update_feedback_updated_at()
@@ -57,13 +57,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_feedback_updated_at ON feedback;
+
 CREATE TRIGGER update_feedback_updated_at
 BEFORE UPDATE ON feedback
 FOR EACH ROW
 EXECUTE FUNCTION update_feedback_updated_at();
 
 -- Create a view for feedback summary statistics
-CREATE VIEW feedback_summary AS
+CREATE OR REPLACE VIEW feedback_summary AS
 SELECT 
   salon_id,
   feedback_type,
@@ -75,7 +77,7 @@ FROM feedback
 GROUP BY salon_id, feedback_type, status;
 
 -- Create a view for daily usage analytics summary
-CREATE VIEW daily_usage_summary AS
+CREATE OR REPLACE VIEW daily_usage_summary AS
 SELECT 
   salon_id,
   DATE(created_at) as event_date,

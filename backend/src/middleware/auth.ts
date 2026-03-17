@@ -2,14 +2,23 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db';
 
-// Lazy initialization - only check JWT_SECRET when actually used
-function getJwtSecret(): string {
+// Fail-fast at module load time if JWT_SECRET is missing or too short
+const JWT_SECRET: string = (() => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    throw new Error('JWT_SECRET environment variable is required but not set.');
+    throw new Error(
+      'FATAL: JWT_SECRET environment variable is required but not set. ' +
+      'Refusing to start without a valid secret.'
+    );
+  }
+  if (secret.length < 32) {
+    throw new Error(
+      'FATAL: JWT_SECRET must be at least 32 characters long. ' +
+      `Current length: ${secret.length}. Refusing to start.`
+    );
   }
   return secret;
-}
+})();
 
 export interface AuthRequest extends Request {
   user?: {
@@ -29,7 +38,6 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     }
 
     const token = authHeader.split(' ')[1];
-    const JWT_SECRET = getJwtSecret();
     const decoded = jwt.verify(token, JWT_SECRET) as any;
 
     // Get user from database to ensure they still exist and have correct role
@@ -84,12 +92,12 @@ export const authorize = (...roles: string[]) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
-    
+
     const userRole = req.user.role || req.user.user_type;
     if (!roles.includes(userRole)) {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
-    
+
     next();
   };
 };

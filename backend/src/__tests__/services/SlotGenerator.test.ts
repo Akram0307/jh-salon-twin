@@ -36,7 +36,7 @@ describe('SlotGenerator', () => {
 
       expect(result).toEqual([]);
       expect(query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT id, duration_minutes FROM services'),
+        expect.stringContaining('SELECT id, duration_minutes, price FROM services WHERE id = $1 AND salon_id = $2'),
         [mockServiceId, mockSalonId]
       );
     });

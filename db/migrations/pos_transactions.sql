@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS transactions (
-  id SERIAL PRIMARY KEY,
-  salon_id INTEGER,
-  staff_id INTEGER,
-  client_id INTEGER,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  salon_id UUID REFERENCES salons(id),
+  staff_id UUID REFERENCES staff(id),
+  client_id UUID REFERENCES clients(id),
   total_amount NUMERIC(10,2) NOT NULL,
   payment_method TEXT,
   status TEXT DEFAULT 'completed',
@@ -10,10 +10,10 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 
 CREATE TABLE IF NOT EXISTS transaction_items (
-  id SERIAL PRIMARY KEY,
-  transaction_id INTEGER REFERENCES transactions(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  transaction_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
   item_type TEXT, -- service or product
-  item_id INTEGER,
+  item_id UUID,
   name TEXT,
   quantity INTEGER DEFAULT 1,
   price NUMERIC(10,2)

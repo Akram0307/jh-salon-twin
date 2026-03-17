@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import twilio from 'twilio'
 import { markClaimed } from '../repositories/WaitlistOfferRepository'
 import { IntentRouter } from '../services/IntentRouter'
 import { ClientStateResolver } from '../services/ClientStateResolver'
@@ -7,7 +8,31 @@ import { messagingOrchestrator } from '../services/MessagingOrchestrator'
 import { query } from '../config/db'
 import { SlotGenerator } from '../services/SlotGenerator'
 
+function validateTwilioSignature(req: Request): boolean {
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!authToken) {
+    console.error('[TWILIO] FATAL: TWILIO_AUTH_TOKEN is not configured');
+    return false;
+  }
+
+  const signature = req.headers['x-twilio-signature'] as string | undefined;
+  if (!signature) {
+    console.warn('[TWILIO] Missing X-Twilio-Signature header');
+    return false;
+  }
+
+  const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  const params = req.body;
+
+  return twilio.validateRequest(authToken, signature, url, params);
+}
+
 export async function handleTwilioWebhook(req: Request, res: Response) {
+
+  // SEC-005: Validate Twilio webhook signature
+  if (!validateTwilioSignature(req)) {
+    return res.status(403).send('Forbidden: Invalid webhook signature');
+  }
 
   const body: string = req.body?.Body || '' || ''
   const rawFrom: string = req.body?.From || '' || ''

@@ -2,7 +2,7 @@
 
 -- User settings table (for owner and staff)
 CREATE TABLE IF NOT EXISTS user_settings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     user_type VARCHAR(20) NOT NULL CHECK (user_type IN ('owner', 'staff')),
     salon_id UUID REFERENCES salons(id) ON DELETE CASCADE,
@@ -18,7 +18,7 @@ CREATE INDEX IF NOT EXISTS idx_user_settings_salon ON user_settings(salon_id);
 
 -- 2FA settings table
 CREATE TABLE IF NOT EXISTS two_factor_auth (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     user_type VARCHAR(20) NOT NULL CHECK (user_type IN ('owner', 'staff')),
     secret VARCHAR(100) NOT NULL,
@@ -32,7 +32,7 @@ CREATE INDEX IF NOT EXISTS idx_two_factor_auth_user ON two_factor_auth(user_id, 
 
 -- Billing information table
 CREATE TABLE IF NOT EXISTS billing_info (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     salon_id UUID REFERENCES salons(id) ON DELETE CASCADE,
     owner_id UUID REFERENCES owners(id) ON DELETE CASCADE,
     plan VARCHAR(50) DEFAULT 'free',
@@ -49,7 +49,7 @@ CREATE INDEX IF NOT EXISTS idx_billing_info_owner ON billing_info(owner_id);
 
 -- Notification templates table
 CREATE TABLE IF NOT EXISTS notification_templates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     salon_id UUID REFERENCES salons(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50) NOT NULL CHECK (type IN ('email', 'sms', 'push')),
@@ -66,7 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_notification_templates_type ON notification_templ
 
 -- Notification logs table
 CREATE TABLE IF NOT EXISTS notification_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     salon_id UUID REFERENCES salons(id) ON DELETE CASCADE,
     user_id UUID,
     user_type VARCHAR(20) CHECK (user_type IN ('owner', 'staff', 'client')),
