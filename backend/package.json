@@ -14,7 +14,8 @@
     "db:migrate": "dbmate up",
     "db:rollback": "dbmate rollback",
     "db:status": "dbmate status",
-    "db:dump": "echo 'Run dbmate dump against a live database to regenerate schema.sql'"
+    "db:dump": "echo 'Run dbmate dump against a live database to regenerate schema.sql'",
+    "test:run": "vitest run"
   },
   "keywords": [],
   "author": "",

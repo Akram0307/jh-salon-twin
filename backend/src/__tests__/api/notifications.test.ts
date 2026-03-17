@@ -2,13 +2,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 
-// Create mock functions
 const mockFindBySalonId = vi.fn();
 const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 const mockDelete = vi.fn();
 
-// Mock the repository
+vi.mock('../../middleware/auth', () => ({
+  authenticate: vi.fn((req: any, res: any, next: any) => next()),
+}));
+
 vi.mock('../../repositories/NotificationTemplateRepository', () => ({
   NotificationTemplateRepository: {
     findBySalonId: (...args: any[]) => mockFindBySalonId(...args),
@@ -18,7 +20,23 @@ vi.mock('../../repositories/NotificationTemplateRepository', () => ({
   },
 }));
 
-// Import router after mocks
+vi.mock('../../repositories/NotificationLogRepository', () => ({
+  NotificationLogRepository: {
+    findBySalonId: vi.fn(),
+    getStats: vi.fn(),
+  },
+}));
+
+vi.mock('../../services/NotificationOrchestrator', () => ({
+  dispatchNotification: vi.fn(),
+  sendAppointmentConfirmation: vi.fn(),
+  dispatchReminderForAppointment: vi.fn(),
+}));
+
+vi.mock('../../config/db', () => ({
+  query: vi.fn(),
+}));
+
 import notificationRouter from '../../routes/notificationRoutes';
 
 describe('notificationRoutes', () => {
@@ -35,7 +53,6 @@ describe('notificationRoutes', () => {
     it('should return 400 if salon_id is missing', async () => {
       const response = await request(app)
         .get('/api/notifications/templates');
-
       expect(response.status).toBe(400);
       expect(response.body.error).toContain('salon_id');
     });
@@ -46,10 +63,8 @@ describe('notificationRoutes', () => {
         { id: '2', name: 'Reminder', type: 'email' },
       ];
       mockFindBySalonId.mockResolvedValue(mockTemplates);
-
       const response = await request(app)
         .get('/api/notifications/templates?salon_id=salon-1');
-
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual(mockTemplates);
@@ -57,33 +72,22 @@ describe('notificationRoutes', () => {
   });
 
   describe('POST /api/notifications/templates', () => {
-    it('should return 400 if required fields are missing', async () => {
+    it('should return 422 if required fields are missing', async () => {
       const response = await request(app)
         .post('/api/notifications/templates')
         .send({ salon_id: 'salon-1' });
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBeDefined();
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should create a template successfully', async () => {
       const mockTemplate = {
-        id: '1',
-        name: 'Test Template',
-        type: 'sms',
-        body: 'Hello {{name}}',
+        id: '1', name: 'Test Template', type: 'sms', body: 'Hello {{name}}',
       };
       mockCreate.mockResolvedValue(mockTemplate);
-
       const response = await request(app)
         .post('/api/notifications/templates')
-        .send({
-          salon_id: 'salon-1',
-          name: 'Test Template',
-          type: 'sms',
-          body: 'Hello {{name}}',
-        });
-
+        .send({ salon_id: 'salon-1', name: 'Test Template', type: 'sms', body: 'Hello {{name}}' });
       expect(response.status).toBe(201);
       expect(response.body.data).toEqual(mockTemplate);
     });

@@ -16,9 +16,7 @@ test.describe('AI Concierge', () => {
     await expect(page.locator(clientChat.sendButton).first()).toBeVisible();
   });
 
-  test('@client should send message and receive AI response (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should send message and receive AI response', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('I want to book a haircut');
     await page.locator(clientChat.sendButton).first().click();
@@ -26,9 +24,7 @@ test.describe('AI Concierge', () => {
     await page.waitForTimeout(3000);
   });
 
-  test('@client should handle invalid input gracefully (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should handle invalid input gracefully', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('asdfghjkl nonsense query');
     await page.locator(clientChat.sendButton).first().click();
@@ -36,9 +32,7 @@ test.describe('AI Concierge', () => {
     await page.waitForTimeout(3000);
   });
 
-  test('@client should navigate through booking flow (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should navigate through booking flow', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('I need to book an appointment');
     await page.locator(clientChat.sendButton).first().click();
@@ -46,9 +40,7 @@ test.describe('AI Concierge', () => {
     await page.waitForTimeout(3000);
   });
 
-  test('@client should view services via chat (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should view services via chat', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('What services do you offer?');
     await page.locator(clientChat.sendButton).first().click();
@@ -56,9 +48,7 @@ test.describe('AI Concierge', () => {
     await page.waitForTimeout(3000);
   });
 
-  test('@client should check opening hours (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should check opening hours', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('What are your opening hours?');
     await page.locator(clientChat.sendButton).first().click();

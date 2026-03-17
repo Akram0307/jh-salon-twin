@@ -1,11 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock database first
+const { mockLogError, mockLogInfo, mockGenerateOffer, MockDynamicOfferGenerator } = vi.hoisted(() => {
+  const mockLogError = vi.fn();
+  const mockLogInfo = vi.fn();
+  const mockGenerateOffer = vi.fn();
+  class MockDynamicOfferGenerator {
+    generateOffer = mockGenerateOffer;
+  }
+  return { mockLogError, mockLogInfo, mockGenerateOffer, MockDynamicOfferGenerator };
+});
+
+vi.mock('../../config/logger', () => ({
+  default: {
+    child: vi.fn(() => ({
+      info: mockLogInfo,
+      error: mockLogError,
+      warn: vi.fn(),
+      debug: vi.fn(),
+    })),
+  },
+}));
+
 vi.mock('../../config/db', () => ({
   query: vi.fn(),
 }));
 
-// Mock the dependencies
 vi.mock('../../services/UpsellService', () => ({
   UpsellService: {
     getUpsells: vi.fn(),
@@ -15,15 +34,6 @@ vi.mock('../../services/UpsellService', () => ({
 vi.mock('../../services/TwilioWhatsAppService', () => ({
   sendWaitlistOffer: vi.fn(),
 }));
-
-// Use vi.hoisted to create mock that works with class constructors
-const { mockGenerateOffer, MockDynamicOfferGenerator } = vi.hoisted(() => {
-  const mockGenerateOffer = vi.fn();
-  class MockDynamicOfferGenerator {
-    generateOffer = mockGenerateOffer;
-  }
-  return { mockGenerateOffer, MockDynamicOfferGenerator };
-});
 
 vi.mock('../../services/DynamicOfferGenerator', () => ({
   DynamicOfferGenerator: MockDynamicOfferGenerator,
@@ -45,50 +55,37 @@ describe('ClientRevenueOrchestrator', () => {
   describe('runDailyRevenueCycle', () => {
     it('should call UpsellService.getUpsells with correct base service ID', async () => {
       vi.mocked(UpsellService.getUpsells).mockResolvedValue([]);
-
       await orchestrator.runDailyRevenueCycle(mockSalonId);
-
       expect(UpsellService.getUpsells).toHaveBeenCalledWith('2bb87460-320b-42d8-9f07-3fbb659e6b0f');
     });
 
     it('should not call sendWaitlistOffer when no upsells found', async () => {
       vi.mocked(UpsellService.getUpsells).mockResolvedValue([]);
-
       await orchestrator.runDailyRevenueCycle(mockSalonId);
-
       expect(sendWaitlistOffer).not.toHaveBeenCalled();
     });
 
     it('should not call sendWaitlistOffer when upsells is null', async () => {
       vi.mocked(UpsellService.getUpsells).mockResolvedValue(null as any);
-
       await orchestrator.runDailyRevenueCycle(mockSalonId);
-
       expect(sendWaitlistOffer).not.toHaveBeenCalled();
     });
 
     it('should handle errors gracefully', async () => {
       const mockError = new Error('Database connection failed');
       vi.mocked(UpsellService.getUpsells).mockRejectedValue(mockError);
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       await orchestrator.runDailyRevenueCycle(mockSalonId);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[ClientRevenueOrchestrator] Revenue cycle failed:',
-        mockError
+      expect(mockLogError).toHaveBeenCalledWith(
+        { err: mockError },
+        '[ClientRevenueOrchestrator] Revenue cycle failed:'
       );
-      consoleSpy.mockRestore();
     });
 
     it('should skip dynamic offer generation for non-UUID salonId', async () => {
       const nonUuidSalon = 'not-a-uuid';
       const mockUpsells = [{ upsell_service_id: 'upsell-1', name: 'Add-on Service' }];
       vi.mocked(UpsellService.getUpsells).mockResolvedValue(mockUpsells);
-
       await orchestrator.runDailyRevenueCycle(nonUuidSalon);
-
-      // Should still call UpsellService
       expect(UpsellService.getUpsells).toHaveBeenCalled();
     });
 
@@ -97,9 +94,7 @@ describe('ClientRevenueOrchestrator', () => {
       vi.mocked(UpsellService.getUpsells).mockResolvedValue(mockUpsells);
       mockGenerateOffer.mockResolvedValue({ message: 'Test offer' });
       vi.mocked(sendWaitlistOffer).mockResolvedValue(undefined);
-
       await orchestrator.runDailyRevenueCycle(mockSalonId);
-
       expect(sendWaitlistOffer).toHaveBeenCalled();
     });
   });

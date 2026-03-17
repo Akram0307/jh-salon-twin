@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { login, dashboard, sidebar } from '../../helpers/selectors';
 import { setAuthState } from '../../helpers/auth.helper';
+import { getTestCredentials } from '../../helpers/test-credentials';
 
 test.describe('Mobile Viewport Tests', () => {
   test('should display login form on mobile', async ({ page }) => {
@@ -14,10 +15,10 @@ test.describe('Mobile Viewport Tests', () => {
   });
 
   test('@smoke should login and load dashboard on mobile (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with valid test credentials');
+    const { email, password } = getTestCredentials();
 
-    await page.locator(login.emailInput).fill(process.env.E2E_TEST_EMAIL || 'owner@salon.com');
-    await page.locator(login.passwordInput).fill(process.env.E2E_TEST_PASSWORD || 'test-password');
+    await page.locator(login.emailInput).fill(email);
+    await page.locator(login.passwordInput).fill(password);
     await page.locator(login.submitButton).tap();
 
     await expect(page).toHaveURL('/owner/dashboard', { timeout: 15000 });

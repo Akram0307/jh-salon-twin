@@ -25,9 +25,7 @@ test.describe('POS - Payment Flow', () => {
     expect(hasCash || hasUpi || hasCard).toBeTruthy();
   });
 
-  test('@pos should record a cash payment (requires backend)', async ({ page }) => {
-    test.skip(true, 'Payment recording requires backend integration');
-
+  test('@pos should record a cash payment', async ({ page }) => {
     // Add a service first
     const serviceItem = page.locator('button, [role="button"]').filter({ hasText: /haircut|styling|color/i }).first();
     if (await serviceItem.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -49,9 +47,7 @@ test.describe('POS - Payment Flow', () => {
     }
   });
 
-  test('@pos should generate Z-report (requires backend)', async ({ page }) => {
-    test.skip(true, 'Z-report generation requires backend integration');
-
+  test('@pos should generate Z-report', async ({ page }) => {
     const zReportButton = page.locator('button').filter({ hasText: /z-?report|daily report|end of day/i }).first();
     if (await zReportButton.isVisible({ timeout: 5000 }).catch(() => false)) {
       await zReportButton.click();

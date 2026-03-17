@@ -25,8 +25,6 @@ test.describe('Client Chat Booking Flow', () => {
   });
 
   test('@client should send a message and display it', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('I want to book a haircut');
     await page.locator(clientChat.sendButton).first().click();

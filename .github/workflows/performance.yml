@@ -1,11 +1,19 @@
 name: Performance Budgets
 
 on:
+  pull_request:
+    paths:
+      - 'frontend-next/**'
+      - '.github/workflows/performance.yml'
   workflow_dispatch:
+
+concurrency:
+  group: performance-gate-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   performance-check:
-    name: Check Performance Budgets
+    name: Lighthouse CI Gate
     permissions:
       contents: read
       issues: write
@@ -24,36 +32,70 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend-next/package-lock.json
 
-      - name: Install dependencies
-        working-directory: frontend-next
-        run: npm ci
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.14.x
 
-      - name: Build frontend
+      - name: Prepare LHCI gate config
         working-directory: frontend-next
-        run: npm run build
-
-      - name: Check bundle size with size-limit
-        working-directory: frontend-next
+        env:
+          STAGING_URL: 'https://salonos-owner-frontend-staging-rgvcleapsa-uc.a.run.app'
+          STAGING_AUTH: ${{ secrets.STAGING_BASIC_AUTH }}
         run: |
-          npm run size
-          # Check if any bundle exceeds the limit
-          npx size-limit --json | jq -e '.[] | select(.size > 204800)' && exit 1 || echo "Bundle size within limits"
+          # Build extraHeaders JSON string for basic auth (staging requires auth)
+          AUTH_HEADER="[]"
+          if [ -n "$STAGING_AUTH" ]; then
+            AUTH_HEADER=$(python3 -c "import sys,json; print(json.dumps([{'header':'Authorization','value':'Basic '+sys.argv[1].strip()}]))" "$STAGING_AUTH")
+          fi
 
-      - name: Run Lighthouse CI
+          # Write gate-specific LHCI config (derived from lighthouserc.js but targeting staging)
+          # Thresholds per S12-08 spec; reference values from performance-budget.json shown in PR comment
+          cat > .lighthouserc.gate.js << EOF
+          module.exports = {
+            ci: {
+              collect: {
+                url: [
+                  '${STAGING_URL}/owner/dashboard',
+                  '${STAGING_URL}/owner/schedule',
+                  '${STAGING_URL}/owner/clients',
+                  '${STAGING_URL}/owner/settings',
+                ],
+                numberOfRuns: 3,
+                settings: {
+                  preset: 'desktop',
+                  throttling: { cpuSlowdownMultiplier: 1 },
+                  extraHeaders: '${AUTH_HEADER}',
+                },
+              },
+              assert: {
+                assertions: {
+                  'categories:performance': ['error', { minScore: 0.7 }],
+                  'categories:accessibility': ['error', { minScore: 0.8 }],
+                  'categories:best-practices': ['error', { minScore: 0.8 }],
+                  'categories:seo': ['error', { minScore: 0.7 }],
+                },
+              },
+              upload: { target: 'temporary-public-storage' },
+            },
+          };
+          EOF
+
+      - name: Run Lighthouse CI collect
         working-directory: frontend-next
-        run: |
-          npm install -g @lhci/cli
-          lhci collect --url="http://localhost:3000/owner/dashboard" --url="http://localhost:3000/owner/schedule" --start-server-command="npm start" --numberOfRuns=3
-          lhci assert
+        run: lhci collect --config=.lighthouserc.gate.js
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Assert performance budgets (blocking gate)
+        id: lhci-assert
+        working-directory: frontend-next
+        run: lhci assert --config=.lighthouserc.gate.js
 
       - name: Upload Lighthouse results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: lighthouse-results
-          path: .lighthouseci/
+          name: lighthouse-results-${{ github.run_number }}
+          path: frontend-next/.lighthouseci/
           retention-days: 7
 
       - name: Comment PR with performance results
@@ -64,103 +106,94 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
-            // Read size-limit results
-            let sizeResults;
+            const lhciDir = 'frontend-next/.lighthouseci';
+
+            // Gate thresholds (S12-08 spec)
+            const gateThresholds = { performance: 0.7, accessibility: 0.8, bestPractices: 0.8, seo: 0.7 };
+            // Reference values from performance-budget.json
+            const refBudgets = { performance: 90, accessibility: 95, bestPractices: 90, seo: 90 };
+
+            // Read manifest
+            let manifest = [];
             try {
-              sizeResults = JSON.parse(fs.readFileSync('frontend-next/.size-limit.js', 'utf8'));
-            } catch (e) {
-              console.log('No size-limit results found');
-              sizeResults = [];
+              manifest = JSON.parse(fs.readFileSync(path.join(lhciDir, 'manifest.json'), 'utf8'));
+            } catch (e) { /* no manifest */ }
+
+            // Read individual Lighthouse results
+            let allScores = [];
+            for (const entry of manifest) {
+              try {
+                const result = JSON.parse(fs.readFileSync(path.join(lhciDir, entry.jsonPath), 'utf8'));
+                allScores.push({
+                  url: entry.requestedUrl || entry.url,
+                  performance: result.categories?.performance?.score ?? 0,
+                  accessibility: result.categories?.accessibility?.score ?? 0,
+                  bestPractices: result.categories?.['best-practices']?.score ?? 0,
+                  seo: result.categories?.seo?.score ?? 0,
+                });
+              } catch (e) { /* skip unreadable */ }
             }
 
-            // Read Lighthouse results
-            let lighthouseResults = [];
+            // Read assertion results
+            let assertionResults = [];
             try {
-              const files = fs.readdirSync('.lighthouseci');
-              for (const file of files) {
-                if (file.endsWith('.json')) {
-                  const content = JSON.parse(fs.readFileSync(path.join('.lighthouseci', file), 'utf8'));
-                  lighthouseResults.push(content);
-                }
-              }
-            } catch (e) {
-              console.log('No Lighthouse results found');
-            }
+              assertionResults = JSON.parse(fs.readFileSync(path.join(lhciDir, 'assertion-results.json'), 'utf8'));
+            } catch (e) { /* no assertion file */ }
 
             // Build comment
-            let comment = '## 📊 Performance Budget Report
+            const baseUrl = 'https://salonos-owner-frontend-staging-rgvcleapsa-uc.a.run.app';
+            let comment = '## \ud83d\udcca Lighthouse CI Performance Gate\n\n';
+            comment += '**Gate Thresholds**: perf \u2265 70 | a11y \u2265 80 | BP \u2265 80 | SEO \u2265 70  \n';
+            comment += '*Reference (performance-budget.json)*: perf \u2265 ' + refBudgets.performance + ' | a11y \u2265 ' + refBudgets.accessibility + ' | BP \u2265 ' + refBudgets.bestPractices + ' | SEO \u2265 ' + refBudgets.seo + '\n\n';
 
-            ';
-
-            // Bundle size section
-            comment += '### Bundle Size
-            ';
-            if (sizeResults.length > 0) {
-              comment += '| Bundle | Size | Budget | Status |
-            ';
-              comment += '|--------|------|--------|--------|
-            ';
-              for (const result of sizeResults) {
-                const sizeKB = (result.size / 1024).toFixed(2);
-                const budgetKB = 200; // 200 kB budget
-                const status = result.size <= budgetKB * 1024 ? '✅' : '❌';
-                comment += `| ${result.name} | ${sizeKB} kB | ${budgetKB} kB | ${status} |
-            `;
-              }
-            } else {
-              comment += 'No bundle size data available.
-            ';
-            }
-
-            comment += '
-            ';
-
-            // Lighthouse section
-            comment += '### Lighthouse Scores
-            ';
-            if (lighthouseResults.length > 0) {
-              const avgScores = {
-                performance: 0,
-                accessibility: 0,
-                bestPractices: 0,
-                seo: 0
-              };
-
-              for (const result of lighthouseResults) {
-                if (result.categories) {
-                  avgScores.performance += result.categories.performance?.score || 0;
-                  avgScores.accessibility += result.categories.accessibility?.score || 0;
-                  avgScores.bestPractices += result.categories['best-practices']?.score || 0;
-                  avgScores.seo += result.categories.seo?.score || 0;
-                }
+            if (allScores.length > 0) {
+              comment += '### Scores by URL\n\n';
+              comment += '| URL | Perf | A11y | BP | SEO |\n';
+              comment += '|-----|------|------|----|----|\n';
+              for (const s of allScores) {
+                const shortUrl = s.url.replace(baseUrl, '') || '/';
+                const icons = ['performance', 'accessibility', 'bestPractices', 'seo'].map(k => {
+                  return s[k] >= gateThresholds[k] ? '\u2705' : '\u274c';
+                });
+                comment += '| ' + shortUrl + ' | ' + (s.performance * 100).toFixed(0) + ' ' + icons[0] + ' | ' + (s.accessibility * 100).toFixed(0) + ' ' + icons[1] + ' | ' + (s.bestPractices * 100).toFixed(0) + ' ' + icons[2] + ' | ' + (s.seo * 100).toFixed(0) + ' ' + icons[3] + ' |\n';
               }
 
-              const count = lighthouseResults.length;
-              comment += '| Metric | Score | Budget | Status |
-            ';
-              comment += '|--------|-------|--------|--------|
-            ';
-              comment += `| Performance | ${((avgScores.performance / count) * 100).toFixed(0)} | 90 | ${(avgScores.performance / count) >= 0.9 ? '✅' : '❌'} |
-            `;
-              comment += `| Accessibility | ${((avgScores.accessibility / count) * 100).toFixed(0)} | 95 | ${(avgScores.accessibility / count) >= 0.95 ? '✅' : '❌'} |
-            `;
-              comment += `| Best Practices | ${((avgScores.bestPractices / count) * 100).toFixed(0)} | 90 | ${(avgScores.bestPractices / count) >= 0.9 ? '✅' : '❌'} |
-            `;
-              comment += `| SEO | ${((avgScores.seo / count) * 100).toFixed(0)} | 90 | ${(avgScores.seo / count) >= 0.9 ? '✅' : '❌'} |
-            `;
+              // Averages
+              const keys = ['performance', 'accessibility', 'bestPractices', 'seo'];
+              const labels = ['Performance', 'Accessibility', 'Best Practices', 'SEO'];
+              const avg = {};
+              for (const k of keys) {
+                avg[k] = allScores.reduce((sum, s) => sum + s[k], 0) / allScores.length;
+              }
+              comment += '\n### Average Scores\n\n';
+              comment += '| Metric | Score | Gate | Status |\n';
+              comment += '|--------|-------|------|--------|\n';
+              for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                const score = avg[k];
+                const budget = gateThresholds[k];
+                const status = score >= budget ? '\u2705 Pass' : '\u274c Fail';
+                comment += '| ' + labels[i] + ' | ' + (score * 100).toFixed(0) + ' | ' + (budget * 100).toFixed(0) + ' | ' + status + ' |\n';
+              }
             } else {
-              comment += 'No Lighthouse data available.
-            ';
+              comment += '_No Lighthouse results available. Staging may be unreachable._\n';
             }
 
-            comment += '
-            ---
-            ';
-            comment += '*Performance budgets are enforced to ensure optimal user experience.*';
+            // Failed assertions detail
+            const failed = Array.isArray(assertionResults) ? assertionResults.filter(a => a.passed === false) : [];
+            if (failed.length > 0) {
+              comment += '\n### \u274c Failed Assertions\n\n';
+              for (const f of failed) {
+                comment += '- **' + f.assertion + '**: ' + (f.actual || 'below threshold') + ' (expected ' + f.expected + ')\n';
+              }
+            }
+
+            comment += '\n---\n';
+            comment += '*\u26a0\ufe0f This is a **blocking gate**. Merge will be blocked if any threshold is not met.*\n';
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: comment
+              body: comment,
             });

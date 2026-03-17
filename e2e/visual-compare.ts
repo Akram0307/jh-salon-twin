@@ -91,39 +91,26 @@ export async function compareWithBaseline(
  * Generate visual comparison report
  */
 export function generateVisualReport(results: CompareResult[]): string {
-  let report = '# Visual Regression Test Report
-
-';
-  report += `Generated: ${new Date().toISOString()}
-
-`;
+  let report = '# Visual Regression Test Report\n\n';
+  report += `Generated: ${new Date().toISOString()}\n\n`;
 
   const passed = results.filter(r => r.passed).length;
   const failed = results.filter(r => !r.passed).length;
 
-  report += `## Summary
-`;
-  report += `- Total: ${results.length}
-`;
-  report += `- Passed: ${passed}
-`;
-  report += `- Failed: ${failed}
-
-`;
+  report += `## Summary\n`;
+  report += `- Total: ${results.length}\n`;
+  report += `- Passed: ${passed}\n`;
+  report += `- Failed: ${failed}\n\n`;
 
   if (failed > 0) {
-    report += `## Failed Tests
-`;
-    report += '| Page | Viewport | Status | Diff |
-';
-    report += '|------|----------|--------|------|
-';
+    report += `## Failed Tests\n`;
+    report += '| Page | Viewport | Status | Diff |\n';
+    report += '|------|----------|--------|------|\n';
 
     results.filter(r => !r.passed).forEach(result => {
       const pageName = path.basename(result.currentPath, '.png');
       const viewport = result.currentPath.includes('desktop') ? 'desktop' : 'mobile';
-      report += `| ${pageName} | ${viewport} | ❌ Failed | ${result.diffPercentage.toFixed(2)}% |
-`;
+      report += `| ${pageName} | ${viewport} | \u274c Failed | ${result.diffPercentage.toFixed(2)}% |\n`;
     });
   }
 
@@ -153,32 +140,22 @@ export function generatePRComment(results: CompareResult[]): string {
   const failed = results.filter(r => !r.passed);
 
   if (failed.length === 0) {
-    return '✅ All visual regression tests passed!';
+    return '\u2705 All visual regression tests passed!';
   }
 
-  let comment = '## ⚠️ Visual Regression Test Results
-
-';
-  comment += `${failed.length} visual change(s) detected:
-
-`;
+  let comment = '## \u26a0\ufe0f Visual Regression Test Results\n\n';
+  comment += `${failed.length} visual change(s) detected:\n\n`;
 
   failed.forEach(result => {
     const pageName = path.basename(result.currentPath, '.png');
     const viewport = result.currentPath.includes('desktop') ? 'Desktop' : 'Mobile';
-    comment += `- **${pageName}** (${viewport}): ${result.diffPercentage.toFixed(2)}% difference
-`;
+    comment += `- **${pageName}** (${viewport}): ${result.diffPercentage.toFixed(2)}% difference\n`;
   });
 
-  comment += '
-### Actions
-';
-  comment += '- Review the diff images in the workflow artifacts
-';
-  comment += '- If changes are intentional, run `npm run update-baselines`
-';
-  comment += '- If changes are unintended, investigate the source
-';
+  comment += '\n### Actions\n';
+  comment += '- Review the diff images in the workflow artifacts\n';
+  comment += '- If changes are intentional, run `npm run update-baselines`\n';
+  comment += '- If changes are unintended, investigate the source\n';
 
   return comment;
 }

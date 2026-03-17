@@ -76,8 +76,8 @@ describe('authRoutes', () => {
         .post('/api/auth/login')
         .send({ email: 'test@example.com' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Email and password are required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 400 if password is missing', async () => {
@@ -85,8 +85,8 @@ describe('authRoutes', () => {
         .post('/api/auth/login')
         .send({ password: 'password123' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Email and password are required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 401 if owner not found', async () => {
@@ -174,8 +174,8 @@ describe('authRoutes', () => {
         .post('/api/auth/staff-login')
         .send({ email: 'staff@example.com' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Email and password are required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 400 if password is missing', async () => {
@@ -183,8 +183,8 @@ describe('authRoutes', () => {
         .post('/api/auth/staff-login')
         .send({ password: 'password123' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Email and password are required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 401 if staff not found', async () => {
@@ -297,8 +297,8 @@ describe('authRoutes', () => {
         .post('/api/auth/refresh')
         .send({});
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Refresh token required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 401 if refresh token is invalid', async () => {
@@ -395,8 +395,8 @@ describe('authRoutes', () => {
         .post('/api/auth/forgot-password')
         .send({});
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Email is required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 500 on database error', async () => {
@@ -417,8 +417,8 @@ describe('authRoutes', () => {
         .post('/api/auth/reset-password')
         .send({ password: 'newpassword' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Token and new password are required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 400 if password is missing', async () => {
@@ -426,8 +426,8 @@ describe('authRoutes', () => {
         .post('/api/auth/reset-password')
         .send({ token: 'valid-token' });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Token and new password are required');
+      expect(response.status).toBe(422);
+      expect(response.body.error).toBe('Validation failed');
     });
 
     it('should return 400 if reset token is invalid', async () => {

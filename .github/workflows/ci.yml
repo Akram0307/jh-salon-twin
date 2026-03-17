@@ -258,3 +258,33 @@ jobs:
           name: trivy-scan-${{ matrix.project }}
           path: trivy-results-${{ matrix.project }}.sarif
           retention-days: 30
+
+  # S11-10: Secret Manager validation gate for staging deployments
+  secrets-validation:
+    timeout-minutes: 5
+    name: Validate Staging Secrets
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [docker-build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@6fc4af4b2a3368f6db440e0c6758c7d454982e04
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@98ddc00a17442e2a714d56fa6740e2b5c1a63eb3
+        with:
+          project_id: salon-saas-487508
+
+      - name: Validate staging secrets
+        run: |
+          chmod +x environments/staging/validate-secrets.sh
+          ./environments/staging/validate-secrets.sh

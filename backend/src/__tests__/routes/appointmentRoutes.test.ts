@@ -67,17 +67,18 @@ describe('appointmentRoutes', () => {
 
   describe('POST /api/appointments', () => {
     it('should create an appointment', async () => {
-      const mockAppointment = { id: '1', client_id: 'client-1', appointment_time: '2024-01-01T10:00:00Z' };
+      const mockAppointment = { id: '1', salon_id: 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4', client_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', appointment_time: '2024-01-01T10:00:00Z' };
       vi.mocked(AppointmentRepository.create).mockResolvedValue(mockAppointment);
 
       const response = await request(app)
         .post('/api/appointments')
-        .send({ client_id: 'client-1', appointment_time: '2024-01-01T10:00:00Z' });
+        .send({ salon_id: 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4', client_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', appointment_time: '2024-01-01T10:00:00Z' });
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual(mockAppointment);
       expect(AppointmentRepository.create).toHaveBeenCalledWith({
-        client_id: 'client-1',
+        salon_id: 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4',
+        client_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         appointment_time: '2024-01-01T10:00:00Z',
       });
     });
@@ -87,7 +88,7 @@ describe('appointmentRoutes', () => {
 
       const response = await request(app)
         .post('/api/appointments')
-        .send({ client_id: 'client-1', appointment_time: '2024-01-01T10:00:00Z' });
+        .send({ salon_id: 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4', client_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', appointment_time: '2024-01-01T10:00:00Z' });
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Failed to create appointment');
@@ -190,11 +191,11 @@ describe('appointmentRoutes', () => {
 
       const response = await request(app)
         .post('/api/appointments/1/services')
-        .send({ service_id: 'service-1', base_price: 50 });
+        .send({ service_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', base_price: 50 });
 
       expect(response.status).toBe(201);
       expect(response.body).toEqual(mockService);
-      expect(AppointmentRepository.addService).toHaveBeenCalledWith('1', 'service-1', 50, 50);
+      expect(AppointmentRepository.addService).toHaveBeenCalledWith('1', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 50, 50);
     });
 
     it('should return 500 on database error', async () => {
@@ -202,7 +203,7 @@ describe('appointmentRoutes', () => {
 
       const response = await request(app)
         .post('/api/appointments/1/services')
-        .send({ service_id: 'service-1', base_price: 50 });
+        .send({ service_id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', base_price: 50 });
 
       expect(response.status).toBe(500);
       expect(response.body.error).toBe('Failed to add service to appointment');

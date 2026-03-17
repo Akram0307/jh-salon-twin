@@ -1,8 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { pos } from '../helpers/selectors';
 import { setAuthState } from '../helpers/auth.helper';
+import { seedServices } from '../helpers/seed-data';
 
 test.describe('POS - Service Selection & Cart', () => {
+  test.beforeAll(async () => {
+    await seedServices();
+  });
+
   test.beforeEach(async ({ page }) => {
     await setAuthState(page);
     await page.goto('/owner/pos');
@@ -29,9 +34,7 @@ test.describe('POS - Service Selection & Cart', () => {
     await expect(page.locator(pos.cart).first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('@pos should add service to cart (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with services configured');
-
+  test('@pos should add service to cart', async ({ page }) => {
     const serviceItem = page.locator('button, [role="button"]').filter({ hasText: /haircut|styling|color/i }).first();
     if (await serviceItem.isVisible({ timeout: 5000 }).catch(() => false)) {
       await serviceItem.click();

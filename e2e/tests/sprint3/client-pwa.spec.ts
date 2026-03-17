@@ -15,9 +15,7 @@ test.describe('Client Conversational PWA', () => {
     await expect(page.locator(clientChat.chatInput).first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('@client should send free-form message (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should send free-form message', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('I need a haircut tomorrow');
     await page.locator(clientChat.sendButton).first().click();
@@ -25,9 +23,7 @@ test.describe('Client Conversational PWA', () => {
     await page.waitForTimeout(3000);
   });
 
-  test('@client should browse services via quick reply (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should browse services via quick reply', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('Show me your services');
     await page.locator(clientChat.sendButton).first().click();
@@ -35,9 +31,7 @@ test.describe('Client Conversational PWA', () => {
     await page.waitForTimeout(3000);
   });
 
-  test('@client should check opening hours (requires backend)', async ({ page }) => {
-    test.skip(true, 'Requires running backend with AI concierge');
-
+  test('@client should check opening hours', async ({ page }) => {
     const chatInput = page.locator(clientChat.chatInput).first();
     await chatInput.fill('What are your opening hours?');
     await page.locator(clientChat.sendButton).first().click();

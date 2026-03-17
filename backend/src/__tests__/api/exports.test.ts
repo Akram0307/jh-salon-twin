@@ -12,7 +12,7 @@ vi.mock('../../services/DataExportService', () => ({
 
 // Mock auth middleware
 vi.mock('../../middleware/auth', () => ({
-  authenticateToken: (req: any, res: any, next: any) => {
+  authenticate: (req: any, res: any, next: any) => {
     req.user = {
       id: 'user-1',
       email: 'test@example.com',
