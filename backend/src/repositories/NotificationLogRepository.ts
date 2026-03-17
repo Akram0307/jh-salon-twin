@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import type { QueryParams } from '../types/repositoryTypes';
 
 export class NotificationLogRepository {
   static async findBySalonId(
@@ -9,7 +10,7 @@ export class NotificationLogRepository {
     status?: string
   ) {
     let whereClause = 'WHERE salon_id = $1';
-    const params: any[] = [salonId];
+    const params: QueryParams = [salonId];
     let paramCount = 2;
 
     if (type) {
@@ -74,7 +75,7 @@ export class NotificationLogRepository {
 
   static async updateStatus(id: string, status: string, error_message?: string, sent_at?: Date) {
     const setClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParams = [];
     let paramCount = 1;
 
     setClauses.push(`status = $${paramCount}`);

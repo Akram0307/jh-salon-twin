@@ -1,5 +1,6 @@
 import { query } from '../config/db';
 import { RankedSlot } from './SmartSlotRanker';
+import type { TopPerformingSlotRow, MetricsByAlgorithmRow } from '../types/serviceTypes';
 
 export interface SlotSuggestionMetric {
   id?: string;
@@ -135,7 +136,7 @@ export class MetricsCollector {
       [salonId, startDate, endDate, limit]
     );
 
-    return res.rows.map((row: any) => ({
+    return res.rows.map((row: TopPerformingSlotRow) => ({
       slot_time: new Date(row.slot_time),
       staff_id: row.staff_id,
       acceptance_count: parseInt(row.acceptance_count)
@@ -193,7 +194,7 @@ export class MetricsCollector {
       [salonId, startDate, endDate]
     );
 
-    return res.rows.map((row: any) => ({
+    return res.rows.map((row: MetricsByAlgorithmRow) => ({
       algorithm_version: row.algorithm_version,
       total: parseInt(row.total),
       accepted: parseInt(row.accepted),

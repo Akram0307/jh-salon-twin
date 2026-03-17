@@ -352,7 +352,7 @@ export class SmartSlotRanker {
       );
 
       for (const staff of staffResult.rows) {
-        const capacity = capacityResult.rows.find((c: any) => c.staff_id === staff.staff_id);
+        const capacity = capacityResult.rows.find((c: { staff_id: string }) => c.staff_id === staff.staff_id);
         const maxCapacity = capacity ? parseInt(capacity.capacity) || 8 : 8;
         
         workloadMap.set(staff.staff_id, {
@@ -391,7 +391,7 @@ export class SmartSlotRanker {
         [salonId, date]
       );
 
-      return result.rows.map((row: any) => ({
+      return result.rows.map((row: { appointment_time: Date | string; staff_id: string }) => ({
         time: new Date(row.appointment_time),
         staffId: row.staff_id
       }));

@@ -19,8 +19,8 @@ export class NotFoundError extends AppError {
 }
 
 export class ValidationError extends AppError {
-  public details?: any;
-  constructor(message: string, details?: any) {
+  public details?: unknown;
+  constructor(message: string, details?: unknown) {
     super(message, 400);
     this.details = details;
   }

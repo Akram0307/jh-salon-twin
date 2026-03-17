@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import type { ConfigDbRow } from '../types/serviceTypes';
 
 export type ConfigRecord = {
   salon_id: string | null;
@@ -35,7 +36,7 @@ export class ConfigService {
     return this.hasSalonIdColumnCache;
   }
 
-  static normalize(row: any, salonId?: string): ConfigRecord {
+  static normalize(row: ConfigDbRow | null, salonId?: string): ConfigRecord {
     return {
       salon_id: row?.salon_id || salonId || null,
       ai_name: row?.ai_name || 'Digital Receptionist',
@@ -54,7 +55,7 @@ export class ConfigService {
     }
 
     const hasSalonId = await this.hasSalonIdColumn();
-    let row: any = null;
+    let row: ConfigDbRow | null = null;
 
     if (hasSalonId) {
       const specific = await query(

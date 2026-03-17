@@ -106,8 +106,9 @@ router.get('/stats', (req: Request, res: Response) => {
  */
 router.get('/:errorId', (req: Request, res: Response) => {
   try {
-    const { errorId } = req.params as any;
-    const error = getErrorById(errorId);
+    const { errorId } = req.params;
+    const errorIdStr = Array.isArray(errorId) ? errorId[0] : errorId;
+    const error = getErrorById(errorIdStr);
     
     if (!error) {
       res.status(404).json({
@@ -137,8 +138,9 @@ router.get('/:errorId', (req: Request, res: Response) => {
  */
 router.patch('/:errorId/resolve', (req: Request, res: Response) => {
   try {
-    const { errorId } = req.params as any;
-    const resolved = markErrorResolved(errorId);
+    const { errorId } = req.params;
+    const errorIdStr = Array.isArray(errorId) ? errorId[0] : errorId;
+    const resolved = markErrorResolved(errorIdStr);
     
     if (!resolved) {
       res.status(404).json({

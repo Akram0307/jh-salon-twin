@@ -5,6 +5,7 @@ import { updateBrandingSchema, updateBusinessHoursSchema, updateSalonServiceSche
 import { SalonSettingsService } from '../services/SalonSettingsService';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'salon_settings_routes' });
 
 const router = Router();
@@ -26,9 +27,9 @@ router.get('/', async (req: Request, res: Response) => {
       salonSettingsService.getServicesCatalog(salonId),
     ]);
     res.json({ success: true, data: { branding, businessHours, categories, services } });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting salon settings:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -41,9 +42,9 @@ router.put('/branding', validate(updateBrandingSchema), async (req: Request, res
     }
     const result = await salonSettingsService.updateBranding(salonId, req.body);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error updating branding:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -57,9 +58,9 @@ router.put('/business-hours', validate(updateBusinessHoursSchema), async (req: R
     const hours = req.body.hours || [];
     const result = await salonSettingsService.updateBusinessHours(salonId, hours);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error updating business hours:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -73,9 +74,9 @@ router.put('/services/:serviceId', validate(updateSalonServiceSchema), async (re
     const { serviceId } = req.params as { serviceId: string };
     const result = await salonSettingsService.updateService(serviceId, req.body);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error updating salon service:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 

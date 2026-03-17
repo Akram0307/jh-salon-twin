@@ -7,6 +7,7 @@ import { validate } from '../middleware/validate';
 import { createWaitlistEntrySchema, updateWaitlistStatusSchema } from '../schemas/waitlist';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 
 const router = Router()
 router.use(validateUUID);
@@ -16,8 +17,8 @@ router.post('/', validate(createWaitlistEntrySchema), async (req, res) => {
         const { clientId, preferredDate, preferredTimeRange, notes } = req.body;
         const entry = await WaitlistRepository.addEntry(clientId, preferredDate, preferredTimeRange, notes);
         res.status(201).json(entry);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+        res.status(500).json({ error: getErrorMessage(error) });
     }
 });
 
@@ -30,8 +31,8 @@ router.get('/', async (req, res) => {
         }
         const entries = await WaitlistRepository.getPendingByDate(date as string);
         res.json(entries);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+        res.status(500).json({ error: getErrorMessage(error) });
     }
 });
 
@@ -40,8 +41,8 @@ router.patch('/:id/status', validate(updateWaitlistStatusSchema), async (req, re
         const { status } = req.body;
         const entry = await WaitlistRepository.updateStatus(req.params.id as string, status);
         res.json(entry);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+        res.status(500).json({ error: getErrorMessage(error) });
     }
 });
 
@@ -59,8 +60,8 @@ router.get('/recovery-stats', async (_req, res) => {
     try { recoveryRevenue = await TransactionRepository.sumRecoveredRevenue(); } catch (e) { logger.error({ err: e }, 'waitlist recoveryRevenue metric failed:'); }
 
     res.json({ waitingClients, offersSent, recoveredBookings, recoveryRevenue });
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -70,8 +71,8 @@ router.post('/recover', async (req, res) => {
     const result = await (await import('../services/AIWaitlistRecoveryOrchestrator.js')).AIWaitlistRecoveryOrchestrator.runRecoveryCycle();
     return res.json(result);
 
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error: unknown) {
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 

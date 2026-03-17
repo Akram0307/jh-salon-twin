@@ -1,4 +1,5 @@
 import db from '../config/db'
+import type { QueryParams, JsonData } from '../types/repositoryTypes';
 
 export interface StatusChangeInput {
   appointment_id: string
@@ -7,7 +8,7 @@ export interface StatusChangeInput {
   new_status: string
   changed_by_staff_id?: string
   change_reason?: string
-  metadata?: any
+  metadata?: JsonData
 }
 
 export interface AppointmentStatusHistory {
@@ -18,7 +19,7 @@ export interface AppointmentStatusHistory {
   new_status: string
   changed_by_staff_id: string | null
   change_reason: string | null
-  metadata: any
+  metadata: JsonData
   created_at: Date
 }
 
@@ -171,7 +172,7 @@ export class AppointmentStatusRepository {
       LEFT JOIN staff s ON ash.changed_by_staff_id = s.id
       WHERE ash.salon_id = $1
     `
-    const params: any[] = [salonId]
+    const params: QueryParams = [salonId]
     let paramIndex = 2
 
     if (startDate) {

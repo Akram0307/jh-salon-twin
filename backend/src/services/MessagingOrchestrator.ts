@@ -1,6 +1,7 @@
 import { messagingEventBus } from './MessagingEventBus';
 import { messageStateManager } from './MessageStateManager';
 import { IntentRouter } from './IntentRouter';
+import type { MessageStateRow } from '../types/serviceTypes';
 
 export class MessagingOrchestrator {
   
@@ -36,7 +37,7 @@ export class MessagingOrchestrator {
     });
   }
 
-  async handleReply(state: any, message: string) {
+  async handleReply(state: MessageStateRow, message: string) {
     const normalized = message.trim().toUpperCase();
 
     if (normalized === 'YES') {

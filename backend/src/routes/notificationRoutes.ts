@@ -8,6 +8,7 @@ import { validate } from '../middleware/validate';
 import { createNotificationSchema, updateNotificationPreferencesSchema, createTemplateSchema, updateTemplateSchema, sendNotificationSchema } from '../schemas/notification';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'notification_routes' });
 
 const router = Router();
@@ -33,9 +34,9 @@ router.get('/templates', async (req: Request, res: Response) => {
     }
     const templates = await NotificationTemplateRepository.findBySalonId(salonId);
     res.json({ success: true, data: templates });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] GET /templates error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -52,9 +53,9 @@ router.post('/templates', validate(createTemplateSchema), async (req: Request, r
       variables
     });
     res.status(201).json({ success: true, data: template });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] POST /templates error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -71,9 +72,9 @@ router.put('/templates/:id', validate(updateTemplateSchema), async (req: Request
       is_active
     });
     res.json({ success: true, data: template });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] PUT /templates/:id error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -83,9 +84,9 @@ router.delete('/templates/:id', async (req: Request, res: Response) => {
     const id = String(req.params.id);
     await NotificationTemplateRepository.delete(id);
     res.json({ success: true, message: 'Template deleted' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] DELETE /templates/:id error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -113,9 +114,9 @@ router.get('/logs', async (req: Request, res: Response) => {
       status
     );
     res.json({ success: true, data: logs });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] GET /logs error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -133,9 +134,9 @@ router.get('/logs/stats', async (req: Request, res: Response) => {
       daysStr ? parseInt(daysStr) : 30
     );
     res.json({ success: true, data: stats });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] GET /logs/stats error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -159,9 +160,9 @@ router.post('/send', validate(sendNotificationSchema), async (req: Request, res:
       dynamicData: dynamic_data
     });
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] POST /send error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -171,9 +172,9 @@ router.post('/appointment/:id/confirm', async (req: Request, res: Response) => {
     const id = String(req.params.id);
     const result = await sendAppointmentConfirmation(id);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] POST /appointment/:id/confirm error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -183,9 +184,9 @@ router.post('/appointment/:id/remind', async (req: Request, res: Response) => {
     const id = String(req.params.id);
     const result = await dispatchReminderForAppointment(id);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] POST /appointment/:id/remind error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -208,9 +209,9 @@ router.get('/preferences', async (req: Request, res: Response) => {
     );
     const preferences = result.rows.length ? result.rows[0].notification_preferences : { email: true, sms: true, push: true };
     res.json({ success: true, data: preferences });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] GET /preferences error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 
@@ -229,9 +230,9 @@ router.put('/preferences', validate(updateNotificationPreferencesSchema), async 
       return res.status(404).json({ error: 'User settings not found' });
     }
     res.json({ success: true, data: result.rows[0].notification_preferences });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[notificationRoutes] PUT /preferences error:');
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: getErrorMessage(error) });
   }
 });
 

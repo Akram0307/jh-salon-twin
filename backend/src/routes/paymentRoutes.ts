@@ -1,10 +1,16 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import PaymentRecordingService from '../services/PaymentRecordingService';
-import { authenticate } from '../middleware/auth';
+import { AuthRequest, authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { createPaymentSchema, updatePaymentSchema, refundSchema, generateZReportSchema, updateZReportNotesSchema, paymentFiltersSchema } from '../schemas/payment';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
+import { ZodError } from 'zod';
+
+function isHttpError(error: unknown): error is { statusCode: number; message: string } {
+  return typeof error === "object" && error !== null && "statusCode" in error;
+}
 const log = logger.child({ module: 'payment_routes' });
 
 const router = Router();
@@ -26,11 +32,11 @@ router.get('/stats', authenticate, async (req: Request, res: Response) => {
     );
 
     res.json({ success: true, data: stats });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting payment stats:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -46,11 +52,11 @@ router.get('/today-summary', authenticate, async (req: Request, res: Response) =
     const summary = await PaymentRecordingService.getTodaySummary(salon_id);
 
     res.json({ success: true, data: summary });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting today summary:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -74,18 +80,18 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     });
 
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting payments:');
-    if (error.name === 'ZodError') {
+    if (error instanceof ZodError) {
       return res.status(400).json({
         success: false,
         error: 'Invalid query parameters',
         details: error.errors
       });
     }
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -101,15 +107,15 @@ router.post('/', authenticate, validate(createPaymentSchema), async (req: Reques
     const payment = await PaymentRecordingService.createPayment({
       ...req.body,
       salon_id,
-      recorded_by: (req as any).user?.id || req.body.recorded_by
+      recorded_by: (req as AuthRequest).user?.id || req.body.recorded_by
     });
 
     res.status(201).json({ success: true, data: payment });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error creating payment:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -128,11 +134,11 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     );
 
     res.json({ success: true, data: payment });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting payment:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -152,11 +158,11 @@ router.patch('/:id', authenticate, validate(updatePaymentSchema), async (req: Re
     );
 
     res.json({ success: true, data: payment });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error updating payment:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -172,11 +178,11 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     await PaymentRecordingService.deletePayment(String(req.params.id), salon_id);
 
     res.json({ success: true, message: 'Payment deleted successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error deleting payment:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -198,11 +204,11 @@ router.post('/:id/refund', authenticate, validate(refundSchema), async (req: Req
     );
 
     res.json({ success: true, data: payment });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error refunding payment:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -220,15 +226,15 @@ router.post('/z-report/generate', authenticate, validate(generateZReportSchema),
     const report = await PaymentRecordingService.generateZReport(
       salon_id,
       req.body.report_date,
-      (req as any).user?.id || req.body.generated_by
+      (req as AuthRequest).user?.id || req.body.generated_by
     );
 
     res.json({ success: true, data: report });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error generating Z-Report:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -254,11 +260,11 @@ router.get('/z-report/:date', authenticate, async (req: Request, res: Response) 
     }
 
     res.json({ success: true, data: report });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting Z-Report:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -287,11 +293,11 @@ router.get('/z-report', authenticate, async (req: Request, res: Response) => {
     );
 
     res.json({ success: true, data: reports });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting Z-Reports:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });
@@ -311,11 +317,11 @@ router.patch('/z-report/:id/notes', authenticate, validate(updateZReportNotesSch
     );
 
     res.json({ success: true, data: report });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error updating Z-Report notes:');
-    res.status(error.statusCode || 500).json({
+    res.status(isHttpError(error) ? error.statusCode : 500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: getErrorMessage(error) || 'Internal server error'
     });
   }
 });

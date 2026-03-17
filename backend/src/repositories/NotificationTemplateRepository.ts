@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import type { QueryParams } from '../types/repositoryTypes';
 
 export class NotificationTemplateRepository {
   static async findBySalonId(salonId: string) {
@@ -23,7 +24,7 @@ export class NotificationTemplateRepository {
     type: string;
     subject?: string;
     body: string;
-    variables?: any;
+    variables?: unknown;
     is_active?: boolean;
   }) {
     const res = await query(
@@ -48,11 +49,11 @@ export class NotificationTemplateRepository {
     type?: string;
     subject?: string;
     body?: string;
-    variables?: any;
+    variables?: unknown;
     is_active?: boolean;
   }) {
     const setClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParams = [];
     let paramCount = 1;
 
     if (updates.name !== undefined) {

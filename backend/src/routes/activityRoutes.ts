@@ -1,16 +1,17 @@
 
 import logger from '../config/logger';
-import { Router } from 'express'
+import { Response, Router } from 'express'
 import { authenticate } from '../middleware/auth';
 import { pool } from '../config/db'
+import { ActivityEvent } from '../types/routeTypes'
 
 const router = Router()
 router.use(authenticate);
 
 // --- In-memory SSE clients ---
-const clients: any[] = []
+const clients: Response[] = []
 
-export function broadcastActivity(event: any) {
+export function broadcastActivity(event: ActivityEvent) {
   const data = `data: ${JSON.stringify(event)}\n\n`
   clients.forEach(res => res.write(data))
 }

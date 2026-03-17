@@ -1,6 +1,7 @@
 import { Pool, PoolConfig } from "pg";
 
 import logger from './logger';
+import { QueryParams } from '../types/repositoryTypes';
 
 let _pool: Pool | null = null;
 
@@ -38,7 +39,7 @@ function getPool(): Pool {
   return _pool;
 }
 
-export async function query(text: string, params?: any[]) {
+export async function query(text: string, params?: QueryParams) {
   return getPool().query(text, params);
 }
 
@@ -47,9 +48,9 @@ export async function getClient() {
 }
 
 export const pool = {
-  query: (text: string, params?: any[]) => getPool().query(text, params),
+  query: (text: string, params?: QueryParams) => getPool().query(text, params),
   connect: () => getPool().connect(),
-  on: (event: "error" | "connect" | "acquire" | "release" | "remove", handler: (...args: any[]) => void) => getPool().on(event, handler as any),
+  on: (event: "error" | "connect" | "acquire" | "release" | "remove", handler: (...args: unknown[]) => void) => getPool().on(event, handler as (...args: unknown[]) => void),
   end: () => getPool().end(),
 };
 

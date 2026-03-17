@@ -1,5 +1,6 @@
 import pool from '../config/db';
 import { v4 as uuidv4 } from 'uuid';
+import type { QueryParams, JsonData } from '../types/repositoryTypes';
 
 export interface Feedback {
   id: string;
@@ -11,7 +12,7 @@ export interface Feedback {
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'open' | 'in_progress' | 'resolved' | 'closed';
   page_url?: string;
-  browser_info?: any;
+  browser_info?: JsonData;
   attachments?: string[];
   admin_notes?: string;
   resolved_by?: string;
@@ -26,7 +27,7 @@ export interface UsageAnalyticsEvent {
   user_id?: string;
   event_name: string;
   event_category: string;
-  event_data?: any;
+  event_data?: JsonData;
   page_url?: string;
   session_id?: string;
   device_type?: string;
@@ -113,7 +114,7 @@ export class FeedbackAnalyticsRepository {
 
   async getFeedbackByFilters(filters: FeedbackFilters): Promise<{ feedback: Feedback[]; total: number }> {
     const conditions: string[] = ['salon_id = $1'];
-    const values: any[] = [filters.salon_id];
+    const values: QueryParams = [filters.salon_id];
     let paramIndex = 2;
 
     if (filters.feedback_type) {
@@ -180,7 +181,7 @@ export class FeedbackAnalyticsRepository {
 
   async updateFeedback(id: string, salon_id: string, updates: Partial<Feedback>): Promise<Feedback | null> {
     const setClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParams = [];
     let paramIndex = 1;
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -217,7 +218,7 @@ export class FeedbackAnalyticsRepository {
 
   async getFeedbackStats(salon_id: string, start_date?: string, end_date?: string): Promise<FeedbackStats> {
     const conditions: string[] = ['salon_id = $1'];
-    const values: any[] = [salon_id];
+    const values: QueryParams = [salon_id];
     let paramIndex = 2;
 
     if (start_date) {
@@ -328,7 +329,7 @@ export class FeedbackAnalyticsRepository {
 
   async getAnalyticsByFilters(filters: AnalyticsFilters): Promise<{ events: UsageAnalyticsEvent[]; total: number }> {
     const conditions: string[] = ['salon_id = $1'];
-    const values: any[] = [filters.salon_id];
+    const values: QueryParams = [filters.salon_id];
     let paramIndex = 2;
 
     if (filters.event_name) {
@@ -389,7 +390,7 @@ export class FeedbackAnalyticsRepository {
 
   async getAnalyticsSummary(salon_id: string, start_date?: string, end_date?: string): Promise<AnalyticsSummary> {
     const conditions: string[] = ['salon_id = $1'];
-    const values: any[] = [salon_id];
+    const values: QueryParams = [salon_id];
     let paramIndex = 2;
 
     if (start_date) {
@@ -480,7 +481,7 @@ export class FeedbackAnalyticsRepository {
     };
   }
 
-  async getDailyAnalyticsSummary(salon_id: string, start_date: string, end_date: string): Promise<any[]> {
+  async getDailyAnalyticsSummary(salon_id: string, start_date: string, end_date: string): Promise<Record<string, unknown>[]> {
     const query = `
       SELECT * FROM daily_usage_summary
       WHERE salon_id = $1 AND event_date >= $2 AND event_date <= $3

@@ -22,3 +22,4 @@ export * from './slotSuggestion';
 export * from './actionHistory';
 export * from './ai';
 export * from './revenueAction';
+export * from './aiConcierge';

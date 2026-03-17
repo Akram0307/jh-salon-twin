@@ -1,0 +1,73 @@
+# SalonOS Production Environment Variables
+# ==========================================
+# DO NOT store real secrets in this file.
+# ALL secrets are referenced via GCP Secret Manager (secretManagerRef).
+# Copy this file to env-production.yaml for reference only.
+# Actual deployment injects secrets via --set-secrets in deploy-production.sh.
+
+# =============================================================================
+# SECRET VARIABLES — All accessed via Secret Manager (never plaintext)
+# =============================================================================
+
+# Authentication
+JWT_SECRET: "secretManagerRef:salonos-prod-JWT_SECRET"
+REFRESH_TOKEN_SECRET: "secretManagerRef:salonos-prod-REFRESH_TOKEN_SECRET"
+ENCRYPTION_KEY: "secretManagerRef:salonos-prod-ENCRYPTION_KEY"
+
+# Database
+DB_USER: "secretManagerRef:salonos-prod-DB_USER"
+DB_PASSWORD: "secretManagerRef:salonos-prod-DB_PASSWORD"
+DB_HOST: "secretManagerRef:salonos-prod-DB_HOST"
+DB_PORT: "secretManagerRef:salonos-prod-DB_PORT"
+DB_NAME: "secretManagerRef:salonos-prod-DB_NAME"
+INSTANCE_CONNECTION_NAME: "secretManagerRef:salonos-prod-INSTANCE_CONNECTION_NAME"
+
+# Redis
+REDIS_HOST: "secretManagerRef:salonos-prod-REDIS_HOST"
+REDIS_PORT: "secretManagerRef:salonos-prod-REDIS_PORT"
+REDIS_URL: "secretManagerRef:salonos-prod-REDIS_URL"
+
+# Twilio
+TWILIO_ACCOUNT_SID: "secretManagerRef:salonos-prod-TWILIO_ACCOUNT_SID"
+TWILIO_AUTH_TOKEN: "secretManagerRef:salonos-prod-TWILIO_AUTH_TOKEN"
+TWILIO_PHONE_NUMBER: "secretManagerRef:salonos-prod-TWILIO_PHONE_NUMBER"
+
+# SMTP
+SMTP_HOST: "secretManagerRef:salonos-prod-SMTP_HOST"
+SMTP_USER: "secretManagerRef:salonos-prod-SMTP_USER"
+SMTP_PASSWORD: "secretManagerRef:salonos-prod-SMTP_PASSWORD"
+
+# AI
+OPENROUTER_API_KEY: "secretManagerRef:salonos-prod-OPENROUTER_API_KEY"
+
+# =============================================================================
+# NON-SECRET CONFIGURATION VARIABLES
+# =============================================================================
+# These are safe to set as plain env vars (no credentials, no PII).
+
+# Application
+NODE_ENV: "production"
+LOG_LEVEL: "info"
+GCLOUD_PROJECT: "salon-saas-487508"
+CORS_ORIGIN: "https://salonos.example.com"
+
+# Frontend
+NEXT_PUBLIC_API_BASE_URL: "secretManagerRef:salonos-prod-NEXT_PUBLIC_API_BASE_URL"
+NEXT_PUBLIC_ENVIRONMENT: "production"
+
+# =============================================================================
+# SECRET MANAGER REFERENCE FORMAT
+# =============================================================================
+# In Cloud Run deployment, secrets are mounted using:
+#   gcloud run deploy ... \
+#     --set-secrets=JWT_SECRET=salonos-prod-JWT_SECRET:latest \
+#     --set-secrets=DB_PASSWORD=salonos-prod-DB_PASSWORD:latest
+#
+# To set a secret value:
+#   echo -n "your-value" | \
+#     gcloud secrets versions add salonos-prod-JWT_SECRET \
+#     --data-file=- --project=salon-saas-487508
+#
+# To list all production secrets:
+#   gcloud secrets list --filter="name:salonos-prod" \
+#     --project=salon-saas-487508

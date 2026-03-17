@@ -1,6 +1,7 @@
 import Twilio from 'twilio';
 
 import logger from '../config/logger';
+import type { TwilioContentMessageParams } from '../types/serviceTypes';
 
 export type MessageChannel = 'whatsapp' | 'sms';
 
@@ -70,7 +71,7 @@ export class MessagingGatewayService {
       from,
       contentSid,
       contentVariables: JSON.stringify(payload.variables || {})
-    } as any);
+    } as Parameters<typeof this.client.messages.create>[0]);
 
     return message.sid;
   }

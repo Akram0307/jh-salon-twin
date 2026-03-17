@@ -1,15 +1,16 @@
 import db from '../config/db'
+import type { JsonData, JsonArray } from '../types/repositoryTypes';
 
 export interface ClientBeautyProfileInput {
   client_id: string
   salon_id: string
-  hair_profile?: any
-  skin_profile?: any
+  hair_profile?: JsonData
+  skin_profile?: JsonData
   allergies?: string[]
-  stylist_preferences?: any
+  stylist_preferences?: JsonData
   notes?: string
-  color_formula_history?: any[]
-  photo_references?: any[]
+  color_formula_history?: JsonArray
+  photo_references?: JsonArray
   last_visit?: Date
 }
 

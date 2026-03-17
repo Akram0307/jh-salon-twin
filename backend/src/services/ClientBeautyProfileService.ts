@@ -1,4 +1,5 @@
 import beautyProfileRepo from '../repositories/ClientBeautyProfileRepository'
+import type { BeautyProfilePayload } from '../types/serviceTypes';
 
 class ClientBeautyProfileService {
 
@@ -6,7 +7,7 @@ class ClientBeautyProfileService {
     return beautyProfileRepo.getByClient(clientId, salonId)
   }
 
-  async createProfile(clientId: string, salonId: string, payload: any) {
+  async createProfile(clientId: string, salonId: string, payload: BeautyProfilePayload) {
     return beautyProfileRepo.createProfile({
       client_id: clientId,
       salon_id: salonId,
@@ -14,11 +15,11 @@ class ClientBeautyProfileService {
     })
   }
 
-  async updateProfile(clientId: string, salonId: string, payload: any) {
+  async updateProfile(clientId: string, salonId: string, payload: BeautyProfilePayload) {
     return beautyProfileRepo.updateProfile(clientId, salonId, payload)
   }
 
-  async upsertProfile(clientId: string, salonId: string, payload: any) {
+  async upsertProfile(clientId: string, salonId: string, payload: BeautyProfilePayload) {
     return beautyProfileRepo.upsertProfile({
       client_id: clientId,
       salon_id: salonId,

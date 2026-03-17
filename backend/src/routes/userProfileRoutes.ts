@@ -9,6 +9,7 @@ import { updateSecuritySchema } from '../schemas/userProfile';
 import { changePasswordAltSchema } from '../schemas/auth';
 
 import logger from '../config/logger';
+import { MulterRequest, getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'user_profile_routes' });
 
 const router = Router();
@@ -30,7 +31,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  fileFilter: (req: MulterRequest, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = allowedTypes.test(file.mimetype);
@@ -66,10 +67,10 @@ router.post('/avatar', upload.single('avatar'), async (req: AuthRequest, res) =>
     if (!userId || !userType) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    if (!(req as any).file) {
+    if (!(req as MulterRequest).file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const avatarUrl = `/uploads/avatars/${(req as any).file.filename}`;
+    const avatarUrl = `/uploads/avatars/${(req as MulterRequest).file!.filename}`;
     await userProfileService.updateAvatar(userId, userType, avatarUrl);
     res.json({ success: true, data: { avatar_url: avatarUrl } });
   } catch (err) {
@@ -144,10 +145,10 @@ router.post('/change-password', validate(changePasswordAltSchema), async (req: A
     }
     await userProfileService.changePassword(userId, userType, current_password, new_password);
     res.json({ success: true, message: 'Password changed successfully' });
-  } catch (err: any) {
+  } catch (err: unknown) {
     log.error({ err: err }, 'Error changing password:');
-    if (err.message === 'Current password is incorrect') {
-      return res.status(400).json({ error: err.message });
+    if (getErrorMessage(err) === 'Current password is incorrect') {
+      return res.status(400).json({ error: getErrorMessage(err) });
     }
     res.status(500).json({ error: 'Failed to change password' });
   }

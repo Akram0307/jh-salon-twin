@@ -5,6 +5,7 @@ import { rankSlotsSchema, naturalLanguageQuerySchema, compareSlotsSchema, record
 import { SlotSuggestionService } from '../services/SlotSuggestionService';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'slot_suggestion_routes' });
 
 const router = Router();
@@ -17,9 +18,9 @@ router.post('/rank', validate(rankSlotsSchema), async (req: Request, res: Respon
   try {
     const ranked = await slotService.getSmartSuggestions(req.body);
     res.json({ success: true, data: ranked });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error ranking slots:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -28,9 +29,9 @@ router.post('/natural-language', validate(naturalLanguageQuerySchema), async (re
   try {
     const result = await slotService.getSlotsFromNaturalLanguage(req.body);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error processing natural language query:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -42,9 +43,9 @@ router.post('/compare', validate(compareSlotsSchema), async (req: Request, res: 
       clientId, salonId, serviceId, serviceDurationMinutes, servicePrice, dates, slotsPerDate
     );
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error comparing slots:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -54,9 +55,9 @@ router.post('/interaction', validate(recordInteractionSchema), async (req: Reque
     const { clientId, salonId, slotTime, accepted, algorithmVersion } = req.body;
     await slotService.recordInteraction(clientId, salonId, new Date(slotTime), accepted, algorithmVersion);
     res.json({ success: true, data: { recorded: true } });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error recording interaction:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 

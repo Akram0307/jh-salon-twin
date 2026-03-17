@@ -1,4 +1,5 @@
 import db from '../config/db'
+import type { QueryParams } from '../types/repositoryTypes';
 
 export interface ClientNoteInput {
   client_id: string
@@ -43,7 +44,7 @@ export class ClientNoteRepository {
     
     let query = `SELECT * FROM client_notes WHERE client_id = $1 AND salon_id = $2`
     let countQuery = `SELECT COUNT(*) FROM client_notes WHERE client_id = $1 AND salon_id = $2`
-    const params: any[] = [clientId, salonId]
+    const params: QueryParams = [clientId, salonId]
     let paramIndex = 3
 
     if (noteType) {
@@ -98,7 +99,7 @@ export class ClientNoteRepository {
     payload: Partial<ClientNoteInput>
   ): Promise<ClientNote | null> {
     const setClauses: string[] = []
-    const params: any[] = []
+    const params: QueryParams = []
     let paramIndex = 1
 
     if (payload.content !== undefined) {

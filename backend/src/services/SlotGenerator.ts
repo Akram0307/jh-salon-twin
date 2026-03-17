@@ -6,6 +6,7 @@ import { ABTestingService } from './ABTestingService';
 import { MetricsCollector } from './MetricsCollector';
 
 import logger from '../config/logger';
+import type { GeneratedSlot } from '../types/serviceTypes';
 
 const uuidRegex = /^[0-9a-fA-F-]{36}$/;
 
@@ -61,7 +62,7 @@ export class SlotGenerator {
     );
 
     const staffList = staffRes.rows;
-    const slots: any[] = [];
+    const slots: GeneratedSlot[] = [];
 
     const apptRes = await query(
       `SELECT appointment_time, end_time, staff_id

@@ -8,6 +8,8 @@ import { CampaignTrackingService } from './CampaignTrackingService'
 import { sendWaitlistOffer } from './TwilioWhatsAppService'
 import { broadcastActivity } from '../routes/activityRoutes'
 import { createQueue, createWorker, registerWorker } from '../config/queue'
+import type { IdleSlot, RecentClient } from '../types/serviceTypes';
+import { ActivityEvent } from '../types/routeTypes'
 
 const queue = createQueue('demand-engine')
 
@@ -27,22 +29,22 @@ const worker = createWorker(
   async (job: Job) => {
     const { salonId } = job.data as { salonId: string }
 
-    const appointmentRepo: any = new AppointmentRepository()
-    const clientRepo: any = new ClientRepository()
+    const appointmentRepo = new AppointmentRepository()
+    const clientRepo = new ClientRepository()
 
     const predictionService = new DemandPredictionService()
     const optimizer = new SmartDiscountOptimizer()
     const throttle = new CampaignThrottleService()
     const tracking = new CampaignTrackingService()
 
-    const idleSlots = (await appointmentRepo.findIdleSlots?.(salonId)) || []
+    const idleSlots = ((await (appointmentRepo as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>).findIdleSlots?.(salonId)) ?? []) as IdleSlot[]
 
     let sent = 0
 
     for (const slot of idleSlots) {
       if (sent >= 50) break
 
-      const clients = (await clientRepo.getRecentClients?.(salonId)) || []
+      const clients = ((await (clientRepo as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>).getRecentClients?.(salonId)) ?? []) as RecentClient[]
 
       for (const client of clients) {
         if (sent >= 50) break
@@ -78,9 +80,10 @@ const worker = createWorker(
           offer.discount
         )
 
-        broadcastActivity(
-          `AI Demand Engine sent premium offer to client ${client.name}`
-        )
+        broadcastActivity({
+          type: 'demand_engine_offer',
+          message: `AI Demand Engine sent premium offer to client ${client.name}`
+        })
 
         sent++
       }

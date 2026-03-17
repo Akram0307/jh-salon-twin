@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import ExcelJS from 'exceljs';
+import type { QueryParams } from '../types/repositoryTypes';
 
 
 const writeFile = promisify(fs.writeFile);
@@ -27,7 +28,7 @@ export class DataExportService {
       FROM clients
     `;
 
-    const params: any[] = [];
+    const params: QueryParams = [];
     if (salonId) {
       sqlQuery += ' WHERE salon_id = $1';
       params.push(salonId);
@@ -73,7 +74,7 @@ export class DataExportService {
     `;
 
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: QueryParams = [];
     let paramIndex = 1;
 
     if (salonId) {
@@ -134,7 +135,7 @@ export class DataExportService {
       FROM services
     `;
 
-    const params: any[] = [];
+    const params: QueryParams = [];
     if (salonId) {
       sqlQuery += ' WHERE salon_id = $1';
       params.push(salonId);
@@ -180,7 +181,7 @@ export class DataExportService {
     `;
 
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: QueryParams = [];
     let paramIndex = 1;
 
     if (salonId) {
@@ -249,7 +250,7 @@ export class DataExportService {
     `;
 
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: QueryParams = [];
     let paramIndex = 1;
 
     if (salonId) {
@@ -361,7 +362,7 @@ async uploadToCloudStorage(data: string | Buffer, filename: string, contentType:
     return filePath;
   }
 
-  async exportToExcel(data: any[], columns: string[], sheetName: string): Promise<Buffer> {
+  async exportToExcel(data: Record<string, unknown>[], columns: string[], sheetName: string): Promise<Buffer> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(sheetName);
 

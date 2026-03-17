@@ -1,4 +1,5 @@
 import { pool } from '../config/db';
+import type { JsonData } from '../types/repositoryTypes';
 
 export class SlotEventRepository {
 
@@ -6,7 +7,7 @@ export class SlotEventRepository {
         salonId: string,
         eventType: string,
         slotTime: string,
-        metadata?: any
+        metadata?: JsonData
     ) {
         const res = await pool.query(`
             INSERT INTO slot_events (salon_id, event_type, slot_time, metadata, processed)

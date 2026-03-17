@@ -4,6 +4,7 @@ import { validate } from '../middleware/validate';
 import { createDraftSchema, completeTransactionSchema } from '../schemas/pos';
 
 import logger from '../config/logger';
+import { PosItem } from '../types/routeTypes';
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.post('/create-draft', validate(createDraftSchema), async (req, res) => {
       return res.status(400).json({ error: 'Items required to create draft' });
     }
 
-    const subtotal = items.reduce((sum: number, i: any) => {
+    const subtotal = items.reduce((sum: number, i: PosItem) => {
       const qty = i.quantity || 1;
       return sum + Number(i.price) * qty;
     }, 0);
@@ -56,7 +57,7 @@ router.post('/complete-transaction', validate(completeTransactionSchema), async 
     }
 
     const safeSubtotal = Number(
-      subtotal ?? items.reduce((s: number, i: any) => s + (Number(i.price) * (i.quantity || 1)), 0)
+      subtotal ?? items.reduce((s: number, i: PosItem) => s + (Number(i.price) * (i.quantity || 1)), 0)
     );
 
     const safeTip = Number(tip ?? 0);

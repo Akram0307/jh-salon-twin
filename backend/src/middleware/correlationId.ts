@@ -17,8 +17,8 @@ export function correlationIdMiddleware(req: Request, res: Response, next: NextF
 
   const childLogger = createChildLogger(correlationId);
 
-  (req as any).correlationId = correlationId;
-  (req as any).log = childLogger;
+  (req as unknown as Record<string, unknown>).correlationId = correlationId;
+  (req as unknown as Record<string, unknown>).log = childLogger;
 
   next();
 }

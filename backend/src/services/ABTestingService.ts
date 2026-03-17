@@ -1,5 +1,6 @@
 import { query } from '../config/db';
 import { RankedSlot } from './SmartSlotRanker';
+import type { ExperimentResultDbRow, ExperimentSummaryResult } from '../types/serviceTypes';
 
 export interface Experiment {
   id: string;
@@ -152,7 +153,7 @@ export class ABTestingService {
       [experimentId]
     );
 
-    return res.rows.map((row: any) => ({
+    return res.rows.map((row: ExperimentResultDbRow) => ({
       experiment_id: row.experiment_id,
       algorithm: row.algorithm,
       total_suggestions: parseInt(row.total_suggestions),
@@ -164,7 +165,7 @@ export class ABTestingService {
   /**
    * Get overall experiment results with statistical significance
    */
-  static async getExperimentSummary(experimentId: string): Promise<any> {
+  static async getExperimentSummary(experimentId: string): Promise<ExperimentSummaryResult> {
     const results = await this.getExperimentResults(experimentId);
     
     if (results.length < 2) {

@@ -4,6 +4,7 @@ import { query } from '../config/db';
 import { EventEmitter } from 'events';
 
 import logger from '../config/logger';
+import type { ClientPreferenceCacheEntry, BookedSlotKeyRow, SlotInteractionRow } from '../types/serviceTypes';
 
 export interface SuggestionContext {
   weatherCondition?: string;
@@ -67,7 +68,7 @@ export interface WaitlistFitRequest {
  */
 export class SlotSuggestionService extends EventEmitter {
   private static instance: SlotSuggestionService;
-  private preferenceCache: Map<string, { data: any; timestamp: number }> = new Map();
+  private preferenceCache: Map<string, { data: ClientPreferenceCacheEntry; timestamp: number }> = new Map();
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
@@ -502,7 +503,7 @@ export class SlotSuggestionService extends EventEmitter {
       );
 
       const bookedSlots = new Set(
-        bookedResult.rows.map((r: any) => `${r.staff_id}-${r.appointment_time}`)
+        bookedResult.rows.map((r: BookedSlotKeyRow) => `${r.staff_id}-${r.appointment_time}`)
       );
 
       return slots.filter(slot => {
@@ -609,7 +610,7 @@ export class SlotSuggestionService extends EventEmitter {
         [clientId, salonId, limit]
       );
 
-      return result.rows.map((row: any) => ({
+      return result.rows.map((row: SlotInteractionRow) => ({
         slotTime: new Date(row.slot_time),
         accepted: row.accepted
       }));

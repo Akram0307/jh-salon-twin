@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import type { JsonData } from '../types/repositoryTypes';
 
 export class UserSettingsRepository {
   static async findByUserId(userId: string, userType: string) {
@@ -13,8 +14,8 @@ export class UserSettingsRepository {
     user_id: string;
     user_type: string;
     salon_id?: string;
-    profile_data?: any;
-    notification_preferences?: any;
+    profile_data?: JsonData;
+    notification_preferences?: JsonData;
   }) {
     const res = await query(
       `INSERT INTO user_settings (user_id, user_type, salon_id, profile_data, notification_preferences)
@@ -31,7 +32,7 @@ export class UserSettingsRepository {
     return res.rows[0];
   }
 
-  static async updateProfile(userId: string, userType: string, profileData: any) {
+  static async updateProfile(userId: string, userType: string, profileData: JsonData) {
     const res = await query(
       `UPDATE user_settings 
        SET profile_data = $1, updated_at = CURRENT_TIMESTAMP
@@ -42,7 +43,7 @@ export class UserSettingsRepository {
     return res.rows[0] || null;
   }
 
-  static async updateNotificationPreferences(userId: string, userType: string, preferences: any) {
+  static async updateNotificationPreferences(userId: string, userType: string, preferences: JsonData) {
     const res = await query(
       `UPDATE user_settings 
        SET notification_preferences = $1, updated_at = CURRENT_TIMESTAMP
@@ -57,8 +58,8 @@ export class UserSettingsRepository {
     user_id: string;
     user_type: string;
     salon_id?: string;
-    profile_data?: any;
-    notification_preferences?: any;
+    profile_data?: JsonData;
+    notification_preferences?: JsonData;
   }) {
     const existing = await this.findByUserId(settings.user_id, settings.user_type);
     if (existing) {

@@ -3,33 +3,17 @@ import logger from '../config/logger';
 import { Request, Response, Router } from 'express'
 import { AIConciergeBookingService, BookingIntent } from '../services/AIConciergeBookingService'
 import { ConversationContextStore } from '../services/ConversationContextStore'
-
-type ConciergeChatBody = {
-  message?: string
-  salonId?: string
-  clientId?: string
-  sessionId?: string
-}
-
-type DirectBookBody = {
-  salonId?: string
-  clientId?: string
-  serviceId?: string
-  staffId?: string
-  dateTime?: string
-  serviceName?: string
-  staffName?: string
-}
+import { validate } from '../middleware/validate'
+import { conciergeChatSchema, directBookSchema } from '../schemas'
 
 const router = Router()
 const ok = (res: Response, data: unknown) => res.json({ success: true, data })
 const fail = (res: Response, status: number, code: string, message: string, details?: unknown) =>
   res.status(status).json({ success: false, code, message, details })
 
-router.post('/chat', async (req: Request<unknown, unknown, ConciergeChatBody>, res: Response) => {
+router.post('/chat', validate(conciergeChatSchema), async (req: Request, res: Response) => {
   try {
     const { message, salonId, clientId } = req.body
-    if (!message || !salonId) return fail(res, 400, 'INVALID_REQUEST', 'message and salonId are required')
 
     const context = clientId ? await AIConciergeBookingService.getContext(clientId) as Record<string, unknown> | null : null
     const intent = await AIConciergeBookingService.interpretRequest(message, salonId, clientId)
@@ -71,12 +55,9 @@ router.post('/chat', async (req: Request<unknown, unknown, ConciergeChatBody>, r
   }
 })
 
-router.post('/book', async (req: Request<unknown, unknown, DirectBookBody>, res: Response) => {
+router.post('/book', validate(directBookSchema), async (req: Request, res: Response) => {
   try {
     const { salonId, clientId, serviceId, staffId, dateTime, serviceName, staffName } = req.body
-    if (!salonId || !clientId || !serviceId || !dateTime) {
-      return fail(res, 400, 'INVALID_REQUEST', 'salonId, clientId, serviceId, and dateTime are required')
-    }
 
     const intent: BookingIntent = {
       intent: 'BOOK_SERVICE',
@@ -98,10 +79,9 @@ router.post('/book', async (req: Request<unknown, unknown, DirectBookBody>, res:
   }
 })
 
-router.post('/interpret', async (req: Request<unknown, unknown, ConciergeChatBody>, res: Response) => {
+router.post('/interpret', validate(conciergeChatSchema), async (req: Request, res: Response) => {
   try {
     const { message, salonId, clientId } = req.body
-    if (!message || !salonId) return fail(res, 400, 'INVALID_REQUEST', 'message and salonId are required')
     const intent = await AIConciergeBookingService.interpretRequest(message, salonId, clientId)
     return ok(res, intent)
   } catch (err) {

@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken';
 import { pwaConciergeService, ConciergeMessage } from './PWAConciergeService';
 
 import logger from '../config/logger';
+import type { IncomingMessage } from 'http';
+import type { WsMessage, PwaJwtPayload, AppointmentBroadcastData, StaffAvailabilityBroadcastData, BookingBroadcastData, DashboardRefreshData, NotificationBroadcastData } from '../types/serviceTypes';
 const log = logger.child({ module: 'web_socket_service' });
 
 interface ClientConnection {
@@ -21,7 +23,7 @@ interface ClientConnection {
 
 interface WSMessage {
   type: string;
-  payload: any;
+  payload: unknown;
   timestamp: string;
 }
 
@@ -62,9 +64,9 @@ class WebSocketService {
     log.info('🔌 WebSocket server initialized on /ws');
   }
 
-  private async handleConnection(ws: WebSocket, req: any) {
+  private async handleConnection(ws: WebSocket, req: IncomingMessage) {
     const clientId = this.generateClientId();
-    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const url = new URL(req.url || '', `http://${req.headers?.host || 'localhost'}`);
     const salonId = url.searchParams.get('salon_id') || 'default';
     const userId = url.searchParams.get('user_id');
     const token = url.searchParams.get('token');
@@ -76,7 +78,7 @@ class WebSocketService {
 
     if (isPWA && token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as any;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as PwaJwtPayload;
         authenticatedUserId = decoded.userId || decoded.sub;
         isAuthenticated = true;
         log.info(`✅ PWA client authenticated: ${authenticatedUserId}`);
@@ -139,7 +141,7 @@ class WebSocketService {
     });
   }
 
-  private async handleClientMessage(clientId: string, message: any) {
+  private async handleClientMessage(clientId: string, message: WsMessage) {
     const client = this.clients.get(clientId);
     if (!client) return;
 
@@ -147,7 +149,7 @@ class WebSocketService {
     if (client.isPWA && message.type === 'ai_concierge_message') {
       try {
         // Forward to PWAConciergeService
-        await pwaConciergeService.handleMessage(clientId, message as ConciergeMessage, client.ws);
+        await pwaConciergeService.handleMessage(clientId, message as unknown as ConciergeMessage, client.ws);
       } catch (error) {
         log.error({ err: error }, 'Error handling PWA concierge message:');
         this.sendToClient(clientId, {
@@ -239,7 +241,7 @@ class WebSocketService {
   }
 
   // Emit appointment update event
-  emitAppointmentUpdate(salonId: string, appointment: any, action: 'created' | 'updated' | 'cancelled') {
+  emitAppointmentUpdate(salonId: string, appointment: AppointmentBroadcastData, action: 'created' | 'updated' | 'cancelled') {
     this.broadcastToSalon(salonId, {
       type: 'appointment_update',
       payload: {
@@ -251,7 +253,7 @@ class WebSocketService {
   }
 
   // Emit staff availability change event
-  emitStaffAvailabilityChange(salonId: string, staffId: string, availability: any) {
+  emitStaffAvailabilityChange(salonId: string, staffId: string, availability: StaffAvailabilityBroadcastData) {
     this.broadcastToSalon(salonId, {
       type: 'staff_availability_change',
       payload: {
@@ -263,7 +265,7 @@ class WebSocketService {
   }
 
   // Emit new booking notification
-  emitNewBooking(salonId: string, booking: any) {
+  emitNewBooking(salonId: string, booking: BookingBroadcastData) {
     this.broadcastToSalon(salonId, {
       type: 'new_booking',
       payload: booking,
@@ -272,7 +274,7 @@ class WebSocketService {
   }
 
   // Emit dashboard refresh signal
-  emitDashboardRefresh(salonId: string, data?: any) {
+  emitDashboardRefresh(salonId: string, data?: DashboardRefreshData) {
     this.broadcastToSalon(salonId, {
       type: 'dashboard_refresh',
       payload: data || {},
@@ -281,7 +283,7 @@ class WebSocketService {
   }
 
   // Emit notification event
-  emitNotification(salonId: string, userId: string | undefined, notification: any) {
+  emitNotification(salonId: string, userId: string | undefined, notification: NotificationBroadcastData) {
     const message: WSMessage = {
       type: 'notification',
       payload: notification,

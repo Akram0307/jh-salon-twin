@@ -7,6 +7,7 @@ import FeedbackAnalyticsRepository, {
   AnalyticsSummary
 } from '../repositories/FeedbackAnalyticsRepository';
 import { AppError } from '../utils/errors';
+import type { FeedbackBrowserInfo, FeedbackEventData } from '../types/serviceTypes';
 
 export interface CreateFeedbackInput {
   salon_id: string;
@@ -16,7 +17,7 @@ export interface CreateFeedbackInput {
   description: string;
   priority?: 'low' | 'medium' | 'high' | 'critical';
   page_url?: string;
-  browser_info?: any;
+  browser_info?: FeedbackBrowserInfo;
   attachments?: string[];
 }
 
@@ -32,7 +33,7 @@ export interface TrackEventInput {
   user_id?: string;
   event_name: string;
   event_category: string;
-  event_data?: any;
+  event_data?: FeedbackEventData;
   page_url?: string;
   session_id?: string;
   device_type?: string;

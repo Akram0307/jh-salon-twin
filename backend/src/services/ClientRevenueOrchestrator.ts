@@ -24,7 +24,7 @@ export class ClientRevenueOrchestrator {
       const upsells = await UpsellService.getUpsells(baseServiceId)
 
       if (upsells && upsells.length > 0) {
-        const upsellServiceId = upsells[0]
+        const upsellServiceId = upsells[0].upsell_service_id
 
         log.info({ data: upsellServiceId }, '[UpsellTrigger] Found upsell opportunity:')
 

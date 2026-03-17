@@ -4,7 +4,7 @@ export type DomainEvent = {
   type: string
   salon_id: string
   entity_id?: string
-  payload?: any
+  payload?: unknown
   created_at?: Date
 }
 

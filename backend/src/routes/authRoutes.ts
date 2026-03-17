@@ -8,6 +8,7 @@ import { validate } from '../middleware/validate';
 import { loginSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema } from '../schemas/auth';
 
 import logger from '../config/logger';
+import { JwtTokenPayload, getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'auth_routes' });
 
 const router = Router();
@@ -84,8 +85,8 @@ router.post('/login', validate(loginSchema), async (req: Request, res: Response)
         user_type: 'owner'
       }
     });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Login error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Login error:');
     res.status(500).json({ error: 'Login failed' });
   }
 });
@@ -152,8 +153,8 @@ router.post('/staff-login', validate(loginSchema), async (req: Request, res: Res
         salon_id: staff.salon_id
       }
     });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Staff login error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Staff login error:');
     res.status(500).json({ error: 'Login failed' });
   }
 });
@@ -168,7 +169,7 @@ router.post('/refresh', validate(refreshTokenSchema), async (req: Request, res: 
     }
 
     // Verify refresh token
-    const decoded = jwt.verify(refresh_token, REFRESH_TOKEN_SECRET) as any;
+    const decoded = jwt.verify(refresh_token, REFRESH_TOKEN_SECRET) as JwtTokenPayload;
 
     // Check if refresh token exists in database
     const stored = await pool.query(
@@ -191,8 +192,8 @@ router.post('/refresh', validate(refreshTokenSchema), async (req: Request, res: 
     const newAccessToken = generateAccessToken(tokenPayload);
 
     res.json({ token: newAccessToken });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Token refresh error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Token refresh error:');
     res.status(401).json({ error: 'Invalid or expired refresh token' });
   }
 });
@@ -233,8 +234,8 @@ router.post('/forgot-password', validate(forgotPasswordSchema), async (req: Requ
     log.info({ email, user_type }, 'Password reset token generated');
 
     res.json({ message: 'If an account exists, a reset link has been sent' });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Forgot password error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Forgot password error:');
     res.status(500).json({ error: 'Failed to process request' });
   }
 });
@@ -280,8 +281,8 @@ router.post('/reset-password', validate(resetPasswordSchema), async (req: Reques
     );
 
     res.json({ message: 'Password reset successfully' });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Reset password error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Reset password error:');
     res.status(500).json({ error: 'Failed to reset password' });
   }
 });
@@ -306,8 +307,8 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
       role: req.user!.role,
       user_type: req.user!.user_type
     });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Auth me error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Auth me error:');
     res.status(500).json({ error: 'Failed to get user' });
   }
 });
@@ -324,8 +325,8 @@ router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => 
     );
 
     res.json({ message: 'Logged out successfully' });
-  } catch (err: any) {
-    log.error({ err: err.message }, 'Logout error:');
+  } catch (err: unknown) {
+    log.error({ err: getErrorMessage(err) }, 'Logout error:');
     res.json({ message: 'Logged out successfully' });
   }
 });

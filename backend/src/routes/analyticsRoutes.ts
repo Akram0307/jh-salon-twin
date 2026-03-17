@@ -24,7 +24,7 @@ router.get('/overview', async (_req, res) => {
     await client.query('BEGIN');
     await client.query('SET LOCAL statement_timeout = 8000');
 
-    const run = async (label: string, sql: string, params: any[] = []) => {
+    const run = async (label: string, sql: string, params: unknown[] = []) => {
       const t0 = Date.now();
       const result = await client.query(sql, params);
       log.info({ label, duration: `${Date.now() - t0}ms` }, '[analytics/overview]');
@@ -97,7 +97,7 @@ router.get('/overview', async (_req, res) => {
 
     log.info({ data: Date.now() - reqStarted + 'ms' }, '[analytics/overview] completed');
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     try { await client.query('ROLLBACK'); } catch {}
     log.error({ err: err }, 'Overview analytics error:');
     res.status(500).json({ error: 'Failed to fetch dashboard overview' });

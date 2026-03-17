@@ -7,6 +7,7 @@ import { BookingOrchestrator } from './BookingOrchestrator'
 import { RichMediaFormatter, RichMediaResponse } from './RichMediaFormatter'
 import { ServiceRepository } from '../repositories/ServiceRepository'
 import { StaffRepository } from '../repositories/StaffRepository'
+import type { RichMediaAction, PwaIncomingMessage } from '../types/serviceTypes';
 
 export type ConciergeState = 
   | 'GREETING' 
@@ -19,7 +20,7 @@ export type ConciergeState =
 
 export interface ConciergeMessage {
   type: 'ai_concierge_message' | 'ai_concierge_response' | 'typing_indicator' | 'error'
-  payload: any
+  payload: unknown
   timestamp: string
 }
 
@@ -53,7 +54,7 @@ export class PWAConciergeService {
 
       switch (message.type) {
         case 'ai_concierge_message':
-          await this.handleUserMessage(clientId, message.payload, ws)
+          await this.handleUserMessage(clientId, message.payload as PwaIncomingMessage, ws)
           break
         
         case 'typing_indicator':
@@ -69,7 +70,7 @@ export class PWAConciergeService {
     }
   }
 
-  private async handleUserMessage(clientId: string, payload: any, ws: WebSocket): Promise<void> {
+  private async handleUserMessage(clientId: string, payload: PwaIncomingMessage, ws: WebSocket): Promise<void> {
     const { sessionId, message, context: clientContext } = payload
     
     // Get or create conversation context
@@ -126,7 +127,7 @@ export class PWAConciergeService {
     return context
   }
 
-  private async processState(context: PWAConversationContext, userMessage: string): Promise<{ text: string; richMedia?: RichMediaResponse; actions?: any[] }> {
+  private async processState(context: PWAConversationContext, userMessage: string): Promise<{ text: string; richMedia?: RichMediaResponse; actions?: RichMediaAction[] }> {
     const { currentState, salonId } = context
 
     switch (currentState) {
@@ -422,7 +423,7 @@ export class PWAConciergeService {
     this.sendToClient(clientId, message, ws)
   }
 
-  private sendResponse(clientId: string, response: { text: string; richMedia?: RichMediaResponse; actions?: any[] }, ws: WebSocket): void {
+  private sendResponse(clientId: string, response: { text: string; richMedia?: RichMediaResponse; actions?: RichMediaAction[] }, ws: WebSocket): void {
     const message: ConciergeMessage = {
       type: 'ai_concierge_response',
       payload: {

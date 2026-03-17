@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import type { QueryParams, JsonData } from '../types/repositoryTypes';
 
 export class BillingInfoRepository {
   static async findBySalonId(salonId: string) {
@@ -21,8 +22,8 @@ export class BillingInfoRepository {
     salon_id: string;
     owner_id: string;
     plan?: string;
-    payment_method?: any;
-    billing_address?: any;
+    payment_method?: JsonData;
+    billing_address?: JsonData;
     subscription_start?: Date;
     subscription_end?: Date;
   }) {
@@ -45,13 +46,13 @@ export class BillingInfoRepository {
 
   static async update(salonId: string, updates: {
     plan?: string;
-    payment_method?: any;
-    billing_address?: any;
+    payment_method?: JsonData;
+    billing_address?: JsonData;
     subscription_start?: Date;
     subscription_end?: Date;
   }) {
     const setClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParams = [];
     let paramCount = 1;
 
     if (updates.plan !== undefined) {

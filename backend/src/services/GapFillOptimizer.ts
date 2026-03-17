@@ -1,5 +1,6 @@
 import { query } from '../config/db';
 import { AppointmentRepository } from '../repositories/AppointmentRepository';
+import type { AppointmentTimeRow } from '../types/serviceTypes';
 
 export interface ScheduleGap {
   staffId: string;
@@ -55,7 +56,7 @@ export class GapFillOptimizer {
       [staffId, salonId, date]
     );
 
-    const appointments = apptRes.rows.map((r: any) => ({
+    const appointments = apptRes.rows.map((r: AppointmentTimeRow) => ({
       start: new Date(r.appointment_time),
       end: new Date(r.end_time)
     }));

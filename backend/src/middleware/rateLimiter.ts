@@ -8,7 +8,7 @@ let redisStore: RedisStore | undefined;
 
 try {
   redisStore = new RedisStore({
-    sendCommand: (cmd: string, ...args: (string | Buffer)[]) => redis.call(cmd, ...args) as any,
+    sendCommand: (cmd: string, ...args: (string | Buffer)[]) => redis.call(cmd, ...args) as any  // Redis SendCommandFn type boundary,
   });
 } catch (err) {
   logger.warn({ err }, 'Failed to create Redis rate limit store, falling back to MemoryStore');

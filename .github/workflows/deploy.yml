@@ -31,8 +31,12 @@ env:
   PROD_SA: salonos-prod-sa@salon-saas-487508.iam.gserviceaccount.com
   PROD_VPC_CONNECTOR: salonos-prod-vpc
 
+concurrency:
+  group: deploy-staging-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   docker-build:
+    timeout-minutes: 20
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
     permissions:
@@ -40,10 +44,10 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@55bd3a9c0e1f7c8fddac2e9b2a26eafb8b3ed5
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
@@ -63,6 +67,7 @@ jobs:
           docker push ${{ env.GAR_REGISTRY }}/backend:${{ github.sha }}
 
   deploy-staging:
+    timeout-minutes: 20
     name: Deploy to Staging
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
     runs-on: ubuntu-latest
@@ -73,15 +78,15 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@55bd3a9c0e1f7c8fddac2e9b2a26eafb8b3ed5
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@84daee7e6a2d4de9fbf1164f8e6d4e4e0e1a5e23
         with:
           project_id: ${{ env.PROJECT_ID }}
 
@@ -168,6 +173,7 @@ jobs:
           echo "Staging smoke tests passed"
 
   deploy-production:
+    timeout-minutes: 20
     name: Deploy to Production
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'
     runs-on: ubuntu-latest
@@ -178,15 +184,15 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@55bd3a9c0e1f7c8fddac2e9b2a26eafb8b3ed5
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@84daee7e6a2d4de9fbf1164f8e6d4e4e0e1a5e23
         with:
           project_id: ${{ env.PROJECT_ID }}
 

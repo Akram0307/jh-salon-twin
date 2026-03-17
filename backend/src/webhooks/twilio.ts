@@ -127,7 +127,7 @@ export async function handleTwilioWebhook(req: Request, res: Response) {
 
         const topSlots = slots
           .slice(0, 3)
-          .map((s: any) => s.time)
+          .map((s: { time: string }) => s.time)
           .join(', ');
 
         const resp = twimlResponse(

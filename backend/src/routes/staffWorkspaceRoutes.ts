@@ -5,6 +5,7 @@ import { updateAvailabilitySchema, createTimeoffSchema } from '../schemas/staff'
 import { StaffWorkspaceService } from '../services/StaffWorkspaceService';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'staff_workspace_routes' });
 
 const router = Router();
@@ -16,9 +17,9 @@ router.get('/:staffId/availability', async (req: Request, res: Response) => {
     const staffId = String(req.params.staffId);
     const availability = await StaffWorkspaceService.getAvailability(staffId);
     res.json({ success: true, data: availability });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting availability:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -34,9 +35,9 @@ router.put('/availability', validate(updateAvailabilitySchema), async (req: Requ
       isAvailable,
     });
     res.json({ success: true, data: availability });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error updating availability:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -46,9 +47,9 @@ router.get('/:staffId/timeoff', async (req: Request, res: Response) => {
     const staffId = String(req.params.staffId);
     const timeoff = await StaffWorkspaceService.getTimeoff(staffId);
     res.json({ success: true, data: timeoff });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting time off:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -63,9 +64,9 @@ router.post('/timeoff', validate(createTimeoffSchema), async (req: Request, res:
       reason,
     });
     res.status(201).json({ success: true, data: timeoff });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error creating time off:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 

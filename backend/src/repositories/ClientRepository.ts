@@ -11,7 +11,7 @@ export class ClientRepository {
         return res.rows[0];
     }
 
-    static async create(data: any) {
+    static async create(data: { salon_id?: string; phone_number: string; full_name: string; preferences?: unknown }) {
         const salonId = data.salon_id || process.env.SALON_ID;
 
         if (!salonId) {

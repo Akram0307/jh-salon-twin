@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import pool from '../config/db';
 
 import logger from '../config/logger';
+import { JwtTokenPayload } from '../types/routeTypes';
 
 // Fail-fast at module load time if JWT_SECRET is missing or too short
 const JWT_SECRET: string = (() => {
@@ -40,7 +41,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtTokenPayload;
 
     // Get user from database to ensure they still exist and have correct role
     const result = await pool.query(

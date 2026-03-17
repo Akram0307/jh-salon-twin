@@ -1,6 +1,7 @@
 import { query, pool } from '../config/db';
 import { WaitlistWorker } from '../services/WaitlistWorker';
 import * as crypto from 'crypto';
+import type { QueryParams, BookedSlotRow, AppointmentWithSlotMeta } from '../types/repositoryTypes';
 
 export class AppointmentRepository {
 
@@ -85,11 +86,11 @@ export class AppointmentRepository {
 
       return appointmentRow;
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       await client.query('ROLLBACK');
       // S5-C3: Catch double-booking unique violation (23505)
-      if (err?.code === '23505') {
-        const conflictErr = new Error('Time slot is already booked for this staff member') as any;
+      if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === '23505') {
+        const conflictErr = new Error('Time slot is already booked for this staff member') as Error & { statusCode: number; code: string };
         conflictErr.statusCode = 409;
         conflictErr.code = 'DOUBLE_BOOKING';
         throw conflictErr;
@@ -115,6 +116,7 @@ export class AppointmentRepository {
 
       const appointment = res.rows[0];
 
+      let apptWithMeta: AppointmentWithSlotMeta | null = null;
       if (normalized === 'CANCELLED' && appointment) {
         const slotEventRes = await client.query(
           `INSERT INTO slot_events (salon_id, event_type, slot_time, processed)
@@ -125,17 +127,18 @@ export class AppointmentRepository {
         const slotEventId = slotEventRes.rows[0]?.id;
         const slotTime = appointment.appointment_time;
         // Store for enqueue after commit
-        (appointment as any)._slotEventId = slotEventId;
-        (appointment as any)._slotTime = slotTime;
+        apptWithMeta = appointment as AppointmentWithSlotMeta;
+        apptWithMeta._slotEventId = slotEventId;
+        apptWithMeta._slotTime = slotTime;
       }
 
       await client.query('COMMIT');
 
       // Enqueue waitlist processing after successful commit
-      if ((appointment as any)._slotEventId) {
+      if (apptWithMeta?._slotEventId) {
         WaitlistWorker.enqueueSlotEvent(
-          (appointment as any)._slotEventId,
-          (appointment as any)._slotTime,
+          apptWithMeta._slotEventId,
+          apptWithMeta._slotTime as string,
         );
       }
 
@@ -206,7 +209,7 @@ export class AppointmentRepository {
       [staff_id, date]
     );
 
-    const booked = res.rows.map((r: any) => new Date(r.appointment_time).toISOString());
+    const booked = res.rows.map((r: BookedSlotRow) => new Date(r.appointment_time).toISOString());
 
     const slots = ["11:00","13:00","16:00"];
 

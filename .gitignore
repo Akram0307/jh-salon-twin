@@ -6,9 +6,6 @@ credentials/
 
 # Node / frontend
 **/node_modules/
-frontend/dist/
-frontend/test-results/
-frontend/playwright_checks/artifacts/
 
 # Backend build artifacts
 backend/dist/
@@ -29,7 +26,6 @@ venv/
 
 # Large generated assets / mock outputs
 /generated_images/
-/frontend/mockups/
 
 # Temp / archives
 *.zip

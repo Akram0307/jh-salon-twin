@@ -1,4 +1,5 @@
 import { query } from '../config/db';
+import type { QueryParams } from '../types/repositoryTypes';
 
 export class TwoFactorAuthRepository {
   static async findByUserId(userId: string, userType: string) {
@@ -26,7 +27,7 @@ export class TwoFactorAuthRepository {
 
   static async update(userId: string, userType: string, updates: { secret?: string; enabled?: boolean; verified_at?: Date }) {
     const setClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParams = [];
     let paramCount = 1;
 
     if (updates.secret !== undefined) {

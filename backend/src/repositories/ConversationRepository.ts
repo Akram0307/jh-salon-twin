@@ -1,4 +1,5 @@
 import { query } from '../config/db'
+import type { JsonData } from '../types/repositoryTypes';
 
 export class ConversationRepository {
 
@@ -13,7 +14,7 @@ export class ConversationRepository {
     return res.rows[0] || null
   }
 
-  static async save(session_id: string, context: any) {
+  static async save(session_id: string, context: JsonData) {
     await query(
       `INSERT INTO conversation_context (session_id, context)
        VALUES ($1,$2)

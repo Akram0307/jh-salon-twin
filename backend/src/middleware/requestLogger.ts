@@ -33,10 +33,10 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
 
   // Capture the original send function
   const originalSend = res.send;
-  let responseBody: any;
+  let responseBody: string | object | undefined;
 
   // Override send to capture response body
-  res.send = function (body: any) {
+  res.send = function (body: string | object | undefined) {
     responseBody = body;
     return originalSend.call(this, body);
   };

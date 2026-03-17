@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '../middleware/auth';
+import { AuthRequest, authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import { logActionSchema, getHistoryQuerySchema } from '../schemas/actionHistory';
 import { ActionHistoryService } from '../services/ActionHistoryService';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
+import { ZodError } from 'zod';
 const log = logger.child({ module: 'action_history_routes' });
 
 const router = Router();
@@ -21,9 +23,9 @@ router.post('/salons/:salonId/actions', validate(logActionSchema), async (req: R
       salon_id: salonId,
     });
     res.status(201).json({ success: true, data: action });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error logging action:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -43,12 +45,12 @@ router.get('/salons/:salonId/actions', async (req: Request, res: Response) => {
       endDate: filters.end_date ? new Date(filters.end_date) : undefined,
     });
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error getting action history:');
-    if (error.name === 'ZodError') {
+    if (error instanceof ZodError) {
       return res.status(400).json({ success: false, error: 'Invalid query parameters', details: error.errors });
     }
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -56,13 +58,13 @@ router.get('/salons/:salonId/actions', async (req: Request, res: Response) => {
 router.post('/salons/:salonId/actions/:actionId/undo', async (req: Request, res: Response) => {
   try {
     const { salonId, actionId } = req.params as { salonId: string; actionId: string };
-    const userId = (req as any).user?.id || 'system';
-    const userType = (req as any).user?.role || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
+    const userType = ((req as AuthRequest).user?.role || 'system') as 'owner' | 'staff' | 'manager' | 'system';
     const result = await actionHistoryService.undoAction({ actionId, salonId, userId, userType });
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error undoing action:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -70,13 +72,13 @@ router.post('/salons/:salonId/actions/:actionId/undo', async (req: Request, res:
 router.post('/salons/:salonId/actions/:actionId/redo', async (req: Request, res: Response) => {
   try {
     const { salonId, actionId } = req.params as { salonId: string; actionId: string };
-    const userId = (req as any).user?.id || 'system';
-    const userType = (req as any).user?.role || 'system';
+    const userId = (req as AuthRequest).user?.id || 'system';
+    const userType = ((req as AuthRequest).user?.role || 'system') as 'owner' | 'staff' | 'manager' | 'system';
     const result = await actionHistoryService.redoAction({ actionId, salonId, userId, userType });
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error redoing action:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 

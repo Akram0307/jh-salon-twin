@@ -1,6 +1,7 @@
 import { query } from '../config/db'
 import ClientBeautyProfileRepository from '../repositories/ClientBeautyProfileRepository'
 import { AppointmentRepository } from '../repositories/AppointmentRepository'
+import type { ServiceHistoryEntry } from '../types/serviceTypes';
 
 export class AutomaticRebookingEngine {
 
@@ -28,7 +29,7 @@ export class AutomaticRebookingEngine {
     }
   }
 
-  static async calculateServiceInterval(serviceHistory: any[]) {
+  static async calculateServiceInterval(serviceHistory: ServiceHistoryEntry[]) {
 
     if (!serviceHistory || serviceHistory.length < 2) return 28
 

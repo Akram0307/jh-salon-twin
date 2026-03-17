@@ -8,6 +8,7 @@ import { validate } from '../middleware/validate';
 import { createAppointmentSchema, updateAppointmentStatusSchema, addAppointmentServiceSchema, updateServicePriceSchema, rescheduleAppointmentSchema } from '../schemas/appointment';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'appointment_routes' });
 
 const router = Router()
@@ -102,11 +103,11 @@ router.patch('/:id/services/:serviceId', validate(updateServicePriceSchema), asy
 router.post('/:id/send-reminder', async (req, res) => {
     try {
         const result = await dispatchReminderForAppointment(req.params.id as string);
-        if ((result as any)?.error === 'appointment_not_found') {
+        if ((result && typeof result === 'object' && 'error' in result ? (result as Record<string, unknown>).error : undefined) === 'appointment_not_found') {
             return res.status(404).json({ error: 'Appointment not found' });
         }
         res.json({ ok: true, notification: result });
-    } catch (error: any) {
+    } catch (error: unknown) {
         log.error({ err: error }, '[appointmentRoutes] reminder send failed');
         res.status(500).json({ error: 'Failed to send reminder' });
     }
@@ -117,8 +118,8 @@ router.patch('/:id/reschedule', validate(rescheduleAppointmentSchema), async (re
         const { newDate, newStartTime, newEndTime } = req.body;
         const updated = await AppointmentRepository.rescheduleAppointment(req.params.id as string, newStartTime);
         res.json(updated);
-    } catch (error: any) {
-        res.status(400).json({ error: error.message });
+    } catch (error: unknown) {
+        res.status(400).json({ error: getErrorMessage(error) });
     }
 });
 
@@ -154,7 +155,7 @@ router.get('/today', async (req, res) => {
 // Smart Slot Generator
 router.get('/slots', async (req, res) => {
     try {
-        const { salon_id, service_id, date } = req.query as any;
+        const { salon_id, service_id, date } = req.query as Record<string, string>;
 
         if (!salon_id || !service_id || !date) {
             return res.status(400).json({ error: 'salon_id, service_id and date are required' });

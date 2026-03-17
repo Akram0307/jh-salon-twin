@@ -1,4 +1,5 @@
 import { query } from '../config/db'
+import type { ConversationContextUpdateData } from '../types/serviceTypes';
 
 export interface ConversationMessage {
   role: 'user' | 'assistant' | 'system'
@@ -46,7 +47,7 @@ export class ConversationContextStore {
     return res.rows[0] || null
   }
 
-  static async updateContext(clientId: string, data: any) {
+  static async updateContext(clientId: string, data: ConversationContextUpdateData) {
     await query(
       `INSERT INTO client_chat_context
       (client_id, salon_id, last_intent, pending_action, last_service_id, last_staff_id, conversation_state, updated_at)

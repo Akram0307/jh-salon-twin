@@ -5,6 +5,7 @@ import { forecastSchema, recomputePopularitySchema, generateOfferSchema } from '
 import { AIService } from '../services/AIService';
 
 import logger from '../config/logger';
+import { getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'ai_routes' });
 
 const router = Router();
@@ -15,9 +16,9 @@ router.post('/campaigns/:id/pause', async (req: Request, res: Response) => {
   try {
     const result = await AIService.pauseCampaign(String(req.params.id));
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error pausing campaign:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -26,9 +27,9 @@ router.post('/campaigns/:id/resume', async (req: Request, res: Response) => {
   try {
     const result = await AIService.resumeCampaign(String(req.params.id));
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error resuming campaign:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -38,9 +39,9 @@ router.post('/forecast', validate(forecastSchema), async (req: Request, res: Res
     const salonId = req.body.salonId || req.headers['x-salon-id'] as string;
     const result = await AIService.generateForecast(salonId);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error generating forecast:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -50,9 +51,9 @@ router.post('/recompute-popularity', validate(recomputePopularitySchema), async 
     const salonId = req.body.salonId || req.headers['x-salon-id'] as string;
     const result = await AIService.recomputePopularity(salonId);
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error recomputing popularity:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 
@@ -62,9 +63,9 @@ router.post('/generate-offer', validate(generateOfferSchema), async (req: Reques
     const { salonId, clientId, serviceId } = req.body;
     const result = await AIService.generateOffer({ salonId, clientId, serviceId });
     res.json({ success: true, data: result });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, 'Error generating offer:');
-    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+    res.status(500).json({ success: false, error: getErrorMessage(error) || 'Internal server error' });
   }
 });
 

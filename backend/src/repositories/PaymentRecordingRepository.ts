@@ -1,5 +1,6 @@
 import pool from '../config/db';
 import { v4 as uuidv4 } from 'uuid';
+import type { QueryParams } from '../types/repositoryTypes';
 
 export interface PaymentRecord {
   id: string;
@@ -92,7 +93,7 @@ export class PaymentRecordingRepository {
 
   async getPaymentsByFilters(filters: PaymentFilters): Promise<{ payments: PaymentRecord[]; total: number }> {
     const conditions: string[] = ['salon_id = $1'];
-    const values: any[] = [filters.salon_id];
+    const values: QueryParams = [filters.salon_id];
     let paramIndex = 2;
 
     if (filters.start_date) {
@@ -159,7 +160,7 @@ export class PaymentRecordingRepository {
 
   async updatePayment(id: string, salon_id: string, updates: Partial<PaymentRecord>): Promise<PaymentRecord | null> {
     const setClauses: string[] = [];
-    const values: any[] = [];
+    const values: QueryParams = [];
     let paramIndex = 1;
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -196,7 +197,7 @@ export class PaymentRecordingRepository {
 
   async getPaymentStats(salon_id: string, start_date?: string, end_date?: string): Promise<PaymentStats> {
     const conditions: string[] = ['salon_id = $1', "payment_status = 'completed'"];
-    const values: any[] = [salon_id];
+    const values: QueryParams = [salon_id];
     let paramIndex = 2;
 
     if (start_date) {

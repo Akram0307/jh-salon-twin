@@ -12,10 +12,13 @@ env:
 
 jobs:
   migration-check:
+    timeout-minutes: 15
     name: Migration Validation
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Validate dbmate migration pairs
         run: |
           cd db/migrations/dbmate
@@ -67,7 +70,10 @@ jobs:
           echo "All migration files have valid headers"
 
   lint:
+    timeout-minutes: 15
     name: Lint
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [migration-check]
     strategy:
@@ -75,10 +81,10 @@ jobs:
         project: [frontend-next, backend]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c47ff074a7cb1d5f27e5d50e
         with:
           node-version: '20'
           cache: 'npm'
@@ -94,17 +100,20 @@ jobs:
         if: matrix.project == 'frontend-next' || matrix.project == 'backend'
   
   type-check:
+    timeout-minutes: 15
     name: Type Check
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
         project: [frontend-next, backend]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c47ff074a7cb1d5f27e5d50e
         with:
           node-version: '20'
           cache: 'npm'
@@ -119,7 +128,10 @@ jobs:
         run: npx tsc --noEmit
   
   unit-tests:
+    timeout-minutes: 15
     name: Unit Tests
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [lint, type-check]
     strategy:
@@ -127,10 +139,10 @@ jobs:
         project: [frontend-next, backend]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c47ff074a7cb1d5f27e5d50e
         with:
           node-version: '20'
           cache: 'npm'
@@ -145,13 +157,17 @@ jobs:
         run: npm run test:run
       
       - name: Upload test coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: coverage-${{ matrix.project }}
           path: ${{ matrix.project }}/coverage/
+          retention-days: 7
   
   build:
+    timeout-minutes: 15
     name: Build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [unit-tests]
     strategy:
@@ -159,10 +175,10 @@ jobs:
         project: [frontend-next, backend]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c47ff074a7cb1d5f27e5d50e
         with:
           node-version: '20'
           cache: 'npm'
@@ -177,7 +193,7 @@ jobs:
         run: npm run build
       
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: build-${{ matrix.project }}
           path: |
@@ -187,7 +203,10 @@ jobs:
 
   # S5-M4: Docker build + Trivy container scanning
   docker-build:
+    timeout-minutes: 15
     name: Docker Build
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: [build]
     strategy:
@@ -199,13 +218,13 @@ jobs:
             image: salonos-backend-staging
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
       
       - name: Build Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
         with:
           context: ${{ matrix.project }}
           load: true
@@ -214,7 +233,7 @@ jobs:
           cache-to: type=gha,mode=max
       
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
         with:
           image-ref: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/${{ matrix.image }}:${{ github.sha }}
           format: 'table'
@@ -223,7 +242,7 @@ jobs:
           ignore-unfixed: true
       
       - name: Run Trivy full scan (all severities) for artifact
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
         with:
           image-ref: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/${{ matrix.image }}:${{ github.sha }}
           format: 'sarif'
@@ -233,7 +252,7 @@ jobs:
         continue-on-error: true
       
       - name: Upload Trivy scan results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: trivy-scan-${{ matrix.project }}

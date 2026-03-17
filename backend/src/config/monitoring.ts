@@ -31,7 +31,7 @@ export const performanceMiddleware = (req: Request, res: Response, next: NextFun
   // Capture the original end function
   const originalEnd = res.end;
   
-  res.end = function(chunk?: any, encoding?: string | (() => void), callback?: () => void): Response {
+  res.end = function(chunk?: any, encoding?: any, callback?: any): Response {
     // Calculate response time
     const diff = process.hrtime(start);
     const responseTime = diff[0] * 1e3 + diff[1] * 1e6; // Convert to milliseconds

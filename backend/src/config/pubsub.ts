@@ -6,7 +6,7 @@ const projectId = process.env.GCP_PROJECT || process.env.GOOGLE_CLOUD_PROJECT;
 
 export const pubsub = new PubSub({ projectId });
 
-export async function publishEvent(topicName: string, payload: any) {
+export async function publishEvent(topicName: string, payload: unknown) {
   const topic = pubsub.topic(topicName);
   const dataBuffer = Buffer.from(JSON.stringify(payload));
 
@@ -17,7 +17,7 @@ export async function publishEvent(topicName: string, payload: any) {
   return messageId;
 }
 
-export function subscribe(topicName: string, subscriptionName: string, handler: (data: any) => Promise<void>) {
+export function subscribe(topicName: string, subscriptionName: string, handler: (data: unknown) => Promise<void>) {
   const subscription = pubsub.topic(topicName).subscription(subscriptionName);
 
   subscription.on('message', async (message) => {

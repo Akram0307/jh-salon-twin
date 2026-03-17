@@ -2,6 +2,8 @@ import sgMail from '@sendgrid/mail';
 import { query } from '../config/db';
 
 import logger from '../config/logger';
+import type { SendGridMailData } from '../types/serviceTypes';
+import { getErrorMessage } from '../types/routeTypes';
 const log = logger.child({ module: 'email_notification_service' });
 
 // Initialize SendGrid with API key
@@ -17,7 +19,7 @@ export type EmailPayload = {
   from?: string;
   salonId?: string;
   templateId?: string;
-  dynamicTemplateData?: Record<string, any>;
+  dynamicTemplateData?: Record<string, unknown>;
 };
 
 export type EmailResult = {
@@ -77,7 +79,7 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
       fromName = process.env.DEFAULT_FROM_NAME || 'SalonOS';
     }
 
-    const msg: any = {
+    const msg: SendGridMailData = {
       to: payload.to,
       from: {
         email: fromEmail,
@@ -111,17 +113,21 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
       success: true,
       messageId: response.headers['x-message-id'] as string
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = getErrorMessage(error);
+    const sgResponse = error instanceof Error && 'response' in error
+      ? (error as Error & { response: { body: unknown } }).response.body
+      : undefined;
     log.error({
       to: payload.to,
       subject: payload.subject,
-      error: error.message,
-      response: error.response?.body
+      error: errMsg,
+      response: sgResponse
     }, '[EmailNotificationService] Failed to send email');
 
     return {
       success: false,
-      error: error.message || 'send_failed'
+      error: errMsg || 'send_failed'
     };
   }
 }
@@ -130,7 +136,7 @@ export async function sendTemplateEmail(
   to: string,
   templateName: string,
   salonId: string,
-  dynamicData: Record<string, any> = {}
+  dynamicData: Record<string, unknown> = {}
 ): Promise<EmailResult> {
   try {
     // Get template from database
@@ -165,9 +171,9 @@ export async function sendTemplateEmail(
       salonId,
       templateId: template.id
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error({ err: error }, '[EmailNotificationService] sendTemplateEmail error');
-    return { success: false, error: error.message };
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 

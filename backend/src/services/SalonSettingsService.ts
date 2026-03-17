@@ -1,6 +1,7 @@
 import { pool } from '../config/db';
 
 import logger from '../config/logger';
+import type { QueryParams } from '../types/repositoryTypes';
 const log = logger.child({ module: 'salon_settings_service' });
 
 export interface SalonBranding {
@@ -188,7 +189,7 @@ export class SalonSettingsService {
   async getServicesCatalog(salonId: string, categoryId?: string): Promise<ServiceItem[]> {
     try {
       let query: string;
-      let params: any[];
+      let params: QueryParams;
       
       if (categoryId) {
         query = `SELECT id, name, description, duration_minutes, price, category_id, is_active, display_order

@@ -1,4 +1,5 @@
 import { query } from '../config/db'
+import type { UpsellResult } from '../types/serviceTypes';
 
 export class UpsellService {
 
@@ -12,7 +13,7 @@ export class UpsellService {
       [baseServiceId]
     )
 
-    return res.rows.map((r: any) => r.upsell_service_id)
+    return res.rows.map((r: { upsell_service_id: string }) => ({ upsell_service_id: r.upsell_service_id } as UpsellResult))
   }
 
   // Compatibility wrapper used by receptionist agent

@@ -1,5 +1,6 @@
 import pool from '../config/db';
 import { v4 as uuidv4 } from 'uuid';
+import type { QueryParams, JsonData, ActionHistoryDbRow } from '../types/repositoryTypes';
 
 export interface ActionHistory {
   id: string;
@@ -9,9 +10,9 @@ export interface ActionHistory {
   action_type: string;
   entity_type: string;
   entity_id: string;
-  action_data?: any;
-  previous_state?: any;
-  new_state?: any;
+  action_data?: JsonData;
+  previous_state?: JsonData;
+  new_state?: JsonData;
   is_undoable: boolean;
   is_redoable: boolean;
   undone_at?: Date;
@@ -27,9 +28,9 @@ export interface LogActionParams {
   action_type: string;
   entity_type: string;
   entity_id: string;
-  action_data?: any;
-  previous_state?: any;
-  new_state?: any;
+  action_data?: JsonData;
+  previous_state?: JsonData;
+  new_state?: JsonData;
   is_undoable?: boolean;
 }
 
@@ -74,7 +75,7 @@ export class ActionHistoryRepository {
     } = {}
   ): Promise<{ actions: ActionHistory[]; total: number }> {
     let whereConditions = ['salon_id = $1'];
-    let queryParams: any[] = [salonId];
+    let queryParams: QueryParams = [salonId];
     let paramIndex = 2;
 
     if (options.userId) {
@@ -191,7 +192,7 @@ export class ActionHistoryRepository {
       WHERE salon_id = $1 AND is_undoable = true AND undone_at IS NULL
     `;
     
-    const params: any[] = [salonId];
+    const params: QueryParams = [salonId];
     
     if (userId) {
       query += ' AND user_id = $2';
@@ -210,7 +211,7 @@ export class ActionHistoryRepository {
       WHERE salon_id = $1 AND is_undoable = false AND undone_at IS NOT NULL AND redone_at IS NULL
     `;
     
-    const params: any[] = [salonId];
+    const params: QueryParams = [salonId];
     
     if (userId) {
       query += ' AND user_id = $2';
@@ -223,12 +224,12 @@ export class ActionHistoryRepository {
     return result.rows.map(this.mapRowToActionHistory);
   }
 
-  private mapRowToActionHistory(row: any): ActionHistory {
+  private mapRowToActionHistory(row: ActionHistoryDbRow): ActionHistory {
     return {
       id: row.id,
       salon_id: row.salon_id,
       user_id: row.user_id,
-      user_type: row.user_type,
+      user_type: row.user_type as ActionHistory['user_type'],
       action_type: row.action_type,
       entity_type: row.entity_type,
       entity_id: row.entity_id,

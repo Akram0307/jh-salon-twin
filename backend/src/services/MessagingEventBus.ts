@@ -4,7 +4,7 @@ logger.info('MessagingEventBus initialized')
 export type MessagingEvent = {
   type: string;
   salon_id: string;
-  payload: any;
+  payload: unknown;
 };
 
 type Handler = (event: MessagingEvent) => Promise<void> | void;

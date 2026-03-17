@@ -6,15 +6,19 @@ on:
 jobs:
   performance-check:
     name: Check Performance Budgets
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c47ff074a7cb1d5f27e5d50e
         with:
           node-version: '20'
           cache: 'npm'
@@ -46,7 +50,7 @@ jobs:
 
       - name: Upload Lighthouse results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: lighthouse-results
           path: .lighthouseci/
@@ -54,7 +58,7 @@ jobs:
 
       - name: Comment PR with performance results
         if: github.event_name == 'pull_request' && always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
           script: |
             const fs = require('fs');
@@ -86,34 +90,34 @@ jobs:
             // Build comment
             let comment = '## 📊 Performance Budget Report
 
-';
+            ';
 
             // Bundle size section
             comment += '### Bundle Size
-';
+            ';
             if (sizeResults.length > 0) {
               comment += '| Bundle | Size | Budget | Status |
-';
+            ';
               comment += '|--------|------|--------|--------|
-';
+            ';
               for (const result of sizeResults) {
                 const sizeKB = (result.size / 1024).toFixed(2);
                 const budgetKB = 200; // 200 kB budget
                 const status = result.size <= budgetKB * 1024 ? '✅' : '❌';
                 comment += `| ${result.name} | ${sizeKB} kB | ${budgetKB} kB | ${status} |
-`;
+            `;
               }
             } else {
               comment += 'No bundle size data available.
-';
+            ';
             }
 
             comment += '
-';
+            ';
 
             // Lighthouse section
             comment += '### Lighthouse Scores
-';
+            ';
             if (lighthouseResults.length > 0) {
               const avgScores = {
                 performance: 0,
@@ -133,25 +137,25 @@ jobs:
 
               const count = lighthouseResults.length;
               comment += '| Metric | Score | Budget | Status |
-';
+            ';
               comment += '|--------|-------|--------|--------|
-';
+            ';
               comment += `| Performance | ${((avgScores.performance / count) * 100).toFixed(0)} | 90 | ${(avgScores.performance / count) >= 0.9 ? '✅' : '❌'} |
-`;
+            `;
               comment += `| Accessibility | ${((avgScores.accessibility / count) * 100).toFixed(0)} | 95 | ${(avgScores.accessibility / count) >= 0.95 ? '✅' : '❌'} |
-`;
+            `;
               comment += `| Best Practices | ${((avgScores.bestPractices / count) * 100).toFixed(0)} | 90 | ${(avgScores.bestPractices / count) >= 0.9 ? '✅' : '❌'} |
-`;
+            `;
               comment += `| SEO | ${((avgScores.seo / count) * 100).toFixed(0)} | 90 | ${(avgScores.seo / count) >= 0.9 ? '✅' : '❌'} |
-`;
+            `;
             } else {
               comment += 'No Lighthouse data available.
-';
+            ';
             }
 
             comment += '
----
-';
+            ---
+            ';
             comment += '*Performance budgets are enforced to ensure optimal user experience.*';
 
             github.rest.issues.createComment({

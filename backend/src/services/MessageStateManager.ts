@@ -11,7 +11,7 @@ export class MessageStateManager {
     salon_id: string,
     client_id: string,
     message_type: string,
-    engine_context: any
+    engine_context: unknown
   ) {
     const result = await query(
       `INSERT INTO message_states (salon_id, client_id, message_type, engine_context, state)

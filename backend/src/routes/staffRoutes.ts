@@ -28,7 +28,7 @@ const fail = (message: string, details?: unknown, error?: string) => ({
   ...(details !== undefined ? { details } : {}),
 });
 
-const normalizeStaffRecord = (staff: any) => {
+const normalizeStaffRecord = (staff: Record<string, unknown>) => {
   if (!staff) return staff;
   return {
     ...staff,
