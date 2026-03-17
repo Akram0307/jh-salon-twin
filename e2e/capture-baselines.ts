@@ -1,113 +1,66 @@
-import { chromium } from '@playwright/test';
+import { chromium, FullConfig } from '@playwright/test';
 import path from 'path';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-const BASELINE_DIR = path.join(__dirname, '../screenshots/baseline');
-
-const VIEWPORTS = {
-  desktop: { width: 1440, height: 900 },
-  mobile: { width: 375, height: 812 }
-};
+const BASELINE_DIR = path.join(__dirname, 'screenshots', 'baseline');
 
 const PAGES = [
-  { name: 'owner-dashboard', path: '/owner/dashboard' },
-  { name: 'schedule-view', path: '/owner/schedule' },
-  { name: 'pos-payment', path: '/frontdesk/pos' },
-  { name: 'client-list', path: '/owner/clients' },
-  { name: 'staff-management', path: '/owner/staff' },
-  { name: 'settings-page', path: '/owner/settings' }
+  { name: 'owner-dashboard', url: '/owner/dashboard', auth: true, waitFor: 'h1:has-text("Dashboard")' },
+  { name: 'schedule-view', url: '/owner/schedule', auth: true, waitFor: 'main' },
+  { name: 'client-chat', url: '/client/chat', auth: false, waitFor: 'main' },
+  { name: 'staff-schedule', url: '/staff/schedule', auth: true, waitFor: 'main' },
+  { name: 'settings-page', url: '/owner/settings', auth: true, waitFor: 'main' },
+  { name: 'onboarding-page', url: '/onboarding', auth: false, waitFor: 'main' },
 ];
 
-async function captureBaselines() {
-  const browser = await chromium.launch({ headless: true });
+async function globalSetup(config: FullConfig) {
+  const browser = await chromium.launch();
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+  });
+  const page = await context.newPage();
 
-  console.log('Starting baseline screenshot capture...');
-  console.log(`Base URL: ${BASE_URL}`);
+  for (const pageConfig of PAGES) {
+    console.log(`\n📸 Capturing baseline: ${pageConfig.name}`);
 
-  for (const [viewportName, viewport] of Object.entries(VIEWPORTS)) {
-    console.log(`
-Capturing ${viewportName} viewports (${viewport.width}x${viewport.height})...`);
+    if (pageConfig.auth) {
+      await page.goto('/login');
+      await page.waitForLoadState('networkidle').catch(() => {});
 
-    const context = await browser.newContext({
-      viewport,
-      deviceScaleFactor: viewportName === 'mobile' ? 2 : 1
-    });
-
-    const page = await context.newPage();
-
-    // Authenticate via API token injection (SalonOS uses modal auth, no /login route)
-    try {
-      const testEmail = process.env.E2E_TEST_EMAIL || 'owner@salon.com';
-      const testPassword = process.env.E2E_TEST_PASSWORD || 'test-password';
-
-      // Attempt API login for token
-      const loginResp = await page.context().request.post(`${BASE_URL}/api/auth/login`, {
-        data: { email: testEmail, password: testPassword }
+      // Inject auth state directly for baseline capture
+      await page.evaluate(() => {
+        const token = process.env.E2E_TEST_TOKEN || 'baseline-capture-token';
+        const user = {
+          id: 'baseline-user-id',
+          email: 'owner@salon.com',
+          name: 'Baseline User',
+          role: 'owner',
+          salonId: 'baseline-salon-id',
+        };
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('auth_user', JSON.stringify(user));
       });
-
-      if (loginResp.ok()) {
-        const { token } = await loginResp.json();
-        // Navigate to first page and inject token
-        await page.goto(`${BASE_URL}${PAGES[0].path}`);
-        await page.evaluate((tok) => {
-          localStorage.setItem('auth_token', tok);
-          localStorage.setItem('auth_user', JSON.stringify({
-            email: 'owner@salon.com', role: 'owner'
-          }));
-        }, token);
-        await page.reload();
-        await page.waitForLoadState('networkidle', { timeout: 10000 });
-        console.log('  Authenticated via API token injection');
-      } else {
-        console.warn('  API login failed, attempting UI modal auth fallback');
-        await page.goto(`${BASE_URL}${PAGES[0].path}`);
-        await page.waitForLoadState('networkidle', { timeout: 10000 });
-        // Modal auth fallback - look for auth modal inputs
-        const emailInput = page.locator('input[type="email"]').first();
-        if (await emailInput.isVisible().catch(() => false)) {
-          await emailInput.fill(testEmail);
-          const pwInput = page.locator('input[type="password"]').first();
-          if (await pwInput.isVisible().catch(() => false)) {
-            await pwInput.fill(testPassword);
-          }
-          const submitBtn = page.locator('button[type="submit"]').first();
-          if (await submitBtn.isVisible().catch(() => false)) {
-            await submitBtn.click();
-            await page.waitForTimeout(2000);
-          }
-        }
-      }
-    } catch (e) {
-      console.log('  Auth failed, continuing without login (screenshots may show auth wall):', e.message);
     }
 
-    for (const pageConfig of PAGES) {
+    await page.goto(pageConfig.url);
+    await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
+    await page.waitForTimeout(2000);
+
+    // Wait for specific element if defined
+    if (pageConfig.waitFor) {
       try {
-        console.log(`  Capturing: ${pageConfig.name}`);
-
-        await page.goto(`${BASE_URL}${pageConfig.path}`);
-        await page.waitForLoadState('networkidle', { timeout: 15000 });
-        await page.waitForTimeout(1000); // Wait for animations
-
-        const screenshotPath = path.join(BASELINE_DIR, viewportName, `${pageConfig.name}.png`);
-        await page.screenshot({
-          path: screenshotPath,
-          fullPage: viewportName === 'mobile',
-          animations: 'disabled'
-        });
-
-        console.log(`    ✓ Saved: ${screenshotPath}`);
-      } catch (e) {
-        console.error(`    ✗ Failed to capture ${pageConfig.name}: ${e.message}`);
+        await page.locator(pageConfig.waitFor).first().waitFor({ timeout: 10000 });
+      } catch {
+        console.log(`  ⚠️  Wait selector '${pageConfig.waitFor}' not found, capturing anyway`);
       }
     }
 
-    await context.close();
+    const screenshotPath = path.join(BASELINE_DIR, `${pageConfig.name}.png`);
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    console.log(`  ✅ Saved: ${screenshotPath}`);
   }
 
   await browser.close();
-  console.log('
-Baseline screenshot capture complete!');
+  console.log('\n\n🎉 All baselines captured!');
 }
 
-captureBaselines().catch(console.error);
+export default globalSetup;

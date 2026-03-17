@@ -1,69 +1,54 @@
 import { test, expect } from '@playwright/test';
+import { login } from '../helpers/selectors';
 
-// Since there's no explicit login page, we'll test the owner dashboard as the default page
-// and test navigation between different sections
-
-test.describe('Owner Dashboard and Navigation', () => {
-  test('should load owner dashboard by default', async ({ page }) => {
-    // The root path redirects to /owner/dashboard
-    await page.goto('/');
-    await expect(page).toHaveURL(/owner\/dashboard/);
-    
-    // Check for dashboard elements - look for the main heading
-    await expect(page.locator('h2').filter({ hasText: 'Revenue Command Center' })).toBeVisible();
-    
-    // Check for Today's Pulse section
-    await expect(page.locator('h3').filter({ hasText: "Today's Pulse" })).toBeVisible();
+test.describe('Login Page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
   });
 
-  test('should navigate to different owner sections', async ({ page }) => {
-    await page.goto('/owner/dashboard');
-    
-    // Wait for the page to load
-    await expect(page.locator('h2').filter({ hasText: 'Revenue Command Center' })).toBeVisible();
-    
-    // Test navigation to Clients - use the sidebar navigation
-    await page.locator('nav a').filter({ hasText: 'Clients' }).click();
-    await expect(page).toHaveURL(/owner\/clients/);
-    
-    // Test navigation to Staff
-    await page.locator('nav a').filter({ hasText: 'Staff' }).click();
-    await expect(page).toHaveURL(/owner\/staff/);
-    
-    // Test navigation to Services
-    await page.locator('nav a').filter({ hasText: 'Services' }).click();
-    await expect(page).toHaveURL(/owner\/services/);
-    
-    // Test navigation to Schedule
-    await page.locator('nav a').filter({ hasText: 'Schedule' }).click();
-    await expect(page).toHaveURL(/owner\/schedule/);
-    
-    // Test navigation to Reports
-    await page.locator('nav a').filter({ hasText: 'Reports' }).click();
-    await expect(page).toHaveURL(/owner\/reports/);
-    
-    // Test navigation to Settings
-    await page.locator('nav a').filter({ hasText: 'Settings' }).click();
-    await expect(page).toHaveURL(/owner\/settings/);
+  test('should display login form elements', async ({ page }) => {
+    await expect(page.locator(login.heading)).toBeVisible();
+    await expect(page.locator(login.emailInput)).toBeVisible();
+    await expect(page.locator(login.passwordInput)).toBeVisible();
+    await expect(page.locator(login.submitButton)).toBeVisible();
   });
 
-  test('should test logout functionality (if available)', async ({ page }) => {
-    await page.goto('/owner/dashboard');
-    
-    // Wait for the page to load
-    await expect(page.locator('h2').filter({ hasText: 'Revenue Command Center' })).toBeVisible();
-    
-    // Look for logout button or link
-    const logoutButton = page.locator('button, a').filter({ hasText: /logout|sign out/i });
-    
-    // If logout exists, test it
-    if (await logoutButton.count() > 0) {
-      await logoutButton.click();
-      // After logout, should redirect to login or home
-      await expect(page).not.toHaveURL(/owner\/dashboard/);
-    } else {
-      // If no logout button, skip or mark as not implemented
-      test.skip();
-    }
+  test('should show validation for empty email', async ({ page }) => {
+    await page.locator(login.submitButton).click();
+    // HTML5 validation or custom error should appear
+    const emailInput = page.locator(login.emailInput);
+    const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
+    expect(isInvalid).toBeTruthy();
+  });
+
+  test('should show validation for invalid email format', async ({ page }) => {
+    await page.locator(login.emailInput).fill('not-an-email');
+    await page.locator(login.passwordInput).fill('password123');
+    await page.locator(login.submitButton).click();
+    const emailInput = page.locator(login.emailInput);
+    const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => el.validity.typeMismatch);
+    expect(isInvalid).toBeTruthy();
+  });
+
+  test('should show validation for short password', async ({ page }) => {
+    await page.locator(login.emailInput).fill('test@example.com');
+    await page.locator(login.passwordInput).fill('ab');
+    await page.locator(login.submitButton).click();
+    // Check for either HTML5 minLength validation or custom error message
+    const passwordInput = page.locator(login.passwordInput);
+    const isInvalid = await passwordInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
+    const hasCustomError = await page.locator(login.passwordError).isVisible().catch(() => false);
+    expect(isInvalid || hasCustomError).toBeTruthy();
+  });
+
+  test('@smoke should login successfully and redirect to dashboard', async ({ page }) => {
+    test.skip(true, 'Requires running backend with valid test credentials');
+
+    await page.locator(login.emailInput).fill(process.env.E2E_TEST_EMAIL || 'owner@salon.com');
+    await page.locator(login.passwordInput).fill(process.env.E2E_TEST_PASSWORD || 'test-password');
+    await page.locator(login.submitButton).click();
+
+    await expect(page).toHaveURL('/owner/dashboard', { timeout: 15000 });
+    await expect(page.locator('h1:has-text("Dashboard")')).toBeVisible();
   });
 });
