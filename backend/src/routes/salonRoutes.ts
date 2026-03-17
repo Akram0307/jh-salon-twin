@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { pool } from '../config/db';
 
+import logger from '../config/logger';
+
 const router = Router();
 
 router.post('/', async (req, res) => {
@@ -16,7 +18,7 @@ router.post('/', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Salon creation failed' });
   }
 });

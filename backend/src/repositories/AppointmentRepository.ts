@@ -1,4 +1,5 @@
 import { query, pool } from '../config/db';
+import { WaitlistWorker } from '../services/WaitlistWorker';
 import * as crypto from 'crypto';
 
 export class AppointmentRepository {
@@ -84,8 +85,15 @@ export class AppointmentRepository {
 
       return appointmentRow;
 
-    } catch (err) {
+    } catch (err: any) {
       await client.query('ROLLBACK');
+      // S5-C3: Catch double-booking unique violation (23505)
+      if (err?.code === '23505') {
+        const conflictErr = new Error('Time slot is already booked for this staff member') as any;
+        conflictErr.statusCode = 409;
+        conflictErr.code = 'DOUBLE_BOOKING';
+        throw conflictErr;
+      }
       throw err;
     } finally {
       client.release();
@@ -93,27 +101,52 @@ export class AppointmentRepository {
   }
 
   static async updateStatus(id: string, status: string) {
-
+    // S5-C4: Wrap UPDATE + slot_event INSERT in a single transaction
     const normalized = status.toUpperCase();
+    const client = await pool.connect();
 
-    const res = await query(
-      `UPDATE appointments SET status = $1 WHERE id = $2 RETURNING *`,
-      [normalized, id]
-    );
+    try {
+      await client.query('BEGIN');
 
-    const appointment = res.rows[0];
-
-    if (normalized === 'CANCELLED' && appointment) {
-
-      await query(
-        `INSERT INTO slot_events (salon_id, event_type, slot_time, processed)
-         SELECT salon_id, 'CANCELLED', appointment_time, false
-         FROM appointments WHERE id = $1`,
-        [id]
+      const res = await client.query(
+        `UPDATE appointments SET status = $1 WHERE id = $2 RETURNING *`,
+        [normalized, id]
       );
-    }
 
-    return appointment;
+      const appointment = res.rows[0];
+
+      if (normalized === 'CANCELLED' && appointment) {
+        const slotEventRes = await client.query(
+          `INSERT INTO slot_events (salon_id, event_type, slot_time, processed)
+           SELECT salon_id, 'CANCELLED', appointment_time, false
+           FROM appointments WHERE id = $1 RETURNING id`,
+          [id]
+        );
+        const slotEventId = slotEventRes.rows[0]?.id;
+        const slotTime = appointment.appointment_time;
+        // Store for enqueue after commit
+        (appointment as any)._slotEventId = slotEventId;
+        (appointment as any)._slotTime = slotTime;
+      }
+
+      await client.query('COMMIT');
+
+      // Enqueue waitlist processing after successful commit
+      if ((appointment as any)._slotEventId) {
+        WaitlistWorker.enqueueSlotEvent(
+          (appointment as any)._slotEventId,
+          (appointment as any)._slotTime,
+        );
+      }
+
+      return appointment;
+
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
   }
 
   static async updateServicePrice(
@@ -161,7 +194,7 @@ export class AppointmentRepository {
     return res.rows[0] || null;
   }
 
-  static async checkAvailability(opts: any) {
+  static async checkAvailability(opts: { staff_id: string; date: string }) {
     const { staff_id, date } = opts;
 
     const res = await query(
@@ -179,7 +212,10 @@ export class AppointmentRepository {
 
     const available = slots.filter((s) => !booked.find((b: string) => b.includes(s)));
 
-    return available.map((t) => ({ start_time: new Date(`T:00`).toISOString() }));
+    // S5-M2: Fix broken Date constructor - properly combine date + slot time
+    return available.map((t) => ({
+      start_time: new Date(`${date}T${t}:00`).toISOString()
+    }));
   }
 
   static async findByQrToken(token: string) {

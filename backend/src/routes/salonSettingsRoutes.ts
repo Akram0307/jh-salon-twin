@@ -5,6 +5,11 @@ import { SalonSettingsService } from '../services/SalonSettingsService';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { validate } from '../middleware/validate';
+import { updateBrandingSchema, updateBusinessHoursSchema } from '../schemas/salonSettings';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'salon_settings_routes' });
 
 const router = Router();
 router.use(authenticate);
@@ -64,13 +69,13 @@ router.get('/branding', async (req: AuthRequest, res) => {
     const branding = await salonSettingsService.getBranding(salonId);
     res.json({ success: true, data: branding });
   } catch (err) {
-    console.error('Error fetching salon branding:', err);
+    log.error({ err: err }, 'Error fetching salon branding:');
     res.status(500).json({ error: 'Failed to fetch salon branding' });
   }
 });
 
 // PUT /api/salon-settings/branding
-router.put('/branding', async (req: AuthRequest, res) => {
+router.put('/branding', validate(updateBrandingSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -91,7 +96,7 @@ router.put('/branding', async (req: AuthRequest, res) => {
     });
     res.json({ success: true, message: 'Branding updated' });
   } catch (err) {
-    console.error('Error updating salon branding:', err);
+    log.error({ err: err }, 'Error updating salon branding:');
     res.status(500).json({ error: 'Failed to update salon branding' });
   }
 });
@@ -115,7 +120,7 @@ router.post('/logo', upload.single('logo'), async (req: AuthRequest, res) => {
     await salonSettingsService.updateBranding(salonId, { logo_url: logoUrl });
     res.json({ success: true, data: { logo_url: logoUrl } });
   } catch (err) {
-    console.error('Error uploading logo:', err);
+    log.error({ err: err }, 'Error uploading logo:');
     res.status(500).json({ error: 'Failed to upload logo' });
   }
 });
@@ -135,13 +140,13 @@ router.get('/business-hours', async (req: AuthRequest, res) => {
     const hours = await salonSettingsService.getBusinessHours(salonId);
     res.json({ success: true, data: hours });
   } catch (err) {
-    console.error('Error fetching business hours:', err);
+    log.error({ err: err }, 'Error fetching business hours:');
     res.status(500).json({ error: 'Failed to fetch business hours' });
   }
 });
 
 // PUT /api/salon-settings/business-hours
-router.put('/business-hours', async (req: AuthRequest, res) => {
+router.put('/business-hours', validate(updateBusinessHoursSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -159,7 +164,7 @@ router.put('/business-hours', async (req: AuthRequest, res) => {
     await salonSettingsService.updateBusinessHours(salonId, hours);
     res.json({ success: true, message: 'Business hours updated' });
   } catch (err) {
-    console.error('Error updating business hours:', err);
+    log.error({ err: err }, 'Error updating business hours:');
     res.status(500).json({ error: 'Failed to update business hours' });
   }
 });
@@ -179,7 +184,7 @@ router.get('/service-categories', async (req: AuthRequest, res) => {
     const categories = await salonSettingsService.getServiceCategories(salonId);
     res.json({ success: true, data: categories });
   } catch (err) {
-    console.error('Error fetching service categories:', err);
+    log.error({ err: err }, 'Error fetching service categories:');
     res.status(500).json({ error: 'Failed to fetch service categories' });
   }
 });
@@ -200,7 +205,7 @@ router.get('/services-catalog', async (req: AuthRequest, res) => {
     const services = await salonSettingsService.getServicesCatalog(salonId, categoryId);
     res.json({ success: true, data: services });
   } catch (err) {
-    console.error('Error fetching services catalog:', err);
+    log.error({ err: err }, 'Error fetching services catalog:');
     res.status(500).json({ error: 'Failed to fetch services catalog' });
   }
 });
@@ -218,7 +223,7 @@ router.put('/services/:serviceId', async (req: AuthRequest, res) => {
     await salonSettingsService.updateService(serviceId, updates);
     res.json({ success: true, message: 'Service updated' });
   } catch (err) {
-    console.error('Error updating service:', err);
+    log.error({ err: err }, 'Error updating service:');
     res.status(500).json({ error: 'Failed to update service' });
   }
 });

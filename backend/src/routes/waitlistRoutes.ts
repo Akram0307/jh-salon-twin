@@ -3,11 +3,15 @@ import { Router } from 'express';
 import { WaitlistOfferRepository } from '../repositories/WaitlistOfferRepository';
 import { TransactionRepository } from '../repositories/TransactionRepository';
 import { WaitlistRepository } from '../repositories/WaitlistRepository';
+import { validate } from '../middleware/validate';
+import { createWaitlistEntrySchema, updateWaitlistStatusSchema } from '../schemas/waitlist';
+
+import logger from '../config/logger';
 
 const router = Router()
 router.use(validateUUID);
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createWaitlistEntrySchema), async (req, res) => {
     try {
         const { clientId, preferredDate, preferredTimeRange, notes } = req.body;
         const entry = await WaitlistRepository.addEntry(clientId, preferredDate, preferredTimeRange, notes);
@@ -31,10 +35,10 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', validate(updateWaitlistStatusSchema), async (req, res) => {
     try {
         const { status } = req.body;
-        const entry = await WaitlistRepository.updateStatus(req.params.id, status);
+        const entry = await WaitlistRepository.updateStatus(req.params.id as string, status);
         res.json(entry);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -49,10 +53,10 @@ router.get('/recovery-stats', async (_req, res) => {
     let recoveredBookings = 0;
     let recoveryRevenue = 0;
 
-    try { waitingClients = await WaitlistRepository.countPending(); } catch (e) { console.error('waitlist pending metric failed:', e); }
-    try { offersSent = await WaitlistOfferRepository.countOffersSent(); } catch (e) { console.error('waitlist offersSent metric failed:', e); }
-    try { recoveredBookings = await WaitlistOfferRepository.countRecoveredBookings(); } catch (e) { console.error('waitlist recoveredBookings metric failed:', e); }
-    try { recoveryRevenue = await TransactionRepository.sumRecoveredRevenue(); } catch (e) { console.error('waitlist recoveryRevenue metric failed:', e); }
+    try { waitingClients = await WaitlistRepository.countPending(); } catch (e) { logger.error({ err: e }, 'waitlist pending metric failed:'); }
+    try { offersSent = await WaitlistOfferRepository.countOffersSent(); } catch (e) { logger.error({ err: e }, 'waitlist offersSent metric failed:'); }
+    try { recoveredBookings = await WaitlistOfferRepository.countRecoveredBookings(); } catch (e) { logger.error({ err: e }, 'waitlist recoveredBookings metric failed:'); }
+    try { recoveryRevenue = await TransactionRepository.sumRecoveredRevenue(); } catch (e) { logger.error({ err: e }, 'waitlist recoveryRevenue metric failed:'); }
 
     res.json({ waitingClients, offersSent, recoveredBookings, recoveryRevenue });
   } catch (error: any) {

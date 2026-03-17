@@ -118,7 +118,7 @@ deploy_to_cloud_run() {
 
 # Basic Auth Configuration
 BASIC_AUTH_USER="staging"
-BASIC_AUTH_PASSWORD="salonos2024"
+BASIC_AUTH_PASSWORD="${STAGING_BASIC_AUTH_PASSWORD:-CHANGE_ME_GENERATE_SECURE_PASSWORD}"
 
 # Function to set up basic auth for Cloud Run
 setup_basic_auth() {

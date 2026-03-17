@@ -1,7 +1,14 @@
 import Redis from 'ioredis';
 
-const redisHost = process.env.REDIS_HOST || '10.215.7.43';
+import logger from './logger';
+
+// Fail-fast: no fallback to production IP allowed
+const redisHost = process.env.REDIS_HOST;
 const redisPort = Number(process.env.REDIS_PORT) || 6379;
+
+if (!redisHost) {
+  throw new Error('FATAL: REDIS_HOST environment variable is required');
+}
 
 export const redis = new Redis({
   host: redisHost,
@@ -11,11 +18,11 @@ export const redis = new Redis({
 });
 
 redis.on('connect', () => {
-  console.log('✅ Redis connected');
+  logger.info('✅ Redis connected');
 });
 
 redis.on('error', (err) => {
-  console.error('Redis error:', err);
+  logger.error({ err: err }, 'Redis error:');
 });
 
 export default redis;

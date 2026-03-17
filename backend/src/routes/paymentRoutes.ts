@@ -3,6 +3,9 @@ import PaymentRecordingService from '../services/PaymentRecordingService';
 import { authenticate } from '../middleware/auth';
 import { z } from 'zod';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'payment_routes' });
+
 const router = Router();
 
 // Validation schemas
@@ -75,7 +78,7 @@ router.get('/stats', authenticate, async (req: Request, res: Response) => {
     
     res.json({ success: true, data: stats });
   } catch (error: any) {
-    console.error('Error getting payment stats:', error);
+    log.error({ err: error }, 'Error getting payment stats:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -95,7 +98,7 @@ router.get('/today-summary', authenticate, async (req: Request, res: Response) =
     
     res.json({ success: true, data: summary });
   } catch (error: any) {
-    console.error('Error getting today summary:', error);
+    log.error({ err: error }, 'Error getting today summary:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -123,7 +126,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     
     res.json({ success: true, data: result });
   } catch (error: any) {
-    console.error('Error getting payments:', error);
+    log.error({ err: error }, 'Error getting payments:');
     if (error.name === 'ZodError') {
       return res.status(400).json({ 
         success: false, 
@@ -156,7 +159,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     
     res.status(201).json({ success: true, data: payment });
   } catch (error: any) {
-    console.error('Error creating payment:', error);
+    log.error({ err: error }, 'Error creating payment:');
     if (error.name === 'ZodError') {
       return res.status(400).json({ 
         success: false, 
@@ -186,7 +189,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     
     res.json({ success: true, data: payment });
   } catch (error: any) {
-    console.error('Error getting payment:', error);
+    log.error({ err: error }, 'Error getting payment:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -212,7 +215,7 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
     
     res.json({ success: true, data: payment });
   } catch (error: any) {
-    console.error('Error updating payment:', error);
+    log.error({ err: error }, 'Error updating payment:');
     if (error.name === 'ZodError') {
       return res.status(400).json({ 
         success: false, 
@@ -239,7 +242,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     
     res.json({ success: true, message: 'Payment deleted successfully' });
   } catch (error: any) {
-    console.error('Error deleting payment:', error);
+    log.error({ err: error }, 'Error deleting payment:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -265,7 +268,7 @@ router.post('/:id/refund', authenticate, async (req: Request, res: Response) => 
     
     res.json({ success: true, data: payment });
   } catch (error: any) {
-    console.error('Error refunding payment:', error);
+    log.error({ err: error }, 'Error refunding payment:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -293,7 +296,7 @@ router.post('/z-report/generate', authenticate, async (req: Request, res: Respon
     
     res.json({ success: true, data: report });
   } catch (error: any) {
-    console.error('Error generating Z-Report:', error);
+    log.error({ err: error }, 'Error generating Z-Report:');
     if (error.name === 'ZodError') {
       return res.status(400).json({ 
         success: false, 
@@ -330,7 +333,7 @@ router.get('/z-report/:date', authenticate, async (req: Request, res: Response) 
     
     res.json({ success: true, data: report });
   } catch (error: any) {
-    console.error('Error getting Z-Report:', error);
+    log.error({ err: error }, 'Error getting Z-Report:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -363,7 +366,7 @@ router.get('/z-report', authenticate, async (req: Request, res: Response) => {
     
     res.json({ success: true, data: reports });
   } catch (error: any) {
-    console.error('Error getting Z-Reports:', error);
+    log.error({ err: error }, 'Error getting Z-Reports:');
     res.status(error.statusCode || 500).json({ 
       success: false, 
       error: error.message || 'Internal server error' 
@@ -389,7 +392,7 @@ router.patch('/z-report/:id/notes', authenticate, async (req: Request, res: Resp
     
     res.json({ success: true, data: report });
   } catch (error: any) {
-    console.error('Error updating Z-Report notes:', error);
+    log.error({ err: error }, 'Error updating Z-Report notes:');
     if (error.name === 'ZodError') {
       return res.status(400).json({ 
         success: false, 

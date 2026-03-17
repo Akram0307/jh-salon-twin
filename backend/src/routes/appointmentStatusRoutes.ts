@@ -1,14 +1,19 @@
 import { Router } from 'express';
 import appointmentStatusService from '../services/AppointmentStatusService';
 import { validateUUID } from '../middleware/validateUUID';
+import { validate } from '../middleware/validate';
+import { appointmentStatusUpdateSchema, bulkStatusUpdateSchema } from '../schemas/appointment';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'appointment_status_routes' });
 
 const router = Router();
 router.use(validateUUID);
 
 // PATCH /api/appointments/:id/status - Update status with validation
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', validate(appointmentStatusUpdateSchema), async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const salonId = req.body.salon_id;
     const newStatus = req.body.status;
     const changedByStaffId = req.body.staff_id;
@@ -28,7 +33,7 @@ router.patch('/:id/status', async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    console.error('Error updating appointment status:', err);
+    log.error({ err: err }, 'Error updating appointment status:');
     if (err instanceof Error) {
       if (err.message === 'Appointment not found') {
         return res.status(404).json({ error: err.message });
@@ -42,7 +47,7 @@ router.patch('/:id/status', async (req, res) => {
 });
 
 // POST /api/appointments/bulk-status - Bulk update
-router.post('/bulk-status', async (req, res) => {
+router.post('/bulk-status', validate(bulkStatusUpdateSchema), async (req, res) => {
   try {
     const salonId = req.body.salon_id;
     const appointmentIds = req.body.appointment_ids;
@@ -74,7 +79,7 @@ router.post('/bulk-status', async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    console.error('Error bulk updating appointment status:', err);
+    log.error({ err: err }, 'Error bulk updating appointment status:');
     if (err instanceof Error && err.message === 'No valid appointments to update') {
       return res.status(400).json({ error: err.message });
     }
@@ -85,7 +90,7 @@ router.post('/bulk-status', async (req, res) => {
 // GET /api/appointments/:id/status-history - Get history
 router.get('/:id/status-history', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const salonId = req.query.salon_id as string;
 
     if (!salonId) {
@@ -95,7 +100,7 @@ router.get('/:id/status-history', async (req, res) => {
     const history = await appointmentStatusService.getStatusHistory(id, salonId);
     res.json(history);
   } catch (err) {
-    console.error('Error fetching appointment status history:', err);
+    log.error({ err: err }, 'Error fetching appointment status history:');
     res.status(500).json({ error: 'Failed to fetch appointment status history' });
   }
 });
@@ -105,7 +110,7 @@ router.get('/:id/status-history', async (req, res) => {
 // GET /api/appointments/:id/status - Get current status
 router.get('/:id/status', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const salonId = req.query.salon_id as string;
 
     if (!salonId) {
@@ -118,7 +123,7 @@ router.get('/:id/status', async (req, res) => {
     }
     res.json({ status });
   } catch (err) {
-    console.error('Error fetching appointment status:', err);
+    log.error({ err: err }, 'Error fetching appointment status:');
     res.status(500).json({ error: 'Failed to fetch appointment status' });
   }
 });
@@ -136,7 +141,7 @@ router.get('/status-history/recent', async (req, res) => {
     const history = await appointmentStatusService.getRecentStatusChanges(salonId, limit);
     res.json(history);
   } catch (err) {
-    console.error('Error fetching recent status changes:', err);
+    log.error({ err: err }, 'Error fetching recent status changes:');
     res.status(500).json({ error: 'Failed to fetch recent status changes' });
   }
 });

@@ -1,6 +1,8 @@
 import { WaitlistRepository } from '../repositories/WaitlistRepository';
 import { WaitlistOfferRepository } from '../repositories/WaitlistOfferRepository';
 
+import logger from '../config/logger';
+
 export class AIWaitlistRecoveryOrchestrator {
 
   static async runRecoveryCycle() {
@@ -22,7 +24,7 @@ export class AIWaitlistRecoveryOrchestrator {
         await WaitlistOfferRepository.createOffer(process.env.SALON_ID || 'default-salon', entry.id, entry.service_id || 'unknown-service', entry.preferred_time_range || '09:00')
         offersCreated++
       } catch (err) {
-        console.error('AI waitlist recovery failed', err)
+        logger.error({ err: err }, 'AI waitlist recovery failed')
       }
     }
 

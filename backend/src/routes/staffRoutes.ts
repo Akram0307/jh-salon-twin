@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { StaffRepository } from '../repositories/StaffRepository';
 import { query } from '../config/db';
 
+import logger from '../config/logger';
+
 const router = Router();
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
@@ -115,7 +117,7 @@ router.get('/', async (req, res) => {
     const staff = await StaffRepository.findAll(SALON_ID, filters);
     res.json(ok(staff.map(normalizeStaffRecord), { count: staff.length, status, search: search || null, role: role || null }));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json(fail('Failed to fetch staff'));
   }
 });
@@ -135,7 +137,7 @@ router.post('/', async (req, res) => {
     const staff = await StaffRepository.create({ ...parsed.data, salon_id: SALON_ID });
     res.status(201).json(ok(normalizeStaffRecord(staff), { updated_at: staff?.updated_at || null }));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json(fail('Failed to create staff'));
   }
 });
@@ -164,7 +166,7 @@ router.put('/:id', async (req, res) => {
 
     res.json(ok(normalizeStaffRecord(staff), { updated_at: staff.updated_at || null }));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json(fail('Failed to update staff'));
   }
 });
@@ -209,7 +211,7 @@ router.get('/schedule', async (_req, res) => {
 
     res.json(ok(result.rows, { count: result.rows.length }));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json(fail('Failed to fetch staff schedule'));
   }
 });

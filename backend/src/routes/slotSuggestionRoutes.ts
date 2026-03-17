@@ -3,6 +3,9 @@ import { SlotSuggestionService, SlotSuggestionRequest, NaturalLanguageQuery, Wai
 import { SmartSlotRanker } from '../services/SmartSlotRanker';
 import { authenticate } from '../middleware/auth';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'slot_suggestion_routes' });
+
 const router = Router();
 const slotSuggestionService = SlotSuggestionService.getInstance();
 
@@ -78,7 +81,7 @@ router.get('/smart-suggestions', authenticate, async (req: Request, res: Respons
       }
     });
   } catch (error: any) {
-    console.error('Error getting smart suggestions:', error);
+    log.error({ err: error }, 'Error getting smart suggestions:');
     res.status(500).json({
       error: 'Failed to get smart suggestions',
       message: error.message
@@ -150,7 +153,7 @@ router.post('/rank', authenticate, async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error ranking slots:', error);
+    log.error({ err: error }, 'Error ranking slots:');
     res.status(500).json({
       error: 'Failed to rank slots',
       message: error.message
@@ -208,7 +211,7 @@ router.get('/optimal-times', authenticate, async (req: Request, res: Response) =
       }
     });
   } catch (error: any) {
-    console.error('Error getting optimal times:', error);
+    log.error({ err: error }, 'Error getting optimal times:');
     res.status(500).json({
       error: 'Failed to get optimal times',
       message: error.message
@@ -274,7 +277,7 @@ router.get('/waitlist-fit', authenticate, async (req: Request, res: Response) =>
       }
     });
   } catch (error: any) {
-    console.error('Error getting waitlist fit slots:', error);
+    log.error({ err: error }, 'Error getting waitlist fit slots:');
     res.status(500).json({
       error: 'Failed to get waitlist fit slots',
       message: error.message
@@ -323,7 +326,7 @@ router.post('/natural-language', authenticate, async (req: Request, res: Respons
       }
     });
   } catch (error: any) {
-    console.error('Error processing natural language query:', error);
+    log.error({ err: error }, 'Error processing natural language query:');
     res.status(500).json({
       error: 'Failed to process natural language query',
       message: error.message
@@ -387,7 +390,7 @@ router.post('/compare', authenticate, async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error comparing slots:', error);
+    log.error({ err: error }, 'Error comparing slots:');
     res.status(500).json({
       error: 'Failed to compare slots',
       message: error.message
@@ -422,7 +425,7 @@ router.post('/interaction', authenticate, async (req: Request, res: Response) =>
       message: 'Interaction recorded successfully'
     });
   } catch (error: any) {
-    console.error('Error recording interaction:', error);
+    log.error({ err: error }, 'Error recording interaction:');
     res.status(500).json({
       error: 'Failed to record interaction',
       message: error.message
@@ -464,7 +467,7 @@ router.get('/interaction-history', authenticate, async (req: Request, res: Respo
       }
     });
   } catch (error: any) {
-    console.error('Error getting interaction history:', error);
+    log.error({ err: error }, 'Error getting interaction history:');
     res.status(500).json({
       error: 'Failed to get interaction history',
       message: error.message

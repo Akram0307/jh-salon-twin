@@ -1,8 +1,11 @@
-import { query } from '../config/db'
-import { AutoRebookNotifier } from './AutoRebookNotifier'
-import { AutomaticRebookingEngine } from './AutomaticRebookingEngine'
-import cron from 'node-cron';
+import { createQueue } from '../config/queue';
+import { AutoRebookNotifier } from './AutoRebookNotifier';
+import { AutomaticRebookingEngine } from './AutomaticRebookingEngine';
 import { ClientRevenueOrchestrator } from './ClientRevenueOrchestrator';
+import { query } from '../config/db';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'revenue_scheduler' });
 
 export class RevenueScheduler {
   private orchestrator: ClientRevenueOrchestrator;
@@ -11,19 +14,25 @@ export class RevenueScheduler {
     this.orchestrator = new ClientRevenueOrchestrator();
   }
 
+  /**
+ * Enqueue the daily revenue cycle as a BullMQ repeatable job.
+ * Replaces the former node-cron '0 9 * * *' schedule.
+ */
   start(salonId: string) {
-    console.log('[RevenueScheduler] Starting autonomous revenue scheduler');
+    log.info('[RevenueScheduler] Registering BullMQ repeatable jobs');
 
-    // Run every day at 09:00
-    cron.schedule('0 9 * * *', async () => {
-      console.log('[RevenueScheduler] Running scheduled revenue cycle');
-      try {
-        await this.orchestrator.runDailyRevenueCycle(salonId);
-        console.log('[RevenueScheduler] Revenue cycle completed');
-      } catch (err) {
-        console.error('[RevenueScheduler] Revenue cycle error', err);
-      }
-    });
+    const revenueQueue = createQueue('revenue');
+
+    revenueQueue.add(
+      'daily-revenue-cycle',
+      { salonId },
+      {
+        jobId: `daily-revenue-cycle:${salonId}`,
+        repeat: { pattern: '0 9 * * *' },
+      },
+    );
+
+    log.info('[RevenueScheduler] Daily revenue cycle scheduled (0 9 * * *)');
   }
 }
 
@@ -33,10 +42,10 @@ export async function runAutomaticRebookingScan() {
     const salons = await query(`SELECT id FROM salons`);
     for (const salon of salons.rows) {
       const reminders = await AutomaticRebookingEngine.scanClientsNeedingRebook(salon.id);
-      console.log('Auto-rebook opportunities', salon.id, reminders.length);
+      log.info('Auto-rebook opportunities'  + " " + salon.id  + " " + reminders.length);
     }
   } catch (err) {
-    console.error('[AutoRebook] Scan error:', err);
+    log.error({ err: err }, '[AutoRebook] Scan error:');
   }
 }
 
@@ -46,19 +55,29 @@ export async function dispatchAutoRebookMessages() {
     const salons = await query(`SELECT id FROM salons`);
     for (const salon of salons.rows) {
       const count = await AutoRebookNotifier.processSalon(salon.id);
-      console.log('Auto rebook reminders sent', salon.id, count);
+      log.info('Auto rebook reminders sent'  + " " + salon.id  + " " + count);
     }
   } catch (err) {
-    console.error('[AutoRebook] Dispatch error:', err);
+    log.error({ err: err }, '[AutoRebook] Dispatch error:');
   }
 }
 
-// Schedule background jobs - call this AFTER server starts
+/**
+ * Schedule background jobs via BullMQ repeatable jobs.
+ * Replaces the former setInterval(24h) for auto-rebook scan.
+ * Call this AFTER server starts.
+ */
 export function startBackgroundJobs() {
-  // Run auto-rebook scan every 24 hours
-  setInterval(() => {
-    runAutomaticRebookingScan().catch(console.error);
-  }, 24 * 60 * 60 * 1000);
-  
-  console.log('[BackgroundJobs] Scheduled background jobs started');
+  const revenueQueue = createQueue('revenue');
+
+  revenueQueue.add(
+    'auto-rebook-scan',
+    {},
+    {
+      jobId: 'auto-rebook-scan:daily',
+      repeat: { every: 24 * 60 * 60 * 1000 },
+    },
+  );
+
+  log.info('[BackgroundJobs] BullMQ repeatable jobs registered');
 }

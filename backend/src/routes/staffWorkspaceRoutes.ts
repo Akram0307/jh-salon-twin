@@ -6,6 +6,9 @@ import { validateUUID } from '../middleware/validateUUID';
 import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { StaffRepository } from '../repositories/StaffRepository';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'staff_workspace_routes' });
+
 const router = Router();
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
@@ -65,7 +68,7 @@ router.get('/schedule', async (req, res) => {
     
     res.json(ok(result.rows, { count: result.rows.length, date, staff_id: staffId }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch staff schedule'));
   }
 });
@@ -158,7 +161,7 @@ router.get('/earnings', async (req, res) => {
       comparison,
     }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch earnings'));
   }
 });
@@ -200,7 +203,7 @@ router.put('/availability', async (req, res) => {
     
     res.json(ok(result.rows[0], { message: 'Availability updated successfully' }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to update availability'));
   }
 });
@@ -228,7 +231,7 @@ router.get('/availability', async (req, res) => {
     
     res.json(ok(result.rows, { count: result.rows.length, staff_id: staffId }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch availability'));
   }
 });
@@ -267,7 +270,7 @@ router.post('/timeoff', async (req, res) => {
     
     res.status(201).json(ok(result.rows[0], { message: 'Time-off request submitted successfully' }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to submit time-off request'));
   }
 });
@@ -298,7 +301,7 @@ router.get('/timeoff', async (req, res) => {
     
     res.json(ok(result.rows, { count: result.rows.length, staff_id: staffId }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch time-off requests'));
   }
 });
@@ -371,7 +374,7 @@ router.get('/performance', async (req, res) => {
       staff_id: staffId,
     }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch performance stats'));
   }
 });

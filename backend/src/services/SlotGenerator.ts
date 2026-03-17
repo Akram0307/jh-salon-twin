@@ -5,6 +5,8 @@ import { GapFillOptimizer } from './GapFillOptimizer';
 import { ABTestingService } from './ABTestingService';
 import { MetricsCollector } from './MetricsCollector';
 
+import logger from '../config/logger';
+
 const uuidRegex = /^[0-9a-fA-F-]{36}$/;
 
 export interface RankedSlotResult {
@@ -26,7 +28,7 @@ export class SlotGenerator {
   ) {
 
     if (!uuidRegex.test(salon_id) || !uuidRegex.test(service_id)) {
-      console.warn('Invalid UUID passed to SlotGenerator');
+      logger.warn('Invalid UUID passed to SlotGenerator');
       return [];
     }
 

@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { UpsellService } from './UpsellService'
 import { query } from '../config/db'
 
@@ -21,11 +23,11 @@ export default class RevenueActivationAgent {
 
     const serviceName = service.rows[0]?.name
 
-    console.log('💰 Upsell opportunity detected', {
+    logger.info({
       clientId,
       phone,
       suggestedService: serviceName
-    })
+    }, '💰 Upsell opportunity detected')
   }
 
 
@@ -47,11 +49,11 @@ export default class RevenueActivationAgent {
 
     const lastService = res.rows[0].name
 
-    console.log('📅 Rebooking reminder candidate',{
+    logger.info({
       clientId,
       phone,
       lastService
-    })
+    }, '📅 Rebooking reminder candidate')
   }
 
 
@@ -60,10 +62,10 @@ export default class RevenueActivationAgent {
    */
   async triggerCancellationRecovery(phone: string, serviceName: string) {
 
-    console.log('♻️ Cancellation recovery opportunity',{
+    logger.info({
       phone,
       serviceName
-    })
+    }, '♻️ Cancellation recovery opportunity')
   }
 
 
@@ -83,10 +85,10 @@ export default class RevenueActivationAgent {
     const bookings = Number(res.rows[0].bookings)
 
     if(bookings < 3){
-      console.log('📉 Low demand detected — promotion candidate',{
+      logger.info({
         serviceName,
         bookings
-      })
+      }, '📉 Low demand detected — promotion candidate')
     }
   }
 }

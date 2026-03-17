@@ -1,5 +1,7 @@
 import { Pool, PoolConfig } from "pg";
 
+import logger from './logger';
+
 let _pool: Pool | null = null;
 
 function getPool(): Pool {
@@ -30,7 +32,7 @@ function getPool(): Pool {
   _pool = new Pool(config);
 
   _pool.on("error", (err) => {
-    console.error("Unexpected database error", err);
+    logger.error({ err: err }, "Unexpected database error");
   });
 
   return _pool;

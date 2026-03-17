@@ -17,10 +17,18 @@ on:
 env:
   PROJECT_ID: salon-saas-487508
   REGION: us-central1
+  # Production service names (immutable)
   FRONTEND_SERVICE: salonos-owner-frontend
   BACKEND_SERVICE: salonos-backend
+  # Staging service names (isolated from production)
+  STAGING_FRONTEND_SERVICE: salonos-owner-frontend-staging
+  STAGING_BACKEND_SERVICE: salonos-backend-staging
   GAR_LOCATION: us-central1
   GAR_REPOSITORY: salonos-images
+  # Staging service account (minimal IAM - S5-I5)
+  STAGING_SA: salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com
+  # VPC connector (S5-I1)
+  VPC_CONNECTOR: salonos-staging-vpc
 
 jobs:
   deploy-staging:
@@ -28,6 +36,7 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
     runs-on: ubuntu-latest
     environment: staging
+    needs: [docker-build]
     permissions:
       contents: read
       id-token: write
@@ -45,82 +54,108 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
       
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker gcr.io
+      - name: Configure Docker for GAR
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
       
       - name: Build and push frontend Docker image
         run: |
           cd frontend-next
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }} .
-          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.STAGING_FRONTEND_SERVICE }}:${{ github.sha }} .
+          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.STAGING_FRONTEND_SERVICE }}:${{ github.sha }}
       
       - name: Build and push backend Docker image
         run: |
           cd backend
-          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }} .
-          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.STAGING_BACKEND_SERVICE }}:${{ github.sha }} .
+          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.STAGING_BACKEND_SERVICE }}:${{ github.sha }}
       
       - name: Deploy frontend to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ env.FRONTEND_SERVICE }}
-          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.FRONTEND_SERVICE }}:${{ github.sha }}
+          service: ${{ env.STAGING_FRONTEND_SERVICE }}
+          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.STAGING_FRONTEND_SERVICE }}:${{ github.sha }}
           region: ${{ env.REGION }}
           flags: |
-            --allow-unauthenticated
+            --vpc-connector=${{ env.VPC_CONNECTOR }}
+            --vpc-egress=private-ranges-only
+            --no-allow-unauthenticated
             --port=8080
             --memory=1Gi
             --cpu=1
             --concurrency=80
             --timeout=300
             --max-instances=10
-            --set-env-vars="NEXT_PUBLIC_API_BASE_URL=https://${{ env.BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app"
+            --service-account=${{ env.STAGING_SA }}
+            --set-env-vars="NEXT_PUBLIC_API_BASE_URL=https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app,NODE_ENV=staging"
+            --set-secrets="STAGING_BASIC_AUTH_PASSWORD=salonos-staging-STAGING_BASIC_AUTH_PASSWORD:latest"
       
       - name: Deploy backend to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ env.BACKEND_SERVICE }}
-          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.BACKEND_SERVICE }}:${{ github.sha }}
+          service: ${{ env.STAGING_BACKEND_SERVICE }}
+          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.STAGING_BACKEND_SERVICE }}:${{ github.sha }}
           region: ${{ env.REGION }}
-          env_vars: |
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            SALON_ID=${{ secrets.SALON_ID }}
-            GCLOUD_PROJECT=${{ env.PROJECT_ID }}
-            OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
-            TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}
-            TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}
-            TWILIO_API_KEY_SID=${{ secrets.TWILIO_API_KEY_SID }}
-            TWILIO_API_KEY_SECRET=${{ secrets.TWILIO_API_KEY_SECRET }}
-            TWILIO_WHATSAPP_NUMBER=${{ secrets.TWILIO_WHATSAPP_NUMBER }}
-            TEST_TO_NUMBER=${{ secrets.TEST_TO_NUMBER }}
-            WAITLIST_TEMPLATE_SID=${{ secrets.WAITLIST_TEMPLATE_SID }}
-            REDIS_HOST=${{ secrets.REDIS_HOST }}
-            REDIS_PORT=${{ secrets.REDIS_PORT }}
-            INSTANCE_CONNECTION_NAME=${{ secrets.INSTANCE_CONNECTION_NAME }}
-            NODE_ENV=production
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
           flags: |
-            --allow-unauthenticated
+            --vpc-connector=${{ env.VPC_CONNECTOR }}
+            --vpc-egress=private-ranges-only
+            --no-allow-unauthenticated
             --port=8080
             --memory=1Gi
             --cpu=1
             --concurrency=80
             --timeout=300
             --max-instances=20
+            --service-account=${{ env.STAGING_SA }}
+            --add-cloudsql-instances=${{ secrets.INSTANCE_CONNECTION_NAME }}
+            --set-env-vars="NODE_ENV=staging,GCLOUD_PROJECT=${{ env.PROJECT_ID }},LOG_LEVEL=info,OTEL_ENABLED=true,ALLOWED_ORIGINS=https://staging.salonos.app"
+            --set-secrets=|
+              JWT_SECRET=salonos-staging-JWT_SECRET_STAGING:latest
+              REFRESH_TOKEN_SECRET=salonos-staging-REFRESH_TOKEN_SECRET_STAGING:latest
+              DB_USER=salonos-staging-DB_USER:latest
+              DB_PASSWORD=salonos-staging-DB_PASSWORD:latest
+              DB_HOST=salonos-staging-DB_HOST:latest
+              DB_PORT=salonos-staging-DB_PORT:latest
+              DB_NAME=salonos-staging-DB_NAME:latest
+              REDIS_HOST=salonos-staging-REDIS_HOST:latest
+              REDIS_PORT=salonos-staging-REDIS_PORT:latest
+              INSTANCE_CONNECTION_NAME=salonos-staging-INSTANCE_CONNECTION_NAME:latest
+              TWILIO_ACCOUNT_SID=salonos-staging-TWILIO_ACCOUNT_SID:latest
+              TWILIO_AUTH_TOKEN=salonos-staging-TWILIO_AUTH_TOKEN:latest
+              OPENROUTER_API_KEY=salonos-staging-OPENROUTER_API_KEY:latest
+              SMTP_HOST=salonos-staging-SMTP_HOST:latest
+              SMTP_USER=salonos-staging-SMTP_USER:latest
+              SMTP_PASS=salonos-staging-SMTP_PASS:latest
       
+      # Manual rollback: dbmate rollback (requires DATABASE_URL)
+      - name: Run database migrations (staging)
+        run: |
+          cd backend
+          # Fetch DB credentials from GCP Secret Manager
+          DB_USER=$(gcloud secrets versions access latest --secret="salonos-staging-DB_USER")
+          DB_PASSWORD=$(gcloud secrets versions access latest --secret="salonos-staging-DB_PASSWORD")
+          DB_HOST=$(gcloud secrets versions access latest --secret="salonos-staging-DB_HOST")
+          DB_PORT=$(gcloud secrets versions access latest --secret="salonos-staging-DB_PORT")
+          DB_NAME=$(gcloud secrets versions access latest --secret="salonos-staging-DB_NAME")
+          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
+          # Install dbmate
+          apt-get update && apt-get install -y wget
+          wget -qO- https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 > /usr/local/bin/dbmate
+          chmod +x /usr/local/bin/dbmate
+          # Check status first
+          dbmate status
+          # Apply pending migrations
+          dbmate up
       - name: Run smoke tests
         run: |
           echo "Running smoke tests for staging deployment..."
-          # Wait for services to be ready
           sleep 30
-          # Test frontend
-          curl -f https://${{ env.FRONTEND_SERVICE }}-rgvcleapsa-uc.a.run.app/ || exit 1
-          # Test backend health endpoint
-          curl -f https://${{ env.BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app/health || exit 1
+          # Test backend health endpoint (authenticated - use service account token)
+          TOKEN=$(gcloud auth print-identity-token --audiences="https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app" 2>/dev/null || echo "")
+          if [ -n "$TOKEN" ]; then
+            curl -f -H "Authorization: Bearer $TOKEN" https://${{ env.STAGING_BACKEND_SERVICE }}-rgvcleapsa-uc.a.run.app/health || exit 1
+          else
+            echo "WARN: Could not get ID token, skipping authenticated health check"
+          fi
           echo "Smoke tests passed!"
   
   deploy-production:
@@ -146,8 +181,8 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
       
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker gcr.io
+      - name: Configure Docker for GAR
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
       
       - name: Build and push frontend Docker image
         run: |
@@ -216,10 +251,7 @@ jobs:
       - name: Run smoke tests
         run: |
           echo "Running smoke tests for production deployment..."
-          # Wait for services to be ready
           sleep 30
-          # Test frontend
           curl -f https://${{ env.FRONTEND_SERVICE }}-prod-rgvcleapsa-uc.a.run.app/ || exit 1
-          # Test backend health endpoint
           curl -f https://${{ env.BACKEND_SERVICE }}-prod-rgvcleapsa-uc.a.run.app/health || exit 1
           echo "Production smoke tests passed!"

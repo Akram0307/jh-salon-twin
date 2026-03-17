@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { Router } from 'express'
 import { pool } from '../config/db'
 
@@ -23,7 +25,7 @@ router.get('/feed', async (req, res) => {
 
     res.json(result.rows || [])
   } catch (err) {
-    console.error('Activity feed error:', err)
+    logger.error({ err: err }, 'Activity feed error:')
     res.json([])
   }
 })

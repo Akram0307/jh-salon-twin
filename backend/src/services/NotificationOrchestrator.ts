@@ -3,6 +3,9 @@ import { sendEmail, sendTemplateEmail, EmailResult } from './EmailNotificationSe
 import { query } from '../config/db';
 import { NotificationLogRepository } from '../repositories/NotificationLogRepository';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'notification_orchestrator' });
+
 export type ConfirmationPayload = {
   appointmentId: string;
   salonId: string;
@@ -38,7 +41,7 @@ async function getClientPhone(clientId: string): Promise<string | null> {
     const res = await query('SELECT phone FROM clients WHERE id=$1 LIMIT 1', [clientId]);
     if (res.rows.length) return res.rows[0].phone as string;
   } catch (e) {
-    console.error('[NotificationOrchestrator] getClientPhone error', e);
+    log.error({ err: e }, '[NotificationOrchestrator] getClientPhone error');
   }
   return null;
 }
@@ -49,7 +52,7 @@ async function getClientEmail(clientId: string): Promise<string | null> {
     const res = await query('SELECT email FROM clients WHERE id=$1 LIMIT 1', [clientId]);
     if (res.rows.length) return res.rows[0].email as string;
   } catch (e) {
-    console.error('[NotificationOrchestrator] getClientEmail error', e);
+    log.error({ err: e }, '[NotificationOrchestrator] getClientEmail error');
   }
   return null;
 }
@@ -78,7 +81,7 @@ async function getUserNotificationPreferences(
       return res.rows[0].notification_preferences;
     }
   } catch (e) {
-    console.error('[NotificationOrchestrator] getUserNotificationPreferences error', e);
+    log.error({ err: e }, '[NotificationOrchestrator] getUserNotificationPreferences error');
   }
   // Default preferences
   return { email: true, sms: true, push: true };
@@ -88,13 +91,13 @@ async function getUserNotificationPreferences(
 export async function sendConfirmationSMS(payload: ConfirmationPayload) {
   const phone = await getClientPhone(payload.clientId);
   if (!phone) {
-    console.log('[NotificationOrchestrator] No phone for client', payload.clientId);
+    log.info({ data: payload.clientId }, '[NotificationOrchestrator] No phone for client');
     return { skipped: true, reason: 'no_phone' };
   }
   const salonName = await getSalonName(payload.salonId);
   const body = `Hi! Your appointment at ${salonName} is confirmed.\nService: ${payload.serviceName}\nStylist: ${payload.staffName}\nDate/Time: ${payload.dateTime}\nSee you soon!`;
   const result = await sendSMS({ to: phone, body, salonId: payload.salonId });
-  console.log('[NotificationOrchestrator] Confirmation result', { appointmentId: payload.appointmentId, result });
+  log.info({ appointmentId: payload.appointmentId, result }, '[NotificationOrchestrator] Confirmation result');
   
   // Log notification
   await NotificationLogRepository.create({
@@ -113,13 +116,13 @@ export async function sendConfirmationSMS(payload: ConfirmationPayload) {
 export async function sendReminderSMS(payload: ReminderPayload) {
   const phone = await getClientPhone(payload.clientId);
   if (!phone) {
-    console.log('[NotificationOrchestrator] No phone for client', payload.clientId);
+    log.info({ data: payload.clientId }, '[NotificationOrchestrator] No phone for client');
     return { skipped: true, reason: 'no_phone' };
   }
   const salonName = await getSalonName(payload.salonId);
   const body = `Reminder: You have an appointment at ${salonName} soon.\nService: ${payload.serviceName}\nDate/Time: ${payload.dateTime}\nReply if you need to reschedule.`;
   const result = await sendSMS({ to: phone, body, salonId: payload.salonId });
-  console.log('[NotificationOrchestrator] Reminder result', { appointmentId: payload.appointmentId, result });
+  log.info({ appointmentId: payload.appointmentId, result }, '[NotificationOrchestrator] Reminder result');
   
   // Log notification
   await NotificationLogRepository.create({
@@ -139,7 +142,7 @@ export async function sendReminderSMS(payload: ReminderPayload) {
 export async function sendConfirmationEmail(payload: ConfirmationPayload): Promise<EmailResult> {
   const email = await getClientEmail(payload.clientId);
   if (!email) {
-    console.log('[NotificationOrchestrator] No email for client', payload.clientId);
+    log.info({ data: payload.clientId }, '[NotificationOrchestrator] No email for client');
     return { success: false, skipped: true, reason: 'no_email' };
   }
   
@@ -160,7 +163,7 @@ export async function sendConfirmationEmail(payload: ConfirmationPayload): Promi
   `;
   
   const result = await sendEmail({ to: email, subject, html, salonId: payload.salonId });
-  console.log('[NotificationOrchestrator] Email confirmation result', { appointmentId: payload.appointmentId, result });
+  log.info({ appointmentId: payload.appointmentId, result }, '[NotificationOrchestrator] Email confirmation result');
   
   // Log notification
   await NotificationLogRepository.create({
@@ -179,7 +182,7 @@ export async function sendConfirmationEmail(payload: ConfirmationPayload): Promi
 export async function sendReminderEmail(payload: ReminderPayload): Promise<EmailResult> {
   const email = await getClientEmail(payload.clientId);
   if (!email) {
-    console.log('[NotificationOrchestrator] No email for client', payload.clientId);
+    log.info({ data: payload.clientId }, '[NotificationOrchestrator] No email for client');
     return { success: false, skipped: true, reason: 'no_email' };
   }
   
@@ -198,7 +201,7 @@ export async function sendReminderEmail(payload: ReminderPayload): Promise<Email
   `;
   
   const result = await sendEmail({ to: email, subject, html, salonId: payload.salonId });
-  console.log('[NotificationOrchestrator] Email reminder result', { appointmentId: payload.appointmentId, result });
+  log.info({ appointmentId: payload.appointmentId, result }, '[NotificationOrchestrator] Email reminder result');
   
   // Log notification
   await NotificationLogRepository.create({
@@ -304,7 +307,7 @@ export async function dispatchReminderForAppointment(appointmentId: string) {
       email: emailResult
     };
   } catch (e) {
-    console.error('[NotificationOrchestrator] dispatchReminderForAppointment error', e);
+    log.error({ err: e }, '[NotificationOrchestrator] dispatchReminderForAppointment error');
     return { error: 'dispatch_failed' };
   }
 }
@@ -342,7 +345,7 @@ export async function sendAppointmentConfirmation(appointmentId: string) {
       email: emailResult
     };
   } catch (e) {
-    console.error('[NotificationOrchestrator] sendAppointmentConfirmation error', e);
+    log.error({ err: e }, '[NotificationOrchestrator] sendAppointmentConfirmation error');
     return { error: 'dispatch_failed' };
   }
 }

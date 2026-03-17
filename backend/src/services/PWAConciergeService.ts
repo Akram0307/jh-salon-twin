@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { WebSocket } from 'ws'
 import { ConversationContextStore, PWAConversationContext, ConversationMessage } from './ConversationContextStore'
 import { AIConciergeBookingService, BookingIntent } from './AIConciergeBookingService'
@@ -59,10 +61,10 @@ export class PWAConciergeService {
           break
         
         default:
-          console.warn(`Unknown message type: ${message.type}`)
+          logger.warn(`Unknown message type: ${message.type}`)
       }
     } catch (error) {
-      console.error('Error handling concierge message:', error)
+      logger.error({ err: error }, 'Error handling concierge message:')
       this.sendErrorResponse(clientId, 'An error occurred processing your message', ws)
     }
   }

@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { pool } from '../config/db';
+import { validate } from '../middleware/validate';
+import { onboardingStartSchema, capacitySchema } from '../schemas/onboarding';
+
+import logger from '../config/logger';
 
 const router = Router();
 
 // Unified onboarding start
-router.post('/start', async (req, res) => {
+router.post('/start', validate(onboardingStartSchema), async (req, res) => {
   const client = await pool.connect();
 
   try {
@@ -62,7 +66,7 @@ router.post('/start', async (req, res) => {
 
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Onboarding failed' });
   } finally {
     client.release();
@@ -70,7 +74,7 @@ router.post('/start', async (req, res) => {
 });
 
 // Capacity only endpoint
-router.post('/capacity', async (req, res) => {
+router.post('/capacity', validate(capacitySchema), async (req, res) => {
   try {
     const { salon_id, men_chairs, women_chairs, unisex_chairs, waiting_seats } = req.body;
 
@@ -83,7 +87,7 @@ router.post('/capacity', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Capacity setup failed' });
   }
 });

@@ -2,6 +2,8 @@ import { Router } from 'express';
 import clientSearchService from '../services/ClientSearchService';
 import { validateUUID } from '../middleware/validateUUID';
 
+import logger from '../config/logger';
+
 const router = Router();
 router.use(validateUUID);
 
@@ -36,7 +38,7 @@ router.get('/search', async (req, res) => {
       offset
     });
   } catch (err) {
-    console.error('Error searching clients:', err);
+    logger.error({ err: err }, 'Error searching clients:');
     if (err instanceof Error) {
       if (err.message.includes('required') || err.message.includes('too long')) {
         return res.status(400).json({ error: err.message });
@@ -69,7 +71,7 @@ router.get('/quick-search', async (req, res) => {
       limit
     });
   } catch (err) {
-    console.error('Error in quick search:', err);
+    logger.error({ err: err }, 'Error in quick search:');
     if (err instanceof Error) {
       if (err.message.includes('required')) {
         return res.status(400).json({ error: err.message });
@@ -97,7 +99,7 @@ router.get('/by-phone/:phone', async (req, res) => {
 
     res.json(client);
   } catch (err) {
-    console.error('Error finding client by phone:', err);
+    logger.error({ err: err }, 'Error finding client by phone:');
     if (err instanceof Error) {
       if (err.message.includes('required') || err.message.includes('Invalid')) {
         return res.status(400).json({ error: err.message });
@@ -125,7 +127,7 @@ router.get('/suggestions', async (req, res) => {
       limit
     });
   } catch (err) {
-    console.error('Error getting search suggestions:', err);
+    logger.error({ err: err }, 'Error getting search suggestions:');
     if (err instanceof Error && err.message.includes('required')) {
       return res.status(400).json({ error: err.message });
     }

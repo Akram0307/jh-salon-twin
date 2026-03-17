@@ -1,0 +1,35 @@
+# SalonOS Staging Environment Variables
+# ==========================================
+# DO NOT store real secrets in this file.
+# All secrets MUST be managed via GCP Secret Manager.
+# Copy this file to env-staging.yaml and replace placeholders.
+
+# Database
+DB_USER: "staging-user"
+DB_PASSWORD: "<SET_VIA_SECRET_MANAGER>"
+DB_HOST: "<SET_VIA_SECRET_MANAGER>"
+DB_PORT: "5432"
+DB_NAME: "salonos_staging"
+
+# Authentication
+JWT_SECRET: "<SET_VIA_SECRET_MANAGER>"
+REFRESH_TOKEN_SECRET: "<SET_VIA_SECRET_MANAGER>"
+
+# Twilio
+TWILIO_ACCOUNT_SID: "<SET_VIA_SECRET_MANAGER>"
+TWILIO_AUTH_TOKEN: "<SET_VIA_SECRET_MANAGER>"
+TWILIO_API_KEY_SID: "<SET_VIA_SECRET_MANAGER>"
+TWILIO_API_KEY_SECRET: "<SET_VIA_SECRET_MANAGER>"
+TWILIO_WHATSAPP_NUMBER: "<SET_VIA_SECRET_MANAGER>"
+
+# SMTP
+SMTP_HOST: "<SET_VIA_SECRET_MANAGER>"
+SMTP_USER: "<SET_VIA_SECRET_MANAGER>"
+SMTP_PASS: "<SET_VIA_SECRET_MANAGER>"
+
+# AI
+OPENROUTER_API_KEY: "<SET_VIA_SECRET_MANAGER>"
+
+# GCP
+INSTANCE_CONNECTION_NAME: "<SET_VIA_SECRET_MANAGER>"
+GCP_PROJECT: "salon-saas-487508"

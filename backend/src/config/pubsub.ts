@@ -1,5 +1,7 @@
 import { PubSub } from '@google-cloud/pubsub';
 
+import logger from './logger';
+
 const projectId = process.env.GCP_PROJECT || process.env.GOOGLE_CLOUD_PROJECT;
 
 export const pubsub = new PubSub({ projectId });
@@ -10,7 +12,7 @@ export async function publishEvent(topicName: string, payload: any) {
 
   const messageId = await topic.publishMessage({ data: dataBuffer });
 
-  console.log(`📨 Pub/Sub event published to ${topicName}: ${messageId}`);
+  logger.info(`📨 Pub/Sub event published to ${topicName}: ${messageId}`);
 
   return messageId;
 }
@@ -26,10 +28,10 @@ export function subscribe(topicName: string, subscriptionName: string, handler: 
 
       message.ack();
     } catch (err) {
-      console.error('Pub/Sub handler error:', err);
+      logger.error({ err: err }, 'Pub/Sub handler error:');
       message.nack();
     }
   });
 
-  console.log(`✅ Subscribed to ${topicName}/${subscriptionName}`);
+  logger.info(`✅ Subscribed to ${topicName}/${subscriptionName}`);
 }

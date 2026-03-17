@@ -1,4 +1,6 @@
-console.log('MessagingEventBus initialized')
+
+import logger from '../config/logger';
+logger.info('MessagingEventBus initialized')
 export type MessagingEvent = {
   type: string;
   salon_id: string;

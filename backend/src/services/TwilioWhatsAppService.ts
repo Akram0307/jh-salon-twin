@@ -1,9 +1,12 @@
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'twilio_whats_app_service' });
 if (process.env.TEST_MODE === 'true') { module.exports.resolveSenderNumber = async () => 'whatsapp:+10000000000'; }
 import 'dotenv/config'
 import twilio from 'twilio'
 import { query } from '../config/db'
 
-console.log('TwilioWhatsAppService initialized')
+log.info('TwilioWhatsAppService initialized')
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID as string
 const authToken = process.env.TWILIO_AUTH_TOKEN as string
@@ -38,7 +41,7 @@ export async function sendWaitlistOffer(
 ) {
 
   if (!phone || phone === '+10000000000' || phone.startsWith('+100000')) {
-    console.log('[SIMULATION] Skipping Twilio send for test number:', phone)
+    log.info({ data: phone }, '[SIMULATION] Skipping Twilio send for test number:')
     return { simulated: true }
   }
 
@@ -60,12 +63,12 @@ export async function sendWaitlistOffer(
         })
       })
 
-      console.log('✅ Waitlist offer sent', { offerId, phone, sid: message.sid })
+      log.info({ offerId, phone, sid: message.sid }, '✅ Waitlist offer sent')
       return message
 
     } catch (error) {
 
-      console.error('Twilio send attempt failed', attempt + 1, error)
+      log.error('Twilio send attempt failed'  + " " + attempt + 1  + " " + error)
 
       if (attempt < 2) {
         await sleep(delays[attempt])
@@ -73,6 +76,6 @@ export async function sendWaitlistOffer(
     }
   }
 
-  console.error('❌ Twilio failed after retries', { offerId, phone })
+  log.error({ offerId, phone }, '❌ Twilio failed after retries')
   return null
 }

@@ -4,6 +4,11 @@ import { Router } from 'express';
 import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { WaitlistService } from '../services/WaitlistService';
 import { dispatchReminderForAppointment } from '../services/NotificationOrchestrator';
+import { validate } from '../middleware/validate';
+import { createAppointmentSchema, updateAppointmentStatusSchema, addAppointmentServiceSchema, updateServicePriceSchema, rescheduleAppointmentSchema } from '../schemas/appointment';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'appointment_routes' });
 
 const router = Router()
 router.use(validateUUID);
@@ -13,22 +18,22 @@ router.get('/', async (req, res) => {
         const appointments = await AppointmentRepository.findAll();
         res.json(appointments);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to fetch appointments' });
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createAppointmentSchema), async (req, res) => {
     try {
         const appointment = await AppointmentRepository.create(req.body);
         res.status(201).json(appointment);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to create appointment' });
     }
 });
 
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', validate(updateAppointmentStatusSchema), async (req, res) => {
     try {
         const allowedStatuses = ["SCHEDULED","ARRIVED","IN_PROGRESS","COMPLETED","CANCELLED","NO_SHOW"];
         const status = String(req.body.status || "").toUpperCase();
@@ -37,7 +42,7 @@ router.patch('/:id/status', async (req, res) => {
             return res.status(400).json({ error: "Invalid appointment status" });
         }
 
-        const appointment = await AppointmentRepository.updateStatus(req.params.id, status.toLowerCase());
+        const appointment = await AppointmentRepository.updateStatus(req.params.id as string, status.toLowerCase());
         if (!appointment) {
             return res.status(404).json({ error: 'Appointment not found' });
         }
@@ -49,7 +54,7 @@ router.patch('/:id/status', async (req, res) => {
         
         res.json(appointment);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to update appointment status' });
     }
 });
@@ -62,32 +67,32 @@ router.get('/qr/:token', async (req, res) => {
         }
         res.json(appointment);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to fetch appointment by QR token' });
     }
 });
 
-router.post('/:id/services', async (req, res) => {
+router.post('/:id/services', validate(addAppointmentServiceSchema), async (req, res) => {
     try {
         const { service_id, base_price, charged_price } = req.body;
-        const service = await AppointmentRepository.addService(req.params.id, service_id, base_price, charged_price || base_price);
+        const service = await AppointmentRepository.addService(req.params.id as string, service_id, base_price, charged_price || base_price);
         res.status(201).json(service);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to add service to appointment' });
     }
 });
 
-router.patch('/:id/services/:serviceId', async (req, res) => {
+router.patch('/:id/services/:serviceId', validate(updateServicePriceSchema), async (req, res) => {
     try {
         const { charged_price } = req.body;
-        const service = await AppointmentRepository.updateServicePrice(req.params.id, req.params.serviceId, charged_price);
+        const service = await AppointmentRepository.updateServicePrice(req.params.id as string, req.params.serviceId as string, charged_price);
         if (!service) {
             return res.status(404).json({ error: 'Service not found on appointment' });
         }
         res.json(service);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to update service price' });
     }
 });
@@ -96,21 +101,21 @@ router.patch('/:id/services/:serviceId', async (req, res) => {
 
 router.post('/:id/send-reminder', async (req, res) => {
     try {
-        const result = await dispatchReminderForAppointment(req.params.id);
+        const result = await dispatchReminderForAppointment(req.params.id as string);
         if ((result as any)?.error === 'appointment_not_found') {
             return res.status(404).json({ error: 'Appointment not found' });
         }
         res.json({ ok: true, notification: result });
     } catch (error: any) {
-        console.error('[appointmentRoutes] reminder send failed', error);
+        log.error({ err: error }, '[appointmentRoutes] reminder send failed');
         res.status(500).json({ error: 'Failed to send reminder' });
     }
 });
 
-router.patch('/:id/reschedule', async (req, res) => {
+router.patch('/:id/reschedule', validate(rescheduleAppointmentSchema), async (req, res) => {
     try {
         const { newDate, newStartTime, newEndTime } = req.body;
-        const updated = await AppointmentRepository.rescheduleAppointment(req.params.id, newStartTime);
+        const updated = await AppointmentRepository.rescheduleAppointment(req.params.id as string, newStartTime);
         res.json(updated);
     } catch (error: any) {
         res.status(400).json({ error: error.message });
@@ -141,7 +146,7 @@ router.get('/today', async (req, res) => {
 
         res.json(result.rows);
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to fetch today appointments' });
     }
 });
@@ -164,7 +169,7 @@ router.get('/slots', async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
+        log.error(err);
         res.status(500).json({ error: 'Failed to generate slots' });
     }
 });

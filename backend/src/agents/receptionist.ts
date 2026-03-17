@@ -6,6 +6,9 @@ import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { ServiceRepository } from '../repositories/ServiceRepository';
 import { StaffRepository } from '../repositories/StaffRepository';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'receptionist' });
+
 // Initialize Genkit with Vertex AI
 const ai = genkit({
     plugins: [vertexAI({ location: 'us-central1', projectId: 'salon-saas-487508' })],
@@ -70,7 +73,7 @@ const resolveEntityTool = ai.defineTool(
                 return staff ? { id: staff.id, name: staff.full_name, found: true } : { id: null, name, found: false };
             }
         } catch (error) {
-            console.error("resolveEntity error:", error);
+            log.error({ err: error }, "resolveEntity error:");
             return { id: null, name, found: false };
         }
     }
@@ -161,7 +164,7 @@ Respond ONLY with a JSON object: {"intent": "CATEGORY"}`;
         const parsed = JSON.parse(text);
         return parsed.intent || 'GENERAL';
     } catch (e) {
-        console.error('[Intent Classifier] Error:', e);
+        log.error({ err: e }, '[Intent Classifier] Error:');
         return 'GENERAL';
     }
 }
@@ -214,7 +217,7 @@ export async function handleIncomingMessage(sender: string, message: string): Pr
             session.state = 'READY';
             return `Thanks! You're all set. How can I help you today? You can ask to book an appointment, check our services, or speak to a human.`;
         } catch (e) {
-            console.error('[Greeter] Error creating client:', e);
+            log.error({ err: e }, '[Greeter] Error creating client:');
             return "Sorry, I had a little trouble saving your details. Let's try again later. How can I help you today?";
         }
     }
@@ -245,7 +248,7 @@ Intents:
         });
 
         const classification = intentResponse.output;
-        console.log(`[Greeter] Intent classified as: ${classification?.intent} (${classification?.reasoning})`);
+        log.info(`[Greeter] Intent classified as: ${classification?.intent} (${classification?.reasoning})`);
 
         let systemPrompt = "";
         let activeTools: any[] = [];
@@ -304,7 +307,7 @@ Do NOT attempt to book appointments. If they ask to book, tell them you can help
         return response.text;
 
     } catch (error) {
-        console.error('[Greeter] Error:', error);
+        log.error({ err: error }, '[Greeter] Error:');
         return "I'm sorry, I'm having trouble processing that right now. Please try again.";
     }
 }

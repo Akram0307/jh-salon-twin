@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import twilio from 'twilio'
 import { query } from '../config/db'
 
@@ -38,7 +40,7 @@ export async function sendSMS(payload: SMSPayload) {
   const testNumbers = ['+10000000000', '+15555555555']
   const isTest = !to || testNumbers.some(n => to.startsWith(n))
   if (isTest) {
-    console.log('[SMS SIMULATION] to:', to, 'body:', body)
+    logger.info({ to, body }, '[SMS SIMULATION]')
     return { simulated: true, sid: 'SIMULATED' }
   }
   const sender = await resolveSenderNumber(salonId || 'default')
@@ -50,13 +52,13 @@ export async function sendSMS(payload: SMSPayload) {
         to: `whatsapp:${to}`,
         body,
       })
-      console.log('[SMS SENT]', { to, sid: message.sid, status: message.status })
+      logger.info({ to, sid: message.sid, status: message.status }, '[SMS SENT]')
       return { sid: message.sid, status: message.status }
     } catch (error) {
-      console.error('[SMS ERROR] attempt', attempt + 1, error)
+      logger.error({ attempt: attempt + 1, err: error }, '[SMS ERROR]')
       if (attempt < 2) await sleep(delays[attempt])
     }
   }
-  console.error('[SMS FAILED] after retries', { to })
+  logger.error({ to }, '[SMS FAILED] after retries')
   return { error: 'Failed after retries' }
 }

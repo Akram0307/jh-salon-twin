@@ -4,6 +4,12 @@ import { UserProfileService } from '../services/UserProfileService';
 import multer from 'multer';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { validate } from '../middleware/validate';
+import { updateSecuritySchema } from '../schemas/userProfile';
+import { changePasswordAltSchema } from '../schemas/auth';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'user_profile_routes' });
 
 const router = Router();
 router.use(authenticate);
@@ -47,7 +53,7 @@ router.get('/profile', async (req: AuthRequest, res) => {
     const profile = await userProfileService.getProfile(userId, userType);
     res.json({ success: true, data: profile });
   } catch (err) {
-    console.error('Error fetching profile:', err);
+    log.error({ err: err }, 'Error fetching profile:');
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
@@ -67,7 +73,7 @@ router.post('/avatar', upload.single('avatar'), async (req: AuthRequest, res) =>
     await userProfileService.updateAvatar(userId, userType, avatarUrl);
     res.json({ success: true, data: { avatar_url: avatarUrl } });
   } catch (err) {
-    console.error('Error uploading avatar:', err);
+    log.error({ err: err }, 'Error uploading avatar:');
     res.status(500).json({ error: 'Failed to upload avatar' });
   }
 });
@@ -83,7 +89,7 @@ router.delete('/avatar', async (req: AuthRequest, res) => {
     await userProfileService.updateAvatar(userId, userType, '');
     res.json({ success: true, message: 'Avatar removed' });
   } catch (err) {
-    console.error('Error removing avatar:', err);
+    log.error({ err: err }, 'Error removing avatar:');
     res.status(500).json({ error: 'Failed to remove avatar' });
   }
 });
@@ -99,13 +105,13 @@ router.get('/security', async (req: AuthRequest, res) => {
     const settings = await userProfileService.getSecuritySettings(userId, userType);
     res.json({ success: true, data: settings });
   } catch (err) {
-    console.error('Error fetching security settings:', err);
+    log.error({ err: err }, 'Error fetching security settings:');
     res.status(500).json({ error: 'Failed to fetch security settings' });
   }
 });
 
 // PUT /api/user-profile/security
-router.put('/security', async (req: AuthRequest, res) => {
+router.put('/security', validate(updateSecuritySchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -116,13 +122,13 @@ router.put('/security', async (req: AuthRequest, res) => {
     await userProfileService.updateSecuritySettings(userId, userType, { login_notifications });
     res.json({ success: true, message: 'Security settings updated' });
   } catch (err) {
-    console.error('Error updating security settings:', err);
+    log.error({ err: err }, 'Error updating security settings:');
     res.status(500).json({ error: 'Failed to update security settings' });
   }
 });
 
 // POST /api/user-profile/change-password
-router.post('/change-password', async (req: AuthRequest, res) => {
+router.post('/change-password', validate(changePasswordAltSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -139,7 +145,7 @@ router.post('/change-password', async (req: AuthRequest, res) => {
     await userProfileService.changePassword(userId, userType, current_password, new_password);
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (err: any) {
-    console.error('Error changing password:', err);
+    log.error({ err: err }, 'Error changing password:');
     if (err.message === 'Current password is incorrect') {
       return res.status(400).json({ error: err.message });
     }
@@ -158,7 +164,7 @@ router.delete('/account', async (req: AuthRequest, res) => {
     await userProfileService.deleteAccount(userId, userType);
     res.json({ success: true, message: 'Account deleted' });
   } catch (err) {
-    console.error('Error deleting account:', err);
+    log.error({ err: err }, 'Error deleting account:');
     res.status(500).json({ error: 'Failed to delete account' });
   }
 });

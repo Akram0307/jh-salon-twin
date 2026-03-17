@@ -3,6 +3,11 @@ import { NotificationTemplateRepository } from '../repositories/NotificationTemp
 import { NotificationLogRepository } from '../repositories/NotificationLogRepository';
 import { dispatchNotification, sendAppointmentConfirmation, dispatchReminderForAppointment } from '../services/NotificationOrchestrator';
 import { query } from '../config/db';
+import { validate } from '../middleware/validate';
+import { createNotificationSchema, updateNotificationPreferencesSchema } from '../schemas/notification';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'notification_routes' });
 
 const router = Router();
 
@@ -27,7 +32,7 @@ router.get('/templates', async (req: Request, res: Response) => {
     const templates = await NotificationTemplateRepository.findBySalonId(salonId);
     res.json({ success: true, data: templates });
   } catch (error: any) {
-    console.error('[notificationRoutes] GET /templates error:', error);
+    log.error({ err: error }, '[notificationRoutes] GET /templates error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -49,7 +54,7 @@ router.post('/templates', async (req: Request, res: Response) => {
     });
     res.status(201).json({ success: true, data: template });
   } catch (error: any) {
-    console.error('[notificationRoutes] POST /templates error:', error);
+    log.error({ err: error }, '[notificationRoutes] POST /templates error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -68,7 +73,7 @@ router.put('/templates/:id', async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: template });
   } catch (error: any) {
-    console.error('[notificationRoutes] PUT /templates/:id error:', error);
+    log.error({ err: error }, '[notificationRoutes] PUT /templates/:id error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -80,7 +85,7 @@ router.delete('/templates/:id', async (req: Request, res: Response) => {
     await NotificationTemplateRepository.delete(id);
     res.json({ success: true, message: 'Template deleted' });
   } catch (error: any) {
-    console.error('[notificationRoutes] DELETE /templates/:id error:', error);
+    log.error({ err: error }, '[notificationRoutes] DELETE /templates/:id error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -110,7 +115,7 @@ router.get('/logs', async (req: Request, res: Response) => {
     );
     res.json({ success: true, data: logs });
   } catch (error: any) {
-    console.error('[notificationRoutes] GET /logs error:', error);
+    log.error({ err: error }, '[notificationRoutes] GET /logs error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -130,7 +135,7 @@ router.get('/logs/stats', async (req: Request, res: Response) => {
     );
     res.json({ success: true, data: stats });
   } catch (error: any) {
-    console.error('[notificationRoutes] GET /logs/stats error:', error);
+    log.error({ err: error }, '[notificationRoutes] GET /logs/stats error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -159,7 +164,7 @@ router.post('/send', async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: result });
   } catch (error: any) {
-    console.error('[notificationRoutes] POST /send error:', error);
+    log.error({ err: error }, '[notificationRoutes] POST /send error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -171,7 +176,7 @@ router.post('/appointment/:id/confirm', async (req: Request, res: Response) => {
     const result = await sendAppointmentConfirmation(id);
     res.json({ success: true, data: result });
   } catch (error: any) {
-    console.error('[notificationRoutes] POST /appointment/:id/confirm error:', error);
+    log.error({ err: error }, '[notificationRoutes] POST /appointment/:id/confirm error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -183,7 +188,7 @@ router.post('/appointment/:id/remind', async (req: Request, res: Response) => {
     const result = await dispatchReminderForAppointment(id);
     res.json({ success: true, data: result });
   } catch (error: any) {
-    console.error('[notificationRoutes] POST /appointment/:id/remind error:', error);
+    log.error({ err: error }, '[notificationRoutes] POST /appointment/:id/remind error:');
     res.status(500).json({ error: error.message });
   }
 });
@@ -208,13 +213,13 @@ router.get('/preferences', async (req: Request, res: Response) => {
     const preferences = result.rows.length ? result.rows[0].notification_preferences : { email: true, sms: true, push: true };
     res.json({ success: true, data: preferences });
   } catch (error: any) {
-    console.error('[notificationRoutes] GET /preferences error:', error);
+    log.error({ err: error }, '[notificationRoutes] GET /preferences error:');
     res.status(500).json({ error: error.message });
   }
 });
 
 // PUT /api/notifications/preferences - Update user notification preferences
-router.put('/preferences', async (req: Request, res: Response) => {
+router.put('/preferences', validate(updateNotificationPreferencesSchema), async (req: Request, res: Response) => {
   try {
     const { user_id, user_type, preferences } = req.body;
     if (!user_id || !user_type || !preferences) {
@@ -232,7 +237,7 @@ router.put('/preferences', async (req: Request, res: Response) => {
     }
     res.json({ success: true, data: result.rows[0].notification_preferences });
   } catch (error: any) {
-    console.error('[notificationRoutes] PUT /preferences error:', error);
+    log.error({ err: error }, '[notificationRoutes] PUT /preferences error:');
     res.status(500).json({ error: error.message });
   }
 });

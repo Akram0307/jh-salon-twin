@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { sendConfirmationSMS } from './NotificationOrchestrator'
 import { AppointmentRepository } from '../repositories/AppointmentRepository'
 import { ServiceRepository } from '../repositories/ServiceRepository'
@@ -67,7 +69,7 @@ export class BookingOrchestrator {
         dateTime: confirmation.dateTime
       })
     } catch (error) {
-      console.error('[BookingOrchestrator] confirmation SMS failed', { appointmentId: appointment.id, error })
+      logger.error({ appointmentId: appointment.id, error }, '[BookingOrchestrator] confirmation SMS failed')
     }
 
     return {

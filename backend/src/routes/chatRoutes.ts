@@ -1,6 +1,10 @@
 import { Request, Response, Router } from 'express'
 import { handleIncomingMessage } from '../agents/receptionist'
 import { AIConciergeBookingService } from '../services/AIConciergeBookingService'
+import { validate } from '../middleware/validate';
+import { chatMessageSchema } from '../schemas/chat';
+
+import logger from '../config/logger';
 
 type ChatRequestBody = {
   message?: string
@@ -39,12 +43,12 @@ const handleChatRequest = async (req: Request<unknown, unknown, ChatRequestBody>
     const text = await handleIncomingMessage(senderId, message)
     return res.json({ success: true, message: text, ui: { type: 'text' } })
   } catch (error) {
-    console.error('Chat API Error:', error)
+    logger.error({ err: error }, 'Chat API Error:')
     return res.status(500).json({ success: false, error: 'Internal server error' })
   }
 }
 
-router.post('/', handleChatRequest)
-router.post('/message', handleChatRequest)
+router.post('/', validate(chatMessageSchema), handleChatRequest)
+router.post('/message', validate(chatMessageSchema), handleChatRequest)
 
 export default router

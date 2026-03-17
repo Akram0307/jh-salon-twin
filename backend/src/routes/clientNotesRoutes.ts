@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import clientNoteService from '../services/ClientNoteService';
 import { validateUUID } from '../middleware/validateUUID';
+import { validate } from '../middleware/validate';
+import { createClientNoteSchema, updateClientNoteSchema, togglePinNoteSchema, addTagsSchema } from '../schemas/notes';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'client_notes_routes' });
 
 const router = Router();
 router.use(validateUUID);
@@ -8,7 +13,7 @@ router.use(validateUUID);
 // GET /api/clients/:clientId/notes - List notes with pagination
 router.get('/:clientId/notes', async (req, res) => {
   try {
-    const { clientId } = req.params;
+    const { clientId } = req.params as { clientId: string };
     const salonId = req.query.salon_id as string;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
@@ -28,15 +33,15 @@ router.get('/:clientId/notes', async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    console.error('Error fetching client notes:', err);
+    log.error({ err: err }, 'Error fetching client notes:');
     res.status(500).json({ error: 'Failed to fetch client notes' });
   }
 });
 
 // POST /api/clients/:clientId/notes - Create note
-router.post('/:clientId/notes', async (req, res) => {
+router.post('/:clientId/notes', validate(createClientNoteSchema), async (req, res) => {
   try {
-    const { clientId } = req.params;
+    const { clientId } = req.params as { clientId: string };
     const salonId = req.body.salon_id;
     const staffId = req.body.staff_id;
 
@@ -47,7 +52,7 @@ router.post('/:clientId/notes', async (req, res) => {
     const note = await clientNoteService.createNote(clientId, salonId, staffId, req.body);
     res.status(201).json(note);
   } catch (err) {
-    console.error('Error creating client note:', err);
+    log.error({ err: err }, 'Error creating client note:');
     if (err instanceof Error && err.message.includes('maximum length')) {
       return res.status(400).json({ error: err.message });
     }
@@ -58,7 +63,7 @@ router.post('/:clientId/notes', async (req, res) => {
 // GET /api/clients/:clientId/notes/search?q=term - Full-text search
 router.get('/:clientId/notes/search', async (req, res) => {
   try {
-    const { clientId } = req.params;
+    const { clientId } = req.params as { clientId: string };
     const salonId = req.query.salon_id as string;
     const searchTerm = req.query.q as string;
     const limit = parseInt(req.query.limit as string) || 20;
@@ -74,15 +79,15 @@ router.get('/:clientId/notes/search', async (req, res) => {
     const notes = await clientNoteService.searchNotes(clientId, salonId, searchTerm, limit);
     res.json(notes);
   } catch (err) {
-    console.error('Error searching client notes:', err);
+    log.error({ err: err }, 'Error searching client notes:');
     res.status(500).json({ error: 'Failed to search client notes' });
   }
 });
 
 // PATCH /api/notes/:noteId - Update note
-router.patch('/notes/:noteId', async (req, res) => {
+router.patch('/notes/:noteId', validate(updateClientNoteSchema), async (req, res) => {
   try {
-    const { noteId } = req.params;
+    const { noteId } = req.params as { noteId: string };
     const salonId = req.body.salon_id;
 
     if (!salonId) {
@@ -95,7 +100,7 @@ router.patch('/notes/:noteId', async (req, res) => {
     }
     res.json(note);
   } catch (err) {
-    console.error('Error updating client note:', err);
+    log.error({ err: err }, 'Error updating client note:');
     if (err instanceof Error && err.message.includes('maximum length')) {
       return res.status(400).json({ error: err.message });
     }
@@ -106,7 +111,7 @@ router.patch('/notes/:noteId', async (req, res) => {
 // DELETE /api/notes/:noteId - Delete note
 router.delete('/notes/:noteId', async (req, res) => {
   try {
-    const { noteId } = req.params;
+    const { noteId } = req.params as { noteId: string };
     const salonId = req.query.salon_id as string;
 
     if (!salonId) {
@@ -119,7 +124,7 @@ router.delete('/notes/:noteId', async (req, res) => {
     }
     res.status(204).send();
   } catch (err) {
-    console.error('Error deleting client note:', err);
+    log.error({ err: err }, 'Error deleting client note:');
     res.status(500).json({ error: 'Failed to delete client note' });
   }
 });
@@ -129,7 +134,7 @@ router.delete('/notes/:noteId', async (req, res) => {
 // GET /api/notes/:noteId - Get single note
 router.get('/notes/:noteId', async (req, res) => {
   try {
-    const { noteId } = req.params;
+    const { noteId } = req.params as { noteId: string };
     const salonId = req.query.salon_id as string;
 
     if (!salonId) {
@@ -142,15 +147,15 @@ router.get('/notes/:noteId', async (req, res) => {
     }
     res.json(note);
   } catch (err) {
-    console.error('Error fetching note:', err);
+    log.error({ err: err }, 'Error fetching note:');
     res.status(500).json({ error: 'Failed to fetch note' });
   }
 });
 
 // POST /api/notes/:noteId/toggle-pin - Toggle pin status
-router.post('/notes/:noteId/toggle-pin', async (req, res) => {
+router.post('/notes/:noteId/toggle-pin', validate(togglePinNoteSchema), async (req, res) => {
   try {
-    const { noteId } = req.params;
+    const { noteId } = req.params as { noteId: string };
     const salonId = req.body.salon_id;
 
     if (!salonId) {
@@ -160,7 +165,7 @@ router.post('/notes/:noteId/toggle-pin', async (req, res) => {
     const note = await clientNoteService.togglePinNote(noteId, salonId);
     res.json(note);
   } catch (err) {
-    console.error('Error toggling pin status:', err);
+    log.error({ err: err }, 'Error toggling pin status:');
     if (err instanceof Error && err.message === 'Note not found') {
       return res.status(404).json({ error: err.message });
     }
@@ -169,9 +174,9 @@ router.post('/notes/:noteId/toggle-pin', async (req, res) => {
 });
 
 // POST /api/notes/:noteId/tags - Add tags to note
-router.post('/notes/:noteId/tags', async (req, res) => {
+router.post('/notes/:noteId/tags', validate(addTagsSchema), async (req, res) => {
   try {
-    const { noteId } = req.params;
+    const { noteId } = req.params as { noteId: string };
     const salonId = req.body.salon_id;
     const tags = req.body.tags;
 
@@ -182,7 +187,7 @@ router.post('/notes/:noteId/tags', async (req, res) => {
     const note = await clientNoteService.addTagsToNote(noteId, salonId, tags);
     res.json(note);
   } catch (err) {
-    console.error('Error adding tags to note:', err);
+    log.error({ err: err }, 'Error adding tags to note:');
     if (err instanceof Error && err.message === 'Note not found') {
       return res.status(404).json({ error: err.message });
     }
@@ -193,7 +198,7 @@ router.post('/notes/:noteId/tags', async (req, res) => {
 // DELETE /api/notes/:noteId/tags - Remove tags from note
 router.delete('/notes/:noteId/tags', async (req, res) => {
   try {
-    const { noteId } = req.params;
+    const { noteId } = req.params as { noteId: string };
     const salonId = req.body.salon_id;
     const tagsToRemove = req.body.tags;
 
@@ -204,7 +209,7 @@ router.delete('/notes/:noteId/tags', async (req, res) => {
     const note = await clientNoteService.removeTagsFromNote(noteId, salonId, tagsToRemove);
     res.json(note);
   } catch (err) {
-    console.error('Error removing tags from note:', err);
+    log.error({ err: err }, 'Error removing tags from note:');
     if (err instanceof Error && err.message === 'Note not found') {
       return res.status(404).json({ error: err.message });
     }

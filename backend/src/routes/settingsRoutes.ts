@@ -7,6 +7,12 @@ import { pool } from '../config/db';
 import bcrypt from 'bcrypt';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
+import { validate } from '../middleware/validate';
+import { updateProfileSchema, updateNotificationPrefsSchema, verify2FASchema } from '../schemas/settings';
+import { changePasswordAltSchema } from '../schemas/auth';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'settings_routes' });
 
 const router = Router();
 router.use(authenticate);
@@ -53,13 +59,13 @@ router.get('/profile', async (req: AuthRequest, res) => {
 
     res.json({ success: true, data: mergedProfile });
   } catch (err) {
-    console.error('Error fetching profile:', err);
+    log.error({ err: err }, 'Error fetching profile:');
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
 
 // PUT /api/settings/profile
-router.put('/profile', async (req: AuthRequest, res) => {
+router.put('/profile', validate(updateProfileSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -93,7 +99,7 @@ router.put('/profile', async (req: AuthRequest, res) => {
 
     res.json({ success: true, message: 'Profile updated successfully' });
   } catch (err) {
-    console.error('Error updating profile:', err);
+    log.error({ err: err }, 'Error updating profile:');
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
@@ -112,13 +118,13 @@ router.get('/notifications', async (req: AuthRequest, res) => {
 
     res.json({ success: true, data: preferences });
   } catch (err) {
-    console.error('Error fetching notification preferences:', err);
+    log.error({ err: err }, 'Error fetching notification preferences:');
     res.status(500).json({ error: 'Failed to fetch notification preferences' });
   }
 });
 
 // PUT /api/settings/notifications
-router.put('/notifications', async (req: AuthRequest, res) => {
+router.put('/notifications', validate(updateNotificationPrefsSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -141,7 +147,7 @@ router.put('/notifications', async (req: AuthRequest, res) => {
 
     res.json({ success: true, message: 'Notification preferences updated', data: updated?.notification_preferences });
   } catch (err) {
-    console.error('Error updating notification preferences:', err);
+    log.error({ err: err }, 'Error updating notification preferences:');
     res.status(500).json({ error: 'Failed to update notification preferences' });
   }
 });
@@ -176,13 +182,13 @@ router.post('/security/2fa/enable', async (req: AuthRequest, res) => {
       }
     });
   } catch (err) {
-    console.error('Error enabling 2FA:', err);
+    log.error({ err: err }, 'Error enabling 2FA:');
     res.status(500).json({ error: 'Failed to enable 2FA' });
   }
 });
 
 // POST /api/settings/security/2fa/verify
-router.post('/security/2fa/verify', async (req: AuthRequest, res) => {
+router.post('/security/2fa/verify', validate(verify2FASchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -217,7 +223,7 @@ router.post('/security/2fa/verify', async (req: AuthRequest, res) => {
 
     res.json({ success: true, message: '2FA verified and enabled successfully' });
   } catch (err) {
-    console.error('Error verifying 2FA:', err);
+    log.error({ err: err }, 'Error verifying 2FA:');
     res.status(500).json({ error: 'Failed to verify 2FA' });
   }
 });
@@ -251,13 +257,13 @@ router.get('/billing', async (req: AuthRequest, res) => {
 
     res.json({ success: true, data: billing });
   } catch (err) {
-    console.error('Error fetching billing info:', err);
+    log.error({ err: err }, 'Error fetching billing info:');
     res.status(500).json({ error: 'Failed to fetch billing information' });
   }
 });
 
 // POST /api/settings/security/password
-router.post('/security/password', async (req: AuthRequest, res) => {
+router.post('/security/password', validate(changePasswordAltSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -307,7 +313,7 @@ router.post('/security/password', async (req: AuthRequest, res) => {
 
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
-    console.error('Error updating password:', err);
+    log.error({ err: err }, 'Error updating password:');
     res.status(500).json({ error: 'Failed to update password' });
   }
 });

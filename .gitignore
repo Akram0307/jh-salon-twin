@@ -40,3 +40,6 @@ cloud-sql-proxy
 .next
 coverage
 docs/verification_artifacts/
+
+# Staging secrets (use Secret Manager)
+environments/staging/env-staging.yaml

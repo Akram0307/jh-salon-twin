@@ -1,3 +1,6 @@
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'client_revenue_orchestrator' });
 import { UpsellService } from './UpsellService'
 import { sendWaitlistOffer } from './TwilioWhatsAppService'
 import { DynamicOfferGenerator } from './DynamicOfferGenerator'
@@ -5,16 +8,16 @@ import { DynamicOfferGenerator } from './DynamicOfferGenerator'
 export class ClientRevenueOrchestrator {
 
   async runDailyRevenueCycle(salonId: string) {
-    console.log('[ClientRevenueOrchestrator] Starting automated revenue cycle for salon:', salonId)
+    log.info({ data: salonId }, '[ClientRevenueOrchestrator] Starting automated revenue cycle for salon:')
 
     try {
       const offerEngine = new DynamicOfferGenerator()
 
       // Phase 1: Rebooking detection (stub)
-      console.log('[RevenueCycle] Checking client rebooking opportunities...')
+      log.info('[RevenueCycle] Checking client rebooking opportunities...')
 
       // Phase 2: Upsell Trigger Layer
-      console.log('[RevenueCycle] Evaluating upsell opportunities...')
+      log.info('[RevenueCycle] Evaluating upsell opportunities...')
 
       const baseServiceId = '2bb87460-320b-42d8-9f07-3fbb659e6b0f'
 
@@ -23,17 +26,17 @@ export class ClientRevenueOrchestrator {
       if (upsells && upsells.length > 0) {
         const upsellServiceId = upsells[0]
 
-        console.log('[UpsellTrigger] Found upsell opportunity:', upsellServiceId)
+        log.info({ data: upsellServiceId }, '[UpsellTrigger] Found upsell opportunity:')
 
         // Example phone placeholder
         const phone = '+10000000000'
 
         // NEW: Generate dynamic personalized offer
-        let offer=null; if(/^[0-9a-fA-F-]{36}$/.test(salonId)){ offer = await offerEngine.generateOffer(salonId, upsellServiceId); } else { console.log("[DynamicOffer] Skipped non‑UUID salonId:", salonId); }
+        let offer=null; if(/^[0-9a-fA-F-]{36}$/.test(salonId)){ offer = await offerEngine.generateOffer(salonId, upsellServiceId); } else { log.info({ data: salonId }, "[DynamicOffer] Skipped non‑UUID salonId:"); }
 
         let serviceName = 'Recommended Add-On Service'
         let slot = 'Next Available Slot'
-if (offer && offer.message) console.log('[DynamicOffer] Generated message:', offer.message)
+if (offer && offer.message) log.info({ data: offer.message }, '[DynamicOffer] Generated message:')
 
 
         await sendWaitlistOffer(
@@ -44,19 +47,19 @@ if (offer && offer.message) console.log('[DynamicOffer] Generated message:', off
           upsellServiceId
         )
 
-        console.log('[OfferEngine] Personalized offer generated and sent:', offer)
+        log.info({ data: offer }, '[OfferEngine] Personalized offer generated and sent:')
       }
 
       // Phase 3: Demand forecasting (stub)
-      console.log('[RevenueCycle] Evaluating demand forecast...')
+      log.info('[RevenueCycle] Evaluating demand forecast...')
 
       // Phase 4: Messaging activation
-      console.log('[RevenueCycle] Triggering WhatsApp engagement workflows...')
+      log.info('[RevenueCycle] Triggering WhatsApp engagement workflows...')
 
-      console.log('[ClientRevenueOrchestrator] Revenue cycle completed successfully')
+      log.info('[ClientRevenueOrchestrator] Revenue cycle completed successfully')
 
     } catch (error) {
-      console.error('[ClientRevenueOrchestrator] Revenue cycle failed:', error)
+      log.error({ err: error }, '[ClientRevenueOrchestrator] Revenue cycle failed:')
     }
   }
 }

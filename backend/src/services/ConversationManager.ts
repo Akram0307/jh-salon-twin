@@ -1,4 +1,6 @@
-console.log('ConversationManager initialized')
+
+import logger from '../config/logger';
+logger.info('ConversationManager initialized')
 import { IntentRouter, Intent } from './IntentRouter'
 import { ConversationContextStore } from './ConversationContextStore'
 import { ClientStateResolver } from './ClientStateResolver'

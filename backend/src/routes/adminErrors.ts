@@ -7,6 +7,9 @@
 import { Router, Request, Response } from 'express';
 import { getErrorStats, getErrorById, markErrorResolved, clearOldErrors } from '../middleware/errorTracking';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'admin_errors' });
+
 const router = Router();
 
 /**
@@ -50,7 +53,7 @@ router.get('/', (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error fetching error logs:', error);
+    log.error({ err: error }, 'Error fetching error logs:');
     res.status(500).json({
       success: false,
       error: 'Failed to fetch error logs'
@@ -87,7 +90,7 @@ router.get('/stats', (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error fetching error stats:', error);
+    log.error({ err: error }, 'Error fetching error stats:');
     res.status(500).json({
       success: false,
       error: 'Failed to fetch error statistics'
@@ -118,7 +121,7 @@ router.get('/:errorId', (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error fetching error details:', error);
+    log.error({ err: error }, 'Error fetching error details:');
     res.status(500).json({
       success: false,
       error: 'Failed to fetch error details'
@@ -150,7 +153,7 @@ router.patch('/:errorId/resolve', (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error resolving error:', error);
+    log.error({ err: error }, 'Error resolving error:');
     res.status(500).json({
       success: false,
       error: 'Failed to mark error as resolved'
@@ -187,7 +190,7 @@ router.delete('/cleanup', (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Error cleaning up errors:', error);
+    log.error({ err: error }, 'Error cleaning up errors:');
     res.status(500).json({
       success: false,
       error: 'Failed to clean up errors'

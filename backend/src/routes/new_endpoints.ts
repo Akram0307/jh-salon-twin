@@ -1,4 +1,6 @@
 // Dashboard stats endpoint
+import logger from '../config/logger';
+const log = logger.child({ module: 'new_endpoints' });
 router.get('/dashboard/stats', async (_req, res) => {
   try {
     const [todayAppointments, totalClients, totalStaff, todayRevenue] = await Promise.all([
@@ -21,7 +23,7 @@ router.get('/dashboard/stats', async (_req, res) => {
       today_revenue: todayRevenue.rows[0]?.total || 0,
     }, 'Dashboard stats loaded successfully'));
   } catch (err: any) {
-    console.error('Dashboard stats error:', err);
+    log.error({ err: err }, 'Dashboard stats error:');
     res.status(500).json(fail('DASHBOARD_STATS_FETCH_FAILED', 'Failed to fetch dashboard stats'));
   }
 });
@@ -39,7 +41,7 @@ router.get('/dashboard/recent-activity', async (_req, res) => {
       created_at: row.created_at,
     })), 'Recent activity loaded successfully'));
   } catch (err: any) {
-    console.error('Recent activity error:', err);
+    log.error({ err: err }, 'Recent activity error:');
     res.status(500).json(fail('RECENT_ACTIVITY_FETCH_FAILED', 'Failed to fetch recent activity'));
   }
 });
@@ -77,7 +79,7 @@ router.get('/revenue/summary', async (_req, res) => {
       last_month: lastMonthRevenue.rows[0]?.total || 0,
     }, 'Revenue summary loaded successfully'));
   } catch (err: any) {
-    console.error('Revenue summary error:', err);
+    log.error({ err: err }, 'Revenue summary error:');
     res.status(500).json(fail('REVENUE_SUMMARY_FETCH_FAILED', 'Failed to fetch revenue summary'));
   }
 });
@@ -104,7 +106,7 @@ router.get('/revenue/trends', async (_req, res) => {
       total: row.total,
     })), 'Revenue trends loaded successfully'));
   } catch (err: any) {
-    console.error('Revenue trends error:', err);
+    log.error({ err: err }, 'Revenue trends error:');
     res.status(500).json(fail('REVENUE_TRENDS_FETCH_FAILED', 'Failed to fetch revenue trends'));
   }
 });
@@ -136,7 +138,7 @@ router.get('/staff/performance', async (_req, res) => {
       total_revenue: row.total_revenue,
     })), 'Staff performance loaded successfully'));
   } catch (err: any) {
-    console.error('Staff performance error:', err);
+    log.error({ err: err }, 'Staff performance error:');
     res.status(500).json(fail('STAFF_PERFORMANCE_FETCH_FAILED', 'Failed to fetch staff performance'));
   }
 });
@@ -175,7 +177,7 @@ router.get('/appointments/upcoming', async (_req, res) => {
       duration_minutes: row.duration_minutes,
     })), 'Upcoming appointments loaded successfully'));
   } catch (err: any) {
-    console.error('Upcoming appointments error:', err);
+    log.error({ err: err }, 'Upcoming appointments error:');
     res.status(500).json(fail('UPCOMING_APPOINTMENTS_FETCH_FAILED', 'Failed to fetch upcoming appointments'));
   }
 });
@@ -242,7 +244,7 @@ router.get('/alerts', async (_req, res) => {
 
     res.json(ok(alerts, 'Alerts loaded successfully'));
   } catch (err: any) {
-    console.error('Alerts error:', err);
+    log.error({ err: err }, 'Alerts error:');
     res.status(500).json(fail('ALERTS_FETCH_FAILED', 'Failed to fetch alerts'));
   }
 });

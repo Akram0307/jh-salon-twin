@@ -3,6 +3,8 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { ServiceConflictError, ServiceRepository } from '../repositories/ServiceRepository';
 
+import logger from '../config/logger';
+
 const router = Router();
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 router.use(validateUUID);
@@ -54,7 +56,7 @@ router.get('/', async (_req, res) => {
     const services = await ServiceRepository.findAll(SALON_ID);
     res.json(envelope(services, { count: services.length }, 'Services loaded successfully'));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json(errorResponse('Failed to fetch services', 'Unable to load services right now.'));
   }
 });
@@ -73,7 +75,7 @@ router.post('/', async (req, res) => {
     const service = await ServiceRepository.create({ ...payload, salon_id: SALON_ID });
     res.status(201).json(envelope(service, {}, `Created service "${service.name}" successfully.`));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     if (err instanceof z.ZodError) {
       return res.status(400).json(errorResponse('Validation failed', 'Please correct the highlighted service fields.', getZodDetails(err)));
     }
@@ -96,7 +98,7 @@ router.put('/:id', async (req, res) => {
       : `Archived service "${service.name}" successfully.`;
     res.json(envelope(service, {}, lifecycleMessage));
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     if (err instanceof z.ZodError) {
       return res.status(400).json(errorResponse('Validation failed', 'Please correct the highlighted service fields.', getZodDetails(err)));
     }

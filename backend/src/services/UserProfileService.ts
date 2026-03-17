@@ -2,6 +2,9 @@ import { pool } from '../config/db';
 import bcrypt from 'bcrypt';
 import { UserSettingsRepository } from '../repositories/UserSettingsRepository';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'user_profile_service' });
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -38,7 +41,7 @@ export class UserProfileService {
         user_type: userType
       };
     } catch (error) {
-      console.error('Error getting user profile:', error);
+      log.error({ err: error }, 'Error getting user profile:');
       throw error;
     }
   }
@@ -58,7 +61,7 @@ export class UserProfileService {
       await pool.query(query, [avatarUrl, userId]);
       return true;
     } catch (error) {
-      console.error('Error updating avatar:', error);
+      log.error({ err: error }, 'Error updating avatar:');
       throw error;
     }
   }
@@ -89,7 +92,7 @@ export class UserProfileService {
         last_password_change: passwordRes.rows[0]?.created_at
       };
     } catch (error) {
-      console.error('Error getting security settings:', error);
+      log.error({ err: error }, 'Error getting security settings:');
       throw error;
     }
   }
@@ -113,7 +116,7 @@ export class UserProfileService {
       
       return true;
     } catch (error) {
-      console.error('Error updating security settings:', error);
+      log.error({ err: error }, 'Error updating security settings:');
       throw error;
     }
   }
@@ -165,7 +168,7 @@ export class UserProfileService {
       
       return true;
     } catch (error) {
-      console.error('Error changing password:', error);
+      log.error({ err: error }, 'Error changing password:');
       throw error;
     }
   }
@@ -192,7 +195,7 @@ export class UserProfileService {
       
       return true;
     } catch (error) {
-      console.error('Error deleting account:', error);
+      log.error({ err: error }, 'Error deleting account:');
       throw error;
     }
   }

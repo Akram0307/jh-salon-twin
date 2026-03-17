@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import pool from '../config/db';
 import os from 'os';
+import redis from '../config/redis';
+import { QUEUE_NAMES, createQueue } from '../config/queue';
 
 const router = Router();
 
@@ -63,9 +65,10 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/ready', async (req: Request, res: Response) => {
   const checks = {
     database: false,
+    redis: false,
     timestamp: new Date().toISOString()
   };
-  
+
   try {
     // Check database connectivity
     const dbResult = await pool.query('SELECT 1 as connected');
@@ -73,8 +76,16 @@ router.get('/ready', async (req: Request, res: Response) => {
   } catch (error) {
     checks.database = false;
   }
-  
-  const isReady = checks.database;
+
+  try {
+    // Check Redis connectivity
+    await redis.ping();
+    checks.redis = true;
+  } catch (error) {
+    checks.redis = false;
+  }
+
+  const isReady = checks.database && checks.redis;
   
   const readinessStatus = {
     status: isReady ? 'ready' : 'not_ready',
@@ -155,6 +166,25 @@ router.get('/detailed', async (req: Request, res: Response) => {
     }
   };
   
+
+  // Redis & Queue check (BullMQ uses Redis)
+  let redisConnected = false;
+  try {
+    await redis.ping();
+    redisConnected = true;
+  } catch (error) {
+    redisConnected = false;
+  }
+  checks.redis = {
+    status: redisConnected ? 'healthy' : 'unhealthy',
+    connected: redisConnected
+  };
+  checks.queues = {
+    status: redisConnected ? 'healthy' : 'unhealthy',
+    names: [...QUEUE_NAMES],
+    connected: redisConnected
+  };
+
   // Determine overall status
   const allHealthy = Object.values(checks).every(c => c.status === 'healthy');
   const hasWarning = Object.values(checks).some(c => c.status === 'warning');
@@ -171,6 +201,38 @@ router.get('/detailed', async (req: Request, res: Response) => {
     environment: process.env.NODE_ENV || 'development',
     checks
   });
+});
+
+
+/**
+ * GET /api/health/queues
+ * Returns BullMQ queue job counts (waiting, active, completed, failed, delayed)
+ */
+router.get('/queues', async (req: Request, res: Response) => {
+  try {
+    const queues: Record<string, { waiting: number; active: number; completed: number; failed: number; delayed: number }> = {};
+
+    for (const name of QUEUE_NAMES) {
+      const queue = createQueue(name);
+      const counts = await queue.getJobCounts();
+      await queue.close();
+      queues[name] = {
+        waiting: counts.waiting,
+        active: counts.active,
+        completed: counts.completed,
+        failed: counts.failed,
+        delayed: counts.delayed,
+      };
+    }
+
+    res.json({ status: 'ok', queues });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unavailable',
+      queues: {},
+      error: error instanceof Error ? error.message : 'Redis unavailable',
+    });
+  }
 });
 
 // Helper functions

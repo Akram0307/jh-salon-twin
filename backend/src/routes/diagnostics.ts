@@ -1,7 +1,11 @@
 import { Router } from 'express'
 import { getClient } from '../config/db'
+import { authenticate } from '../middleware/auth'
 
 const router = Router()
+
+// S5-C7: All diagnostics endpoints now require authentication
+router.use(authenticate)
 
 router.get('/db', async (_req, res) => {
   const started = Date.now()

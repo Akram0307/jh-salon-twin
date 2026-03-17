@@ -3,6 +3,8 @@ import { SlotGenerator } from './SlotGenerator';
 import { query } from '../config/db';
 import { EventEmitter } from 'events';
 
+import logger from '../config/logger';
+
 export interface SuggestionContext {
   weatherCondition?: string;
   isHoliday?: boolean;
@@ -154,7 +156,7 @@ export class SlotSuggestionService extends EventEmitter {
 
       return result;
     } catch (error) {
-      console.error('Error getting smart suggestions:', error);
+      logger.error({ err: error }, 'Error getting smart suggestions:');
       throw error;
     }
   }
@@ -508,7 +510,7 @@ export class SlotSuggestionService extends EventEmitter {
         return !bookedSlots.has(key);
       });
     } catch (error) {
-      console.error('Error getting available slots:', error);
+      logger.error({ err: error }, 'Error getting available slots:');
       return [];
     }
   }
@@ -585,7 +587,7 @@ export class SlotSuggestionService extends EventEmitter {
         accepted
       });
     } catch (error) {
-      console.error('Error recording interaction:', error);
+      logger.error({ err: error }, 'Error recording interaction:');
     }
   }
 
@@ -612,7 +614,7 @@ export class SlotSuggestionService extends EventEmitter {
         accepted: row.accepted
       }));
     } catch (error) {
-      console.error('Error getting interaction history:', error);
+      logger.error({ err: error }, 'Error getting interaction history:');
       return [];
     }
   }

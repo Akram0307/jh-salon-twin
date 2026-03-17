@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import pool from '../config/db';
 
+import logger from '../config/logger';
+
 // Fail-fast at module load time if JWT_SECRET is missing or too short
 const JWT_SECRET: string = (() => {
   const secret = process.env.JWT_SECRET;
@@ -59,7 +61,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({ error: 'Token expired' });
     }
-    console.error('Auth middleware error:', error);
+    logger.error({ err: error }, 'Auth middleware error:');
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

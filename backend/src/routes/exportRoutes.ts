@@ -1,6 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { DataExportService } from '../services/DataExportService';
 import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { exportUploadSchema } from '../schemas/export';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'export_routes' });
 
 const router = Router();
 const exportService = new DataExportService();
@@ -27,7 +32,7 @@ router.get('/clients', async (req: Request, res: Response) => {
 
     res.send(exportResult.data);
   } catch (error) {
-    console.error('Error exporting clients:', error);
+    log.error({ err: error }, 'Error exporting clients:');
     res.status(500).json({ error: 'Failed to export clients data' });
   }
 });
@@ -52,7 +57,7 @@ router.get('/appointments', async (req: Request, res: Response) => {
 
     res.send(exportResult.data);
   } catch (error) {
-    console.error('Error exporting appointments:', error);
+    log.error({ err: error }, 'Error exporting appointments:');
     res.status(500).json({ error: 'Failed to export appointments data' });
   }
 });
@@ -75,7 +80,7 @@ router.get('/services', async (req: Request, res: Response) => {
 
     res.send(exportResult.data);
   } catch (error) {
-    console.error('Error exporting services:', error);
+    log.error({ err: error }, 'Error exporting services:');
     res.status(500).json({ error: 'Failed to export services data' });
   }
 });
@@ -100,7 +105,7 @@ router.get('/revenue', async (req: Request, res: Response) => {
 
     res.send(exportResult.data);
   } catch (error) {
-    console.error('Error exporting revenue:', error);
+    log.error({ err: error }, 'Error exporting revenue:');
     res.status(500).json({ error: 'Failed to export revenue data' });
   }
 });
@@ -125,7 +130,7 @@ router.get('/staff-performance', async (req: Request, res: Response) => {
 
     res.send(exportResult.data);
   } catch (error) {
-    console.error('Error exporting staff performance:', error);
+    log.error({ err: error }, 'Error exporting staff performance:');
     res.status(500).json({ error: 'Failed to export staff performance data' });
   }
 });
@@ -135,7 +140,7 @@ router.get('/staff-performance', async (req: Request, res: Response) => {
  * Export data and upload to Cloud Storage, returning public URL
  * Body: { type: 'clients'|'appointments'|'services', format: 'csv'|'json', salon_id (optional), start_date (optional), end_date (optional) }
  */
-router.post('/upload', async (req: Request, res: Response) => {
+router.post('/upload', validate(exportUploadSchema), async (req: Request, res: Response) => {
   try {
     const { type, format = 'csv', salon_id, start_date, end_date } = req.body;
 
@@ -158,7 +163,7 @@ router.post('/upload', async (req: Request, res: Response) => {
       message: `Export uploaded successfully. Download from: ${exportResult.publicUrl}`
     });
   } catch (error) {
-    console.error('Error uploading export:', error);
+    log.error({ err: error }, 'Error uploading export:');
     res.status(500).json({ error: 'Failed to upload export to Cloud Storage' });
   }
 });
@@ -199,7 +204,7 @@ router.get('/scheduled', async (req: Request, res: Response) => {
       scheduledExports
     });
   } catch (error) {
-    console.error('Error fetching scheduled exports:', error);
+    log.error({ err: error }, 'Error fetching scheduled exports:');
     res.status(500).json({ error: 'Failed to fetch scheduled exports' });
   }
 });

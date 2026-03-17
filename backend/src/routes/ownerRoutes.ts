@@ -4,6 +4,11 @@ import { pool, query } from '../config/db';
 import { auditLogger, attachAuditContext } from '../middleware/auditLogger';
 import { AuditLogRepository } from '../repositories/AuditLogRepository';
 import { ConfigService } from '../services/ConfigService';
+import { validate } from '../middleware/validate';
+import { createOwnerSchema, createScheduleRuleSchema, updateScheduleRuleSchema, updateOwnerSettingsSchema } from '../schemas/owner';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'owner_routes' });
 
 const router = Router();
 router.use(auditLogger);
@@ -81,7 +86,7 @@ const findOverlappingScheduleRule = async ({
   return result.rows[0] || null;
 };
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createOwnerSchema), async (req, res) => {
   try {
     const { name, email, phone } = req.body;
 
@@ -94,7 +99,7 @@ router.post('/', async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Owner creation failed' });
   }
 });
@@ -121,7 +126,7 @@ router.get('/system-health', async (_req, res) => {
       },
     });
   } catch (err: any) {
-    console.error('System health error:', err);
+    log.error({ err: err }, 'System health error:');
     res.status(500).json({
       status: 'degraded',
       error: err?.message || 'System health failed',
@@ -196,7 +201,7 @@ router.get('/schedule-summary', async (_req, res) => {
       },
     });
   } catch (err: any) {
-    console.error('Schedule summary error:', err);
+    log.error({ err: err }, 'Schedule summary error:');
     res.status(500).json({
       success: false,
       error: err?.message || 'Failed to fetch schedule summary',
@@ -253,7 +258,7 @@ router.get('/schedule-rules', async (_req, res) => {
       },
     });
   } catch (err: any) {
-    console.error('Schedule rules fetch error:', err);
+    log.error({ err: err }, 'Schedule rules fetch error:');
     res.status(500).json({
       success: false,
       error: err?.message || 'Failed to fetch schedule rules',
@@ -261,7 +266,7 @@ router.get('/schedule-rules', async (_req, res) => {
   }
 });
 
-router.post('/schedule-rules', async (req, res) => {
+router.post('/schedule-rules', validate(createScheduleRuleSchema), async (req, res) => {
   try {
     const staffId = String(req.body?.staff_id || '').trim();
     const weekday = normalizeWeekday(req.body?.weekday);
@@ -332,7 +337,7 @@ router.post('/schedule-rules', async (req, res) => {
       meta: { salon_id: SALON_ID },
     });
   } catch (err: any) {
-    console.error('Schedule rule create error:', err);
+    log.error({ err: err }, 'Schedule rule create error:');
     res.status(500).json({
       success: false,
       error: err?.message || 'Failed to create schedule rule',
@@ -340,7 +345,7 @@ router.post('/schedule-rules', async (req, res) => {
   }
 });
 
-router.put('/schedule-rules/:id', async (req, res) => {
+router.put('/schedule-rules/:id', validate(updateScheduleRuleSchema), async (req, res) => {
   try {
     const id = String(req.params.id || '').trim();
     const existingRes = await query(
@@ -431,7 +436,7 @@ router.put('/schedule-rules/:id', async (req, res) => {
       meta: { salon_id: SALON_ID },
     });
   } catch (err: any) {
-    console.error('Schedule rule update error:', err);
+    log.error({ err: err }, 'Schedule rule update error:');
     res.status(500).json({
       success: false,
       error: err?.message || 'Failed to update schedule rule',
@@ -459,7 +464,7 @@ router.delete('/schedule-rules/:id', async (req, res) => {
       meta: { salon_id: SALON_ID },
     });
   } catch (err: any) {
-    console.error('Schedule rule delete error:', err);
+    log.error({ err: err }, 'Schedule rule delete error:');
     res.status(500).json({
       success: false,
       error: err?.message || 'Failed to delete schedule rule',
@@ -473,12 +478,12 @@ router.get('/settings', async (_req, res) => {
     const config = await ConfigService.getConfig(SALON_ID);
     res.json(ok(config, 'Owner settings loaded successfully'));
   } catch (err: any) {
-    console.error('Owner settings fetch error:', err);
+    log.error({ err: err }, 'Owner settings fetch error:');
     res.status(500).json(fail('OWNER_SETTINGS_FETCH_FAILED', 'Failed to fetch owner settings'));
   }
 });
 
-router.put('/settings', async (req, res) => {
+router.put('/settings', validate(updateOwnerSettingsSchema), async (req, res) => {
   try {
     const before = await ConfigService.getConfig(SALON_ID);
     const updated = await ConfigService.updateConfig(SALON_ID, req.body || {});
@@ -494,7 +499,7 @@ router.put('/settings', async (req, res) => {
     });
     res.json(ok(updated, 'Owner settings updated successfully'));
   } catch (err: any) {
-    console.error('Owner settings update error:', err);
+    log.error({ err: err }, 'Owner settings update error:');
     res.status(500).json(fail('OWNER_SETTINGS_UPDATE_FAILED', 'Failed to update owner settings'));
   }
 });
@@ -522,7 +527,7 @@ router.get('/health', async (_req, res) => {
       })),
     }, 'Owner operational health loaded successfully'));
   } catch (err: any) {
-    console.error('Owner health error:', err);
+    log.error({ err: err }, 'Owner health error:');
     res.status(500).json(fail('OWNER_HEALTH_FETCH_FAILED', 'Failed to fetch owner operational health'));
   }
 });
@@ -551,7 +556,7 @@ router.get('/dashboard/stats', async (_req, res) => {
       today_revenue: todayRevenue.rows[0]?.total || 0,
     }, 'Dashboard stats loaded successfully'));
   } catch (err: any) {
-    console.error('Dashboard stats error:', err);
+    log.error({ err: err }, 'Dashboard stats error:');
     res.status(500).json(fail('DASHBOARD_STATS_FETCH_FAILED', 'Failed to fetch dashboard stats'));
   }
 });
@@ -569,7 +574,7 @@ router.get('/dashboard/recent-activity', async (_req, res) => {
       created_at: row.created_at,
     })), 'Recent activity loaded successfully'));
   } catch (err: any) {
-    console.error('Recent activity error:', err);
+    log.error({ err: err }, 'Recent activity error:');
     res.status(500).json(fail('RECENT_ACTIVITY_FETCH_FAILED', 'Failed to fetch recent activity'));
   }
 });
@@ -607,7 +612,7 @@ router.get('/revenue/summary', async (_req, res) => {
       last_month: lastMonthRevenue.rows[0]?.total || 0,
     }, 'Revenue summary loaded successfully'));
   } catch (err: any) {
-    console.error('Revenue summary error:', err);
+    log.error({ err: err }, 'Revenue summary error:');
     res.status(500).json(fail('REVENUE_SUMMARY_FETCH_FAILED', 'Failed to fetch revenue summary'));
   }
 });
@@ -634,7 +639,7 @@ router.get('/revenue/trends', async (_req, res) => {
       total: row.total,
     })), 'Revenue trends loaded successfully'));
   } catch (err: any) {
-    console.error('Revenue trends error:', err);
+    log.error({ err: err }, 'Revenue trends error:');
     res.status(500).json(fail('REVENUE_TRENDS_FETCH_FAILED', 'Failed to fetch revenue trends'));
   }
 });
@@ -666,7 +671,7 @@ router.get('/staff/performance', async (_req, res) => {
       total_revenue: row.total_revenue,
     })), 'Staff performance loaded successfully'));
   } catch (err: any) {
-    console.error('Staff performance error:', err);
+    log.error({ err: err }, 'Staff performance error:');
     res.status(500).json(fail('STAFF_PERFORMANCE_FETCH_FAILED', 'Failed to fetch staff performance'));
   }
 });
@@ -705,7 +710,7 @@ router.get('/appointments/upcoming', async (_req, res) => {
       duration_minutes: row.duration_minutes,
     })), 'Upcoming appointments loaded successfully'));
   } catch (err: any) {
-    console.error('Upcoming appointments error:', err);
+    log.error({ err: err }, 'Upcoming appointments error:');
     res.status(500).json(fail('UPCOMING_APPOINTMENTS_FETCH_FAILED', 'Failed to fetch upcoming appointments'));
   }
 });
@@ -772,7 +777,7 @@ router.get('/alerts', async (_req, res) => {
 
     res.json(ok(alerts, 'Alerts loaded successfully'));
   } catch (err: any) {
-    console.error('Alerts error:', err);
+    log.error({ err: err }, 'Alerts error:');
     res.status(500).json(fail('ALERTS_FETCH_FAILED', 'Failed to fetch alerts'));
   }
 });

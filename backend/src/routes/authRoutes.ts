@@ -4,10 +4,23 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { loginSchema, refreshTokenSchema, forgotPasswordSchema, resetPasswordSchema } from '../schemas/auth';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'auth_routes' });
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'salonos-dev-secret-2026';
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'salonos-refresh-secret-2026';
+// Fail-fast: no fallback secrets allowed
+const JWT_SECRET = process.env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  throw new Error(`FATAL: JWT_SECRET must be set and >= 32 chars (got ${JWT_SECRET?.length ?? 0})`);
+}
+if (!REFRESH_TOKEN_SECRET || REFRESH_TOKEN_SECRET.length < 32) {
+  throw new Error(`FATAL: REFRESH_TOKEN_SECRET must be set and >= 32 chars (got ${REFRESH_TOKEN_SECRET?.length ?? 0})`);
+}
 
 // Token generation helpers
 const generateAccessToken = (payload: object) => 
@@ -17,7 +30,7 @@ const generateRefreshToken = (payload: object) =>
   jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
 // POST /api/auth/login - Owner login
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', validate(loginSchema), async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -72,13 +85,13 @@ router.post('/login', async (req: Request, res: Response) => {
       }
     });
   } catch (err: any) {
-    console.error('Login error:', err.message);
+    log.error({ err: err.message }, 'Login error:');
     res.status(500).json({ error: 'Login failed' });
   }
 });
 
 // POST /api/auth/staff-login - Staff login
-router.post('/staff-login', async (req: Request, res: Response) => {
+router.post('/staff-login', validate(loginSchema), async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -140,13 +153,13 @@ router.post('/staff-login', async (req: Request, res: Response) => {
       }
     });
   } catch (err: any) {
-    console.error('Staff login error:', err.message);
+    log.error({ err: err.message }, 'Staff login error:');
     res.status(500).json({ error: 'Login failed' });
   }
 });
 
 // POST /api/auth/refresh - Refresh access token
-router.post('/refresh', async (req: Request, res: Response) => {
+router.post('/refresh', validate(refreshTokenSchema), async (req: Request, res: Response) => {
   try {
     const { refresh_token } = req.body;
 
@@ -179,13 +192,13 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     res.json({ token: newAccessToken });
   } catch (err: any) {
-    console.error('Token refresh error:', err.message);
+    log.error({ err: err.message }, 'Token refresh error:');
     res.status(401).json({ error: 'Invalid or expired refresh token' });
   }
 });
 
 // POST /api/auth/forgot-password - Request password reset
-router.post('/forgot-password', async (req: Request, res: Response) => {
+router.post('/forgot-password', validate(forgotPasswordSchema), async (req: Request, res: Response) => {
   try {
     const { email, user_type = 'owner' } = req.body;
 
@@ -217,17 +230,17 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
     );
 
     // TODO: Send email with reset link containing resetToken
-    console.log('Password reset token for', email, ':', resetToken);
+    log.info('Password reset token for'  + " " + email  + " " + ':'  + " " + resetToken);
 
     res.json({ message: 'If an account exists, a reset link has been sent' });
   } catch (err: any) {
-    console.error('Forgot password error:', err.message);
+    log.error({ err: err.message }, 'Forgot password error:');
     res.status(500).json({ error: 'Failed to process request' });
   }
 });
 
 // POST /api/auth/reset-password - Reset password with token
-router.post('/reset-password', async (req: Request, res: Response) => {
+router.post('/reset-password', validate(resetPasswordSchema), async (req: Request, res: Response) => {
   try {
     const { token, password, user_type = 'owner' } = req.body;
 
@@ -268,7 +281,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
 
     res.json({ message: 'Password reset successfully' });
   } catch (err: any) {
-    console.error('Reset password error:', err.message);
+    log.error({ err: err.message }, 'Reset password error:');
     res.status(500).json({ error: 'Failed to reset password' });
   }
 });
@@ -294,7 +307,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
       user_type: req.user!.user_type
     });
   } catch (err: any) {
-    console.error('Auth me error:', err.message);
+    log.error({ err: err.message }, 'Auth me error:');
     res.status(500).json({ error: 'Failed to get user' });
   }
 });
@@ -312,7 +325,7 @@ router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => 
 
     res.json({ message: 'Logged out successfully' });
   } catch (err: any) {
-    console.error('Logout error:', err.message);
+    log.error({ err: err.message }, 'Logout error:');
     res.json({ message: 'Logged out successfully' });
   }
 });

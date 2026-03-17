@@ -1,10 +1,14 @@
 import { Router } from 'express';
 import { TransactionRepository } from '../repositories/TransactionRepository';
+import { validate } from '../middleware/validate';
+import { createDraftSchema, completeTransactionSchema } from '../schemas/pos';
+
+import logger from '../config/logger';
 
 const router = Router();
 
 // Create POS draft (screen 1)
-router.post('/create-draft', async (req, res) => {
+router.post('/create-draft', validate(createDraftSchema), async (req, res) => {
   try {
     const { items } = req.body;
 
@@ -28,13 +32,13 @@ router.post('/create-draft', async (req, res) => {
 
     res.json(draft);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Failed to create POS draft' });
   }
 });
 
 // Complete transaction (screen 2)
-router.post('/complete-transaction', async (req, res) => {
+router.post('/complete-transaction', validate(completeTransactionSchema), async (req, res) => {
   try {
     const {
       items,
@@ -75,7 +79,7 @@ router.post('/complete-transaction', async (req, res) => {
 
     res.json(tx);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'POS transaction failed' });
   }
 });
@@ -86,7 +90,7 @@ router.get('/recent', async (req, res) => {
     const data = await TransactionRepository.getRecent();
     res.json(data);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ error: 'Failed to fetch sales' });
   }
 });

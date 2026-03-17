@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { pool } from '../config/db';
+import { validate } from '../middleware/validate';
+import { staffAvailabilitySchema, staffTimeOffSchema, staffProfileUpdateSchema } from '../schemas/staff';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'staff_profile_routes' });
 
 const router = Router();
 router.use(authenticate);
@@ -27,13 +32,13 @@ router.get('/availability', async (req: AuthRequest, res) => {
     
     res.json({ success: true, data: result.rows });
   } catch (err) {
-    console.error('Error fetching staff availability:', err);
+    log.error({ err: err }, 'Error fetching staff availability:');
     res.status(500).json({ error: 'Failed to fetch availability' });
   }
 });
 
 // PUT /api/staff-profile/availability
-router.put('/availability', async (req: AuthRequest, res) => {
+router.put('/availability', validate(staffAvailabilitySchema), async (req: AuthRequest, res) => {
   const client = await pool.connect();
   try {
     const userId = req.user?.id;
@@ -68,7 +73,7 @@ router.put('/availability', async (req: AuthRequest, res) => {
     res.json({ success: true, message: 'Availability updated' });
   } catch (err) {
     await client.query('ROLLBACK');
-    console.error('Error updating staff availability:', err);
+    log.error({ err: err }, 'Error updating staff availability:');
     res.status(500).json({ error: 'Failed to update availability' });
   } finally {
     client.release();
@@ -97,13 +102,13 @@ router.get('/time-off', async (req: AuthRequest, res) => {
     
     res.json({ success: true, data: result.rows });
   } catch (err) {
-    console.error('Error fetching time-off requests:', err);
+    log.error({ err: err }, 'Error fetching time-off requests:');
     res.status(500).json({ error: 'Failed to fetch time-off requests' });
   }
 });
 
 // POST /api/staff-profile/time-off
-router.post('/time-off', async (req: AuthRequest, res) => {
+router.post('/time-off', validate(staffTimeOffSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -128,7 +133,7 @@ router.post('/time-off', async (req: AuthRequest, res) => {
     
     res.json({ success: true, data: result.rows[0] });
   } catch (err) {
-    console.error('Error creating time-off request:', err);
+    log.error({ err: err }, 'Error creating time-off request:');
     res.status(500).json({ error: 'Failed to create time-off request' });
   }
 });
@@ -158,7 +163,7 @@ router.delete('/time-off/:id', async (req: AuthRequest, res) => {
     
     res.json({ success: true, message: 'Time-off request deleted' });
   } catch (err) {
-    console.error('Error deleting time-off request:', err);
+    log.error({ err: err }, 'Error deleting time-off request:');
     res.status(500).json({ error: 'Failed to delete time-off request' });
   }
 });
@@ -190,13 +195,13 @@ router.get('/profile', async (req: AuthRequest, res) => {
     
     res.json({ success: true, data: result.rows[0] });
   } catch (err) {
-    console.error('Error fetching staff profile:', err);
+    log.error({ err: err }, 'Error fetching staff profile:');
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 });
 
 // PUT /api/staff-profile/profile
-router.put('/profile', async (req: AuthRequest, res) => {
+router.put('/profile', validate(staffProfileUpdateSchema), async (req: AuthRequest, res) => {
   try {
     const userId = req.user?.id;
     const userType = req.user?.user_type;
@@ -221,7 +226,7 @@ router.put('/profile', async (req: AuthRequest, res) => {
     
     res.json({ success: true, message: 'Profile updated' });
   } catch (err) {
-    console.error('Error updating staff profile:', err);
+    log.error({ err: err }, 'Error updating staff profile:');
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });

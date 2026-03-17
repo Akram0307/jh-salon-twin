@@ -1,5 +1,6 @@
 # SalonOS Staging Cloud Run Configuration
-# This file defines the Cloud Run services for the staging environment
+# Updated: Sprint 5 - VPC connector, Secret Manager, minimal IAM
+# This file is a reference manifest. Actual deployment uses deploy.yml.
 
 # Frontend Service
 frontend:
@@ -12,55 +13,163 @@ frontend:
   concurrency: 80
   min_instances: 0
   max_instances: 5
+  vpc_connector: salonos-staging-vpc          # S5-I1
+  vpc_egress: private-ranges-only
   env_vars:
     - name: NEXT_PUBLIC_API_BASE_URL
       value: https://salonos-backend-staging-rgvcleapsa-uc.a.run.app
     - name: NEXT_PUBLIC_ENVIRONMENT
       value: staging
-    - name: NEXT_PUBLIC_SENTRY_DSN
-      value: https://staging-sentry-dsn-placeholder
-  secrets:
-    - name: GCP_SA_KEY
-      secret: gcp-sa-key-staging
-      mount_path: /secrets
-  allow_unauthenticated: false  # Basic auth will be handled separately
-  service_account: staging-service-account@salon-saas-487508.iam.gserviceaccount.com
+    - name: NODE_ENV
+      value: staging
+  secrets:                                   # S5-I4: Secret Manager refs
+    - name: STAGING_BASIC_AUTH_PASSWORD
+      secret: salonos-staging-STAGING_BASIC_AUTH_PASSWORD
+      version: latest
+  allow_unauthenticated: false
+  service_account: salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com  # S5-I5
 
 # Backend Service
 backend:
   name: salonos-backend-staging
   image: gcr.io/salon-saas-487508/salonos-backend-staging:latest
   region: us-central1
-  port: 3000
+  port: 8080
   memory: 1Gi
   cpu: 1
   concurrency: 80
   min_instances: 0
   max_instances: 5
+  vpc_connector: salonos-staging-vpc          # S5-I1
+  vpc_egress: private-ranges-only
+  cloud_sql_instances:                        # S5-I2: Private IP Cloud SQL
+    - salonos-staging-db
   env_vars:
-    - name: DATABASE_URL
-      value: postgresql://staging-user:staging-password@staging-db-host:5432/salonos_staging
-    - name: JWT_SECRET
-      value: staging-jwt-secret-placeholder
     - name: NODE_ENV
       value: staging
+    - name: GCLOUD_PROJECT
+      value: salon-saas-487508
     - name: CORS_ORIGIN
       value: https://staging.salonos.example.com
-  secrets:
-    - name: GCP_SA_KEY
-      secret: gcp-sa-key-staging
-      mount_path: /secrets
+  secrets:                                   # S5-I4: All secrets from Secret Manager
+    - name: JWT_SECRET
+      secret: salonos-staging-JWT_SECRET_STAGING
+      version: latest
+    - name: REFRESH_TOKEN_SECRET
+      secret: salonos-staging-REFRESH_TOKEN_SECRET_STAGING
+      version: latest
+    - name: DB_USER
+      secret: salonos-staging-DB_USER
+      version: latest
+    - name: DB_PASSWORD
+      secret: salonos-staging-DB_PASSWORD
+      version: latest
+    - name: DB_HOST
+      secret: salonos-staging-DB_HOST
+      version: latest
+    - name: DB_PORT
+      secret: salonos-staging-DB_PORT
+      version: latest
+    - name: DB_NAME
+      secret: salonos-staging-DB_NAME
+      version: latest
+    - name: REDIS_HOST
+      secret: salonos-staging-REDIS_HOST
+      version: latest
+    - name: REDIS_PORT
+      secret: salonos-staging-REDIS_PORT
+      version: latest
+    - name: INSTANCE_CONNECTION_NAME
+      secret: salonos-staging-INSTANCE_CONNECTION_NAME
+      version: latest
+    - name: TWILIO_ACCOUNT_SID
+      secret: salonos-staging-TWILIO_ACCOUNT_SID
+      version: latest
+    - name: TWILIO_AUTH_TOKEN
+      secret: salonos-staging-TWILIO_AUTH_TOKEN
+      version: latest
+    - name: OPENROUTER_API_KEY
+      secret: salonos-staging-OPENROUTER_API_KEY
+      version: latest
+    - name: SMTP_HOST
+      secret: salonos-staging-SMTP_HOST
+      version: latest
+    - name: SMTP_USER
+      secret: salonos-staging-SMTP_USER
+      version: latest
+    - name: SMTP_PASS
+      secret: salonos-staging-SMTP_PASS
+      version: latest
   allow_unauthenticated: false
-  service_account: staging-service-account@salon-saas-487508.iam.gserviceaccount.com
+  service_account: salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com  # S5-I5
 
-# Database Configuration
+# Database Configuration (S5-I2)
 database:
   instance: salonos-staging-db
   tier: db-f1-micro
+  database_version: POSTGRES_15
   region: us-central1
+  ip_type: PRIVATE                              # Private IP only via VPC connector
   database_name: salonos_staging
   user: staging-user
-  password: staging-password-placeholder
+  # Password stored in Secret Manager: salonos-staging-DB_PASSWORD
   backup_enabled: true
   backup_start_time: "02:00"
+  point_in_time_recovery: true
   deletion_protection: false
+  # Connection approach: Private IP via VPC connector (no Cloud SQL Auth Proxy)
+  # Rationale: Simpler deployment (no sidecar), lower latency, sufficient for staging
+
+# Redis Configuration (S5-I3)
+redis:
+  instance: salonos-staging-redis
+  tier: BASIC
+  memory_size_gb: 1
+  redis_version: redis_7_0
+  region: us-central1
+  connect_mode: PRIVATE_SERVICE_ACCESS           # Via VPC connector
+  # Host stored in Secret Manager: salonos-staging-REDIS_HOST
+  # Port: 6379 (stored in Secret Manager: salonos-staging-REDIS_PORT)
+
+# Service Account (S5-I5)
+service_account:
+  email: salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com
+  display_name: SalonOS Staging Service Account
+  roles:
+    - roles/cloudsql.client
+    - roles/secretmanager.secretAccessor
+    - roles/run.invoker
+    - roles/logging.logWriter
+    - roles/monitoring.metricWriter
+
+# VPC Connector (S5-I1)
+vpc_connector:
+  name: salonos-staging-vpc
+  region: us-central1
+  range: 10.8.0.0/28
+  min_instances: 2
+  max_instances: 3
+  network: default
+  estimated_monthly_cost_usd: 17
+
+# Secret Manager Secrets (S5-I4)
+# All secrets prefixed with salonos-staging-
+# Generated with 32+ char random values via provision-infrastructure.sh
+secrets:
+  - salonos-staging-JWT_SECRET_STAGING
+  - salonos-staging-REFRESH_TOKEN_SECRET_STAGING
+  - salonos-staging-DB_USER
+  - salonos-staging-DB_PASSWORD
+  - salonos-staging-DB_HOST
+  - salonos-staging-DB_PORT
+  - salonos-staging-DB_NAME
+  - salonos-staging-REDIS_HOST
+  - salonos-staging-REDIS_PORT
+  - salonos-staging-TWILIO_ACCOUNT_SID
+  - salonos-staging-TWILIO_AUTH_TOKEN
+  - salonos-staging-OPENROUTER_API_KEY
+  - salonos-staging-INSTANCE_CONNECTION_NAME
+  - salonos-staging-SMTP_HOST
+  - salonos-staging-SMTP_USER
+  - salonos-staging-SMTP_PASS
+  - salonos-staging-STAGING_BASIC_AUTH_PASSWORD

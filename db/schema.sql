@@ -1,3 +1,11 @@
+-- SalonOS Database Schema
+-- Auto-reconstructed from dbmate migrations on 2026-03-17
+-- Source: db/migrations/dbmate/*.up.sql (22 migrations)
+-- WARNING: Do not edit manually. Regenerate from migrations.
+-- NOTE: This file is a best-effort reconstruction. The base schema is missing
+--   tables (staff, waitlist, waitlist_requests) that are created in archived
+--   migrations. Run `dbmate dump` against a live database for an accurate schema.
+
 -- Initial PostgreSQL Schema for Jawed Habib Kurnool AI Salon System
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

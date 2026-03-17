@@ -3,6 +3,9 @@ import { ActionHistoryService } from '../services/ActionHistoryService';
 import { authenticate } from '../middleware/auth';
 import { z } from 'zod';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'action_history_routes' });
+
 const router = Router();
 const actionHistoryService = new ActionHistoryService();
 
@@ -39,7 +42,7 @@ router.post('/salons/:salonId/actions', authenticate, async (req: Request, res: 
     const action = await actionHistoryService.logAction({ salon_id: salonId, ...validation.data });
     res.status(201).json(action);
   } catch (error) {
-    console.error('Error logging action:', error);
+    log.error({ err: error }, 'Error logging action:');
     res.status(500).json({ error: 'Failed to log action' });
   }
 });
@@ -62,7 +65,7 @@ router.get('/salons/:salonId/actions', authenticate, async (req: Request, res: R
     const result = await actionHistoryService.getActionHistory(salonId, options);
     res.json(result);
   } catch (error) {
-    console.error('Error getting action history:', error);
+    log.error({ err: error }, 'Error getting action history:');
     res.status(500).json({ error: 'Failed to get action history' });
   }
 });
@@ -74,7 +77,7 @@ router.get('/salons/:salonId/actions/undoable', authenticate, async (req: Reques
     const actions = await actionHistoryService.getUndoableActions(salonId, userId);
     res.json(actions);
   } catch (error) {
-    console.error('Error getting undoable actions:', error);
+    log.error({ err: error }, 'Error getting undoable actions:');
     res.status(500).json({ error: 'Failed to get undoable actions' });
   }
 });
@@ -86,7 +89,7 @@ router.get('/salons/:salonId/actions/redoable', authenticate, async (req: Reques
     const actions = await actionHistoryService.getRedoableActions(salonId, userId);
     res.json(actions);
   } catch (error) {
-    console.error('Error getting redoable actions:', error);
+    log.error({ err: error }, 'Error getting redoable actions:');
     res.status(500).json({ error: 'Failed to get redoable actions' });
   }
 });
@@ -102,7 +105,7 @@ router.post('/salons/:salonId/actions/:actionId/undo', authenticate, async (req:
     }
     res.json(result);
   } catch (error) {
-    console.error('Error undoing action:', error);
+    log.error({ err: error }, 'Error undoing action:');
     res.status(500).json({ error: 'Failed to undo action' });
   }
 });
@@ -118,7 +121,7 @@ router.post('/salons/:salonId/actions/:actionId/redo', authenticate, async (req:
     }
     res.json(result);
   } catch (error) {
-    console.error('Error redoing action:', error);
+    log.error({ err: error }, 'Error redoing action:');
     res.status(500).json({ error: 'Failed to redo action' });
   }
 });
@@ -132,7 +135,7 @@ router.get('/actions/:actionId', authenticate, async (req: Request, res: Respons
     }
     res.json(action);
   } catch (error) {
-    console.error('Error getting action:', error);
+    log.error({ err: error }, 'Error getting action:');
     res.status(500).json({ error: 'Failed to get action' });
   }
 });

@@ -3,6 +3,8 @@ import { GapFillOptimizer, GapFillScore } from './GapFillOptimizer';
 import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { query } from '../config/db';
 
+import logger from '../config/logger';
+
 export interface RankedSlot {
   slotTime: Date;
   staffId: string;
@@ -303,7 +305,7 @@ export class SmartSlotRanker {
           : 14
       };
     } catch (error) {
-      console.error('Error getting historical patterns:', error);
+      logger.error({ err: error }, 'Error getting historical patterns:');
       return {
         preferredTimeSlots: {},
         preferredStaff: {},
@@ -364,7 +366,7 @@ export class SmartSlotRanker {
         });
       }
     } catch (error) {
-      console.error('Error getting staff workload patterns:', error);
+      logger.error({ err: error }, 'Error getting staff workload patterns:');
     }
 
     return workloadMap;
@@ -394,7 +396,7 @@ export class SmartSlotRanker {
         staffId: row.staff_id
       }));
     } catch (error) {
-      console.error('Error getting cancelled slots:', error);
+      logger.error({ err: error }, 'Error getting cancelled slots:');
       return [];
     }
   }
@@ -787,7 +789,7 @@ export class SmartSlotRanker {
 
       return slots;
     } catch (error) {
-      console.error('Error getting available slots:', error);
+      logger.error({ err: error }, 'Error getting available slots:');
       return [];
     }
   }

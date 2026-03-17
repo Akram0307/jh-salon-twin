@@ -1,5 +1,8 @@
 import { pool } from '../config/db';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'salon_settings_service' });
+
 export interface SalonBranding {
   logo_url?: string;
   primary_color?: string;
@@ -65,7 +68,7 @@ export class SalonSettingsService {
         social_links: salon.social_links || {}
       };
     } catch (error) {
-      console.error('Error getting salon branding:', error);
+      log.error({ err: error }, 'Error getting salon branding:');
       throw error;
     }
   }
@@ -93,7 +96,7 @@ export class SalonSettingsService {
       
       return true;
     } catch (error) {
-      console.error('Error updating salon branding:', error);
+      log.error({ err: error }, 'Error updating salon branding:');
       throw error;
     }
   }
@@ -123,7 +126,7 @@ export class SalonSettingsService {
         is_closed: row.is_closed
       }));
     } catch (error) {
-      console.error('Error getting business hours:', error);
+      log.error({ err: error }, 'Error getting business hours:');
       throw error;
     }
   }
@@ -152,7 +155,7 @@ export class SalonSettingsService {
       return true;
     } catch (error) {
       await client.query('ROLLBACK');
-      console.error('Error updating business hours:', error);
+      log.error({ err: error }, 'Error updating business hours:');
       throw error;
     } finally {
       client.release();
@@ -174,7 +177,7 @@ export class SalonSettingsService {
       
       return result.rows;
     } catch (error) {
-      console.error('Error getting service categories:', error);
+      log.error({ err: error }, 'Error getting service categories:');
       throw error;
     }
   }
@@ -204,7 +207,7 @@ export class SalonSettingsService {
       const result = await pool.query(query, params);
       return result.rows;
     } catch (error) {
-      console.error('Error getting services catalog:', error);
+      log.error({ err: error }, 'Error getting services catalog:');
       throw error;
     }
   }
@@ -232,7 +235,7 @@ export class SalonSettingsService {
       
       return true;
     } catch (error) {
-      console.error('Error updating service:', error);
+      log.error({ err: error }, 'Error updating service:');
       throw error;
     }
   }

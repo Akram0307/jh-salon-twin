@@ -4,6 +4,9 @@ import { ServicePopularityService } from '../services/ServicePopularityService';
 import { DynamicOfferGenerator } from '../services/DynamicOfferGenerator';
 import { query } from '../config/db';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'ai_routes' });
+
 const router = Router();
 const DEFAULT_SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
@@ -28,7 +31,7 @@ router.get('/forecast', async (req, res) => {
       forecast: result.rows,
     });
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Forecast fetch failed' });
   }
 });
@@ -57,7 +60,7 @@ router.get('/campaigns', async (req, res) => {
 
     res.json({ campaigns: result.rows });
   } catch (err: any) {
-    console.error('AI campaigns fetch error:', err);
+    log.error({ err: err }, 'AI campaigns fetch error:');
     res.json({ campaigns: [] });
   }
 });
@@ -83,7 +86,7 @@ router.post('/forecast', async (req, res) => {
       message: 'Demand forecast generated',
     });
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Forecast generation failed' });
   }
 });
@@ -101,7 +104,7 @@ router.post('/recompute-popularity', async (req, res) => {
       message: 'Service popularity updated',
     });
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Popularity recompute failed' });
   }
 });
@@ -121,7 +124,7 @@ router.post('/generate-offer', async (req, res) => {
 
     res.json({ offer });
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Offer generation failed' });
   }
 });

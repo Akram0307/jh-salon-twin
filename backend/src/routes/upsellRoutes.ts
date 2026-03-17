@@ -1,9 +1,11 @@
 import { Router } from 'express'
 import { SmartUpsellEngine } from '../services/SmartUpsellEngine'
+import { validate } from '../middleware/validate';
+import { upsellSuggestionsSchema } from '../schemas/upsell';
 
 const router = Router()
 
-router.post('/upsell-suggestions', async (req, res) => {
+router.post('/upsell-suggestions', validate(upsellSuggestionsSchema), async (req, res) => {
   try {
 
     const { serviceId, salonId } = req.body

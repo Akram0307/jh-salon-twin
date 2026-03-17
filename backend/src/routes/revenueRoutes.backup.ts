@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { query } from '../config/db';
 
+import logger from '../config/logger';
+
 const router = Router();
 
 // Daily revenue trend
@@ -18,7 +20,7 @@ router.get('/daily', async (req,res)=>{
 
     res.json(result.rows);
   } catch(err){
-    console.error(err);
+    logger.error(err);
     res.status(500).json({error:'Failed to fetch revenue trend'});
   }
 });
@@ -39,7 +41,7 @@ router.get('/staff-leaderboard', async (req,res)=>{
 
     res.json(result.rows);
   } catch(err){
-    console.error(err);
+    logger.error(err);
     res.status(500).json({error:'Failed to fetch staff revenue'});
   }
 });
@@ -61,7 +63,7 @@ router.get('/top-items', async (req,res)=>{
 
     res.json(result.rows);
   } catch(err){
-    console.error(err);
+    logger.error(err);
     res.status(500).json({error:'Failed to fetch top items'});
   }
 });

@@ -1,4 +1,4 @@
-import { Queue, Worker, Job } from 'bullmq'
+import { Job } from 'bullmq'
 import { AppointmentRepository } from '../repositories/AppointmentRepository'
 import { ClientRepository } from '../repositories/ClientRepository'
 import { DemandPredictionService } from './DemandPredictionService'
@@ -7,20 +7,22 @@ import { CampaignThrottleService } from './CampaignThrottleService'
 import { CampaignTrackingService } from './CampaignTrackingService'
 import { sendWaitlistOffer } from './TwilioWhatsAppService'
 import { broadcastActivity } from '../routes/activityRoutes'
+import { createQueue, createWorker, registerWorker } from '../config/queue'
 
-const connection = {
-  url: process.env.REDIS_URL || 'redis://127.0.0.1:6379'
+const queue = createQueue('demand-engine')
+
+export async function startDemandEngine(salonId: string) {
+  await queue.add(
+    'demand-scan',
+    { salonId },
+    {
+      repeat: { every: 900000 },
+      jobId: 'demand-scan-repeatable',
+    }
+  )
 }
 
-const queue = new Queue('demand-engine', { connection })
-
-export function startDemandEngine(salonId: string) {
-  setInterval(async () => {
-    await queue.add('scan', { salonId })
-  }, 1000 * 60 * 15)
-}
-
-new Worker(
+const worker = createWorker(
   'demand-engine',
   async (job: Job) => {
     const { salonId } = job.data as { salonId: string }
@@ -84,5 +86,7 @@ new Worker(
       }
     }
   },
-  { connection, concurrency: 5 }
+  { concurrency: 5 }
 )
+
+registerWorker(worker)

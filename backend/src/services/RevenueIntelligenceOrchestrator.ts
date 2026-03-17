@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { domainEventBus } from './DomainEventBus'
 
 export class RevenueIntelligenceOrchestrator {
@@ -7,15 +9,15 @@ export class RevenueIntelligenceOrchestrator {
 
   register() {
     domainEventBus.subscribe('appointment.created', async (event) => {
-      console.log('Orchestrator: appointment created', event.entity_id)
+      logger.info({ data: event.entity_id }, 'Orchestrator: appointment created')
     })
 
     domainEventBus.subscribe('transaction.completed', async (event) => {
-      console.log('Orchestrator: transaction completed', event.entity_id)
+      logger.info({ data: event.entity_id }, 'Orchestrator: transaction completed')
     })
 
     domainEventBus.subscribe('slot.idle_detected', async (event) => {
-      console.log('Orchestrator: idle slot detected', event.payload)
+      logger.info({ data: event.payload }, 'Orchestrator: idle slot detected')
     })
   }
 }

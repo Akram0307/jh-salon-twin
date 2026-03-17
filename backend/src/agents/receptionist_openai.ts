@@ -4,6 +4,8 @@ import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { ServiceRepository } from '../repositories/ServiceRepository';
 import { StaffRepository } from '../repositories/StaffRepository';
 
+import logger from '../config/logger';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1'
@@ -234,7 +236,7 @@ const userText = message.toLowerCase();
 
   } catch (error: any) {
 
-    console.error(error);
+    logger.error(error);
 
     return 'I am having trouble responding right now. Please try again shortly.';
 

@@ -1,3 +1,5 @@
+
+import logger from './logger';
 let telemetry: import('@opentelemetry/sdk-node').NodeSDK | null = null;
 
 export async function startTelemetry() {
@@ -22,9 +24,9 @@ export async function startTelemetry() {
     });
 
     await telemetry.start();
-    console.log('✅ OpenTelemetry started');
+    logger.info('✅ OpenTelemetry started');
   } catch (err) {
-    console.error('Telemetry start failed (non-fatal):', err);
+    logger.error({ err: err }, 'Telemetry start failed (non-fatal):');
   }
 }
 
@@ -33,7 +35,7 @@ export async function shutdownTelemetry() {
     try {
       await telemetry.shutdown();
     } catch (err) {
-      console.error('Telemetry shutdown failed:', err);
+      logger.error({ err: err }, 'Telemetry shutdown failed:');
     }
   }
 }

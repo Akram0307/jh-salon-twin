@@ -7,6 +7,9 @@ import { AppointmentRepository } from '../repositories/AppointmentRepository';
 import { validateUUID } from '../middleware/validateUUID';
 import { query } from '../config/db';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'client_booking_routes' });
+
 const router = Router();
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
@@ -54,7 +57,7 @@ router.get('/services', async (req, res) => {
     
     res.json(ok(grouped, { count: services.length }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch services'));
   }
 });
@@ -93,7 +96,7 @@ router.get('/availability', async (req, res) => {
       count: filteredSlots.length,
     }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch availability'));
   }
 });
@@ -150,7 +153,7 @@ router.post('/book', async (req, res) => {
       confirmation: result.confirmation,
     }, { message: 'Booking created successfully' }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to create booking'));
   }
 });
@@ -187,7 +190,7 @@ router.get('/bookings', async (req, res) => {
     
     res.json(ok(result.rows, { count: result.rows.length }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to fetch bookings'));
   }
 });
@@ -215,7 +218,7 @@ router.put('/bookings/:id/cancel', async (req, res) => {
     
     res.json(ok(updated, { message: 'Booking cancelled successfully' }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to cancel booking'));
   }
 });
@@ -247,7 +250,7 @@ router.put('/bookings/:id/reschedule', async (req, res) => {
     
     res.json(ok(updated, { message: 'Booking rescheduled successfully' }));
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json(fail('Failed to reschedule booking'));
   }
 });

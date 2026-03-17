@@ -2,10 +2,14 @@
  * TASK-057: Error Tracking & Alerting Middleware
  * SalonOS Sprint 4 Dogfooding Phase
  * Created: 2026-03-14
+ * S6-015: Integrated GCP Cloud Error Reporting (additive)
  */
 
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
+
+import logger from '../config/logger';
+import { reportError } from '../config/errorReporting';
 
 // In-memory error store (in production, use database or external service)
 interface ErrorRecord {
@@ -30,7 +34,7 @@ function classifySeverity(error: Error): 'low' | 'medium' | 'high' | 'critical' 
   const stack = error.stack || '';
   
   // Critical: Database, authentication, payment related
-  if (message.includes('database') || message.includes('connection') || 
+  if (message.includes('database') || message.includes('connection') ||
       message.includes('auth') || message.includes('payment')) {
     return 'critical';
   }
@@ -64,7 +68,7 @@ function logError(errorId: string, err: Error, req: Request): void {
     timestamp: new Date().toISOString()
   };
   
-  console.error(JSON.stringify(logEntry));
+  logger.error(JSON.stringify(logEntry));
 }
 
 // Store error for aggregation
@@ -100,6 +104,14 @@ export const errorTracking = (err: Error, req: Request, res: Response, next: Nex
   
   // Store for aggregation
   storeError(errorId, err, req, severity);
+
+  // Report to GCP Cloud Error Reporting (additive — does not replace in-memory store)
+  reportError(err, {
+    path: req.path,
+    method: req.method,
+    statusCode: 500,
+    correlationId: errorId,
+  });
   
   // Send response
   res.status(500).json({
@@ -124,7 +136,7 @@ export const notFoundHandler = (req: Request, res: Response): void => {
     timestamp: new Date().toISOString()
   };
   
-  console.warn(JSON.stringify(logEntry));
+  logger.warn(JSON.stringify(logEntry));
   
   res.status(404).json({
     error: 'Route not found',

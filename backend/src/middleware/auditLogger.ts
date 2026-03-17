@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AuditLogRepository } from '../repositories/AuditLogRepository';
 
+import logger from '../config/logger';
+
 export type AuditContext = {
   salonId: string;
   entityType: string;
@@ -65,7 +67,7 @@ export function auditLogger(req: AuditRequest, res: Response, next: NextFunction
 
     setImmediate(() => {
       AuditLogRepository.create(payload).catch((err) => {
-        console.warn('[auditLogger] failed to persist audit log:', err?.message || err);
+        logger.warn('[auditLogger] failed to persist audit log:', err?.message || err);
       });
     });
   });

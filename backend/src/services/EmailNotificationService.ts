@@ -1,6 +1,9 @@
 import sgMail from '@sendgrid/mail';
 import { query } from '../config/db';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'email_notification_service' });
+
 // Initialize SendGrid with API key
 if (process.env.SENDGRID_API_KEY) {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -39,7 +42,7 @@ async function getSalonEmailConfig(salonId: string): Promise<{ fromEmail: string
       };
     }
   } catch (e) {
-    console.error('[EmailNotificationService] getSalonEmailConfig error', e);
+    log.error({ err: e }, '[EmailNotificationService] getSalonEmailConfig error');
   }
   return {
     fromEmail: process.env.DEFAULT_FROM_EMAIL || 'noreply@salonos.ai',
@@ -50,13 +53,13 @@ async function getSalonEmailConfig(salonId: string): Promise<{ fromEmail: string
 export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
   // Check if we're in test mode
   if (process.env.TEST_MODE === 'true') {
-    console.log('[EmailNotificationService] TEST_MODE: Skipping email send', { to: payload.to, subject: payload.subject });
+    log.info({ to: payload.to, subject: payload.subject }, '[EmailNotificationService] TEST_MODE: Skipping email send');
     return { success: true, skipped: true, reason: 'test_mode' };
   }
 
   // Check if SendGrid is configured
   if (!process.env.SENDGRID_API_KEY) {
-    console.error('[EmailNotificationService] SENDGRID_API_KEY not configured');
+    log.error('[EmailNotificationService] SENDGRID_API_KEY not configured');
     return { success: false, error: 'sendgrid_not_configured' };
   }
 
@@ -98,23 +101,23 @@ export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
 
     const [response] = await sgMail.send(msg);
     
-    console.log('[EmailNotificationService] Email sent successfully', {
+    log.info({
       to: payload.to,
       subject: payload.subject,
       messageId: response.headers['x-message-id']
-    });
+    }, '[EmailNotificationService] Email sent successfully');
 
     return {
       success: true,
       messageId: response.headers['x-message-id'] as string
     };
   } catch (error: any) {
-    console.error('[EmailNotificationService] Failed to send email', {
+    log.error({
       to: payload.to,
       subject: payload.subject,
       error: error.message,
       response: error.response?.body
-    });
+    }, '[EmailNotificationService] Failed to send email');
 
     return {
       success: false,
@@ -137,7 +140,7 @@ export async function sendTemplateEmail(
     );
 
     if (!templateRes.rows.length) {
-      console.error('[EmailNotificationService] Template not found', { templateName, salonId });
+      log.error({ templateName, salonId }, '[EmailNotificationService] Template not found');
       return { success: false, error: 'template_not_found' };
     }
 
@@ -163,7 +166,7 @@ export async function sendTemplateEmail(
       templateId: template.id
     });
   } catch (error: any) {
-    console.error('[EmailNotificationService] sendTemplateEmail error', error);
+    log.error({ err: error }, '[EmailNotificationService] sendTemplateEmail error');
     return { success: false, error: error.message };
   }
 }

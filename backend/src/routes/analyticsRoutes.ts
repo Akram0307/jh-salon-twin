@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { query, getClient } from '../config/db';
 
+import logger from '../config/logger';
+const log = logger.child({ module: 'analytics_routes' });
+
 const router = Router();
 const SALON_ID = process.env.SALON_ID;
 
@@ -22,7 +25,7 @@ router.get('/overview', async (_req, res) => {
     const run = async (label: string, sql: string, params: any[] = []) => {
       const t0 = Date.now();
       const result = await client.query(sql, params);
-      console.log('[analytics/overview]', label, Date.now() - t0 + 'ms');
+      log.info({ label, duration: `${Date.now() - t0}ms` }, '[analytics/overview]');
       return result;
     };
 
@@ -90,11 +93,11 @@ router.get('/overview', async (_req, res) => {
       staff: staff.rows
     });
 
-    console.log('[analytics/overview] completed', Date.now() - reqStarted + 'ms');
+    log.info({ data: Date.now() - reqStarted + 'ms' }, '[analytics/overview] completed');
 
   } catch (err: any) {
     try { await client.query('ROLLBACK'); } catch {}
-    console.error('Overview analytics error:', err);
+    log.error({ err: err }, 'Overview analytics error:');
     res.status(500).json({ error: 'Failed to fetch dashboard overview' });
   } finally {
     client.release();
@@ -113,7 +116,7 @@ router.get('/revenue-summary', async (_req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Failed to fetch revenue summary' });
   }
 });
@@ -136,7 +139,7 @@ router.get('/staff-performance', async (_req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Failed to fetch staff performance' });
   }
 });
@@ -156,7 +159,7 @@ router.get('/upcoming', async (_req, res) => {
 
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Failed to fetch upcoming appointments' });
   }
 });
@@ -229,7 +232,7 @@ router.get('/revenue', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error(err);
+    log.error(err);
     res.status(500).json({ error: 'Failed to fetch revenue by period' });
   }
 });

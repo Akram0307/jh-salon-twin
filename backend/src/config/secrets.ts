@@ -1,5 +1,7 @@
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
+import logger from './logger';
+
 let client: SecretManagerServiceClient | null = null;
 
 function getClient(): SecretManagerServiceClient {
@@ -18,7 +20,7 @@ async function accessSecret(secretName: string): Promise<string | undefined> {
     const [version] = await getClient().accessSecretVersion({ name });
     return version.payload?.data?.toString();
   } catch (err) {
-    console.warn(`Secret ${secretName} not found in Secret Manager.`);
+    logger.warn(`Secret ${secretName} not found in Secret Manager.`);
     return undefined;
   }
 }
@@ -39,7 +41,7 @@ export async function loadSecrets() {
       const value = await accessSecret(key);
       if (value) {
         process.env[key] = value;
-        console.log(`Loaded secret: ${key}`);
+        logger.info(`Loaded secret: ${key}`);
       }
     }
   }

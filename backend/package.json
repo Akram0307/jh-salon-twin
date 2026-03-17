@@ -10,7 +10,11 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "lint": "eslint src/ --ext .ts"
+    "lint": "eslint src/ --ext .ts",
+    "db:migrate": "dbmate up",
+    "db:rollback": "dbmate rollback",
+    "db:status": "dbmate status",
+    "db:dump": "echo 'Run dbmate dump against a live database to regenerate schema.sql'"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.57.0",
     "@vitest/coverage-v8": "^4.1.0",
+    "dbmate": "^2.31.0",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
@@ -47,6 +52,7 @@
   },
   "dependencies": {
     "@genkit-ai/vertexai": "^1.29.0",
+    "@google-cloud/error-reporting": "^3.0.5",
     "@google-cloud/pubsub": "^5.3.0",
     "@google-cloud/secret-manager": "^6.1.1",
     "@google-cloud/storage": "^7.19.0",
@@ -75,6 +81,7 @@
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
     "qrcode": "^1.5.4",
+    "rate-limit-redis": "^4.3.1",
     "speakeasy": "^2.0.0",
     "twilio": "^5.12.2",
     "ws": "^8.19.0",

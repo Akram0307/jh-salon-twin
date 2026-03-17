@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { Request, Response, Router } from 'express'
 import { AIConciergeBookingService, BookingIntent } from '../services/AIConciergeBookingService'
 import { ConversationContextStore } from '../services/ConversationContextStore'
@@ -64,7 +66,7 @@ router.post('/chat', async (req: Request<unknown, unknown, ConciergeChatBody>, r
       message: intent.message || null
     })
   } catch (err) {
-    console.error('AI Concierge chat error:', err)
+    logger.error({ err: err }, 'AI Concierge chat error:')
     return fail(res, 500, 'INTERNAL_ERROR', err instanceof Error ? err.message : 'Unexpected error')
   }
 })
@@ -91,7 +93,7 @@ router.post('/book', async (req: Request<unknown, unknown, DirectBookBody>, res:
     const result = await AIConciergeBookingService.createBooking(intent, { staff_id: staffId, time: dateTime })
     return result.success ? res.status(201).json({ success: true, data: result }) : fail(res, 400, 'BOOKING_FAILED', result.error || 'Booking failed')
   } catch (err) {
-    console.error('AI Concierge booking error:', err)
+    logger.error({ err: err }, 'AI Concierge booking error:')
     return fail(res, 500, 'INTERNAL_ERROR', err instanceof Error ? err.message : 'Unexpected error')
   }
 })
@@ -103,7 +105,7 @@ router.post('/interpret', async (req: Request<unknown, unknown, ConciergeChatBod
     const intent = await AIConciergeBookingService.interpretRequest(message, salonId, clientId)
     return ok(res, intent)
   } catch (err) {
-    console.error('AI Concierge interpret error:', err)
+    logger.error({ err: err }, 'AI Concierge interpret error:')
     return fail(res, 500, 'INTERNAL_ERROR', err instanceof Error ? err.message : 'Unexpected error')
   }
 })

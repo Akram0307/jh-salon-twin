@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import QRCode from 'qrcode';
 
+import logger from '../config/logger';
+
 const router = Router();
 
 // GET /api/qr/:payload
@@ -18,7 +20,7 @@ router.get('/:payload', async (req: Request, res: Response) => {
     res.send(qrBuffer);
 
   } catch (error) {
-    console.error('QR generation error:', error);
+    logger.error({ err: error }, 'QR generation error:');
     res.status(500).json({ error: 'QR generation failed' });
   }
 });

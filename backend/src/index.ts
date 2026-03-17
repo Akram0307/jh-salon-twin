@@ -2,13 +2,20 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+import logger from './config/logger';
+const log = logger.child({ module: 'index' });
+const startupStart = Date.now();
+import pool from './config/db';
+import redis from './config/redis';
+import { QUEUE_NAMES } from './config/queue';
 
-console.log('[STARTUP] 1. Loading modules...');
+log.info('[STARTUP] 1. Loading modules...');
 
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import { rateLimiter, authRateLimiter } from './middleware/rateLimiter';
+import { correlationIdMiddleware } from './middleware/correlationId';
 import { securityHeaders } from './middleware/securityHeaders';
 import clientRoutes from './routes/clientRoutes';
 import clientNotesRoutes from './routes/clientNotesRoutes';
@@ -48,6 +55,9 @@ import { requestLogger, notFoundHandler } from './middleware/requestLogger';
 import { loadSecrets } from './config/secrets';
 import { startTelemetry } from './config/telemetry';
 import { RevenueScheduler, startBackgroundJobs } from './services/RevenueScheduler';
+import { startRevenueWorker } from './services/RevenueWorker';
+import { startWaitlistWorker } from './services/WaitlistQueueWorker';
+import { shutdownAllWorkers } from './config/queue';
 import actionHistoryRoutes from './routes/actionHistoryRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import { errorTracking } from './middleware/errorTracking';
@@ -55,31 +65,31 @@ import adminErrorRoutes from './routes/adminErrors';
 import exportRoutes from './routes/exportRoutes';
 import { performanceMiddleware, getHealthStatus } from './config/monitoring';
 
-console.log('[STARTUP] 2. Modules loaded');
+log.info('[STARTUP] 2. Modules loaded');
 
 // Crash detection - log any uncaught errors
 process.on('uncaughtException', (err) => {
-  console.error('[CRASH] Uncaught Exception:', err);
-  console.error('[CRASH] Stack:', err.stack);
+  log.error({ err: err }, '[CRASH] Uncaught Exception:');
+  log.error({ err: err.stack }, '[CRASH] Stack:');
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('[CRASH] Unhandled Rejection at:', promise, 'reason:', reason);
+  log.error('[CRASH] Unhandled Rejection at:'  + " " + promise  + " " + 'reason:'  + " " + reason);
 });
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-console.log('[STARTUP] 3. Configuring middleware...');
-console.log('[STARTUP] NODE_ENV:', process.env.NODE_ENV);
-console.log('[STARTUP] PORT:', PORT);
+log.info('[STARTUP] 3. Configuring middleware...');
+log.info({ data: process.env.NODE_ENV }, '[STARTUP] NODE_ENV:');
+log.info({ data: PORT }, '[STARTUP] PORT:');
 
 // Validate required environment variables
 const requiredEnvVars = ['JWT_SECRET', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
 const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
 if (missingEnvVars.length > 0) {
-  console.warn('[STARTUP] Warning: Missing environment variables:', missingEnvVars.join(', '));
+  log.warn('[STARTUP] Warning: Missing environment variables:'  + " " + missingEnvVars.join('  + " " + '));
 }
 
 // CORS
@@ -96,23 +106,24 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
+app.use(correlationIdMiddleware);
 app.use(express.json());
 app.use(rateLimiter);
 app.use(securityHeaders);
 app.use(performanceMiddleware);
 app.use(requestLogger);
 
-console.log('[STARTUP] 4. Middleware configured');
+log.info('[STARTUP] 4. Middleware configured');
 
 // Health check - responds immediately
 app.get('/health', (req: any, res: any) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
-app.get('/api/health/detailed', (req, res) => {
-  res.json(getHealthStatus());
+app.get('/api/health/detailed', async (req, res) => {
+  res.json(await getHealthStatus());
 });
 
-console.log('[STARTUP] 5. Registering routes...');
+log.info('[STARTUP] 5. Registering routes...');
 
 // Routes
 app.use('/api/clients', clientRoutes);
@@ -155,54 +166,84 @@ app.use('/api/exports', exportRoutes);
 app.use(notFoundHandler);
 app.use(errorTracking);
 
-console.log('[STARTUP] 6. Routes registered');
+log.info('[STARTUP] 6. Routes registered');
 
 const server = http.createServer(app);
 
-console.log('[STARTUP] 7. Initializing WebSocket...');
+log.info('[STARTUP] 7. Initializing WebSocket...');
 webSocketService.initialize(server);
 
 if (process.env.OTEL_ENABLED === 'true') {
   startTelemetry();
 }
 
-console.log('[STARTUP] 8. Starting server on port', PORT);
+log.info({ data: PORT }, '[STARTUP] 8. Starting server on port');
 
 server.listen(PORT, () => {
-  console.log(`[STARTUP] ✓ Server listening on port ${PORT}`);
-  console.log(`[STARTUP] Environment: ${process.env.NODE_ENV || 'development'}`);
+  log.info(`[STARTUP] ✓ Server listening on port ${PORT}`);
+  log.info(`[STARTUP] Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Structured startup health report
+  (async () => {
+    let dbConnected = false;
+    let redisConnected = false;
+    try { await pool.query('SELECT 1'); dbConnected = true; } catch {}
+    try { await redis.ping(); redisConnected = true; } catch {}
+
+    log.info({
+      event: 'startup_complete',
+      services: {
+        database: dbConnected ? 'connected' : 'disconnected',
+        redis: redisConnected ? 'connected' : 'disconnected',
+        queues: [...QUEUE_NAMES],
+        otel: process.env.OTEL_ENABLED === 'true' ? 'enabled' : 'disabled',
+      },
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      duration_ms: Date.now() - startupStart,
+    }, 'SalonOS backend started');
+  })().catch(() => {});
+
   
   // Load secrets asynchronously (non-blocking)
   loadSecrets().then(() => {
-    console.log('[STARTUP] Secrets loaded');
+    log.info('[STARTUP] Secrets loaded');
   }).catch(err => {
-    console.error('[STARTUP] Failed to load secrets:', err);
+    log.error({ err: err }, '[STARTUP] Failed to load secrets:');
   });
   
   // Background jobs after server starts (delayed to ensure server is ready)
   setTimeout(() => {
-    console.log('[STARTUP] Initializing background jobs...');
+    log.info('[STARTUP] Initializing background jobs...');
     try {
+      // Start BullMQ workers first
+      startRevenueWorker();
+      startWaitlistWorker();
+      log.info('[STARTUP] BullMQ workers started');
+
+      // Register repeatable jobs (producers)
       const revenueScheduler = new RevenueScheduler();
       revenueScheduler.start(process.env.SALON_ID || 'salon_1');
       startBackgroundJobs();
-      console.log('[STARTUP] Background jobs initialized');
+      log.info('[STARTUP] Background jobs initialized');
     } catch (err) {
-      console.error('[STARTUP] Background job init error (non-fatal):', err);
+      log.error({ err: err }, '[STARTUP] Background job init error (non-fatal):');
     }
   }, 2000);
 });
 
 server.on('error', (err) => {
-  console.error('[STARTUP] Server error:', err);
+  log.error({ err: err }, '[STARTUP] Server error:');
 });
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down...');
+process.on('SIGTERM', async () => {
+  log.info('SIGTERM received. Shutting down...');
+  await shutdownAllWorkers();
   server.close(() => process.exit(0));
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received. Shutting down...');
+process.on('SIGINT', async () => {
+  log.info('SIGINT received. Shutting down...');
+  await shutdownAllWorkers();
   server.close(() => process.exit(0));
 });

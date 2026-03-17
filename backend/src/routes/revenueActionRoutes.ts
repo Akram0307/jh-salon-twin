@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import express from 'express'
 import { ClientRevenueOrchestrator } from '../services/ClientRevenueOrchestrator'
 
@@ -20,7 +22,7 @@ router.post('/', async (req, res) => {
 
     return res.status(400).json({ error: 'UNKNOWN_ACTION' })
   } catch (err: any) {
-    console.error('[RevenueAction]', err)
+    logger.error({ err: err }, '[RevenueAction]')
     res.status(500).json({ error: 'REVENUE_AUTOMATION_FAILED', message: err?.message })
   }
 })

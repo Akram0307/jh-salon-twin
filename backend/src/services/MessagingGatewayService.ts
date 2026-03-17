@@ -1,5 +1,7 @@
 import Twilio from 'twilio';
 
+import logger from '../config/logger';
+
 export type MessageChannel = 'whatsapp' | 'sms';
 
 export interface MessagePayload {
@@ -24,7 +26,7 @@ export class MessagingGatewayService {
     this.fromNumber = process.env.TWILIO_WHATSAPP_NUMBER || '';
 
     if (!this.fromNumber) {
-      console.warn('TWILIO_WHATSAPP_NUMBER not configured');
+      logger.warn('TWILIO_WHATSAPP_NUMBER not configured');
     }
   }
 

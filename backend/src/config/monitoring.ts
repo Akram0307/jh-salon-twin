@@ -6,6 +6,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import logger from './logger';
+import pool from './db';
 
 // Performance metrics storage
 interface PerformanceMetric {
@@ -146,7 +147,7 @@ export function getPerformanceStats(): {
 }
 
 // Health check endpoint data
-export function getHealthStatus(): {
+export async function getHealthStatus(): Promise<{
   status: 'healthy' | 'degraded' | 'unhealthy';
   uptime: number;
   timestamp: string;
@@ -160,7 +161,7 @@ export function getHealthStatus(): {
     cpuUsagePercent: number;
     responseTimeP95: number;
   };
-} {
+}> {
   const memoryUsage = process.memoryUsage();
   const memoryUsagePercent = (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100;
   
@@ -178,12 +179,26 @@ export function getHealthStatus(): {
     status = 'degraded';
   }
   
+  // Check actual database connectivity
+  let dbConnected: 'connected' | 'disconnected' = 'disconnected';
+  try {
+    await pool.query('SELECT 1');
+    dbConnected = 'connected';
+  } catch {
+    dbConnected = 'disconnected';
+  }
+
+  // Downgrade status if DB is disconnected
+  if (dbConnected === 'disconnected') {
+    status = 'unhealthy';
+  }
+
   return {
     status,
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     services: {
-      database: 'connected', // This would be checked in a real implementation
+      database: dbConnected,
       memory: memoryUsagePercent > 90 ? 'critical' : memoryUsagePercent > 80 ? 'warning' : 'ok',
       cpu: cpuUsagePercent > 90 ? 'critical' : cpuUsagePercent > 80 ? 'warning' : 'ok'
     },

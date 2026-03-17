@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 import { AutomaticRebookingEngine } from './AutomaticRebookingEngine'
 import { query } from '../config/db'
 
@@ -33,12 +35,12 @@ export class AutoRebookNotifier {
     const message = `Hi ${c.first_name || ''}! Your next salon visit is coming up soon. Want to reserve a slot around ${new Date(reminder.suggestedDate).toDateString()}?`
 
     // Publish to messaging pipeline
-    console.log('AUTO_REBOOK_REMINDER',{
+    logger.info({
       clientId: reminder.clientId,
       salonId: reminder.salonId,
       phone: c.phone,
       message
-    })
+    }, 'AUTO_REBOOK_REMINDER')
 
     // Future integration:
     // TwilioWhatsAppService.sendMessage(c.phone, message)

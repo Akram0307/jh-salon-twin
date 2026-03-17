@@ -1,3 +1,5 @@
+
+import logger from '../config/logger';
 export type DomainEvent = {
   type: string
   salon_id: string
@@ -24,7 +26,7 @@ export class DomainEventBus {
       try {
         await handler(event)
       } catch (err) {
-        console.error("DomainEventBus handler error", event.type, err)
+        logger.error({ eventType: event.type, err }, "DomainEventBus handler error")
       }
     }
   }

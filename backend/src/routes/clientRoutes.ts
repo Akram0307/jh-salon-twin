@@ -1,9 +1,14 @@
 import beautyProfileService from '../services/ClientBeautyProfileService';
 import { validateUUID } from '../middleware/validateUUID'
+import { authenticate, requireStaffOrOwner } from '../middleware/auth';
 import { Router } from 'express';
 import { ClientRepository } from '../repositories/ClientRepository';
+import { validate } from '../middleware/validate';
+import { createClientSchema, createClientProfileSchema, updateClientProfileSchema } from '../schemas/client';
 
 const router = Router()
+// All client routes require authentication (PII protection)
+router.use(authenticate);
 router.use(validateUUID);
 
 router.get('/', async (req, res) => {
@@ -15,7 +20,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createClientSchema), async (req, res) => {
     try {
         const client = await ClientRepository.create(req.body);
         res.status(201).json(client);
@@ -30,7 +35,7 @@ export default router;
 router.get('/:id/profile', async (req, res) => {
   try {
     const salonId = req.query.salon_id as string
-    const clientId = req.params.id
+    const clientId = req.params.id as string
 
     const profile = await beautyProfileService.getClientProfile(clientId, salonId)
     res.json(profile || {})
@@ -39,10 +44,10 @@ router.get('/:id/profile', async (req, res) => {
   }
 })
 
-router.post('/:id/profile', async (req, res) => {
+router.post('/:id/profile', validate(createClientProfileSchema), async (req, res) => {
   try {
     const salonId = req.body.salon_id
-    const clientId = req.params.id
+    const clientId = req.params.id as string
 
     const profile = await beautyProfileService.createProfile(clientId, salonId, req.body)
     res.status(201).json(profile)
@@ -51,10 +56,10 @@ router.post('/:id/profile', async (req, res) => {
   }
 })
 
-router.patch('/:id/profile', async (req, res) => {
+router.patch('/:id/profile', validate(updateClientProfileSchema), async (req, res) => {
   try {
     const salonId = req.body.salon_id
-    const clientId = req.params.id
+    const clientId = req.params.id as string
 
     const profile = await beautyProfileService.updateProfile(clientId, salonId, req.body)
     res.json(profile)
