@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
 import { query } from '../config/db';
 
 import logger from '../config/logger';
 
 const router = Router();
+router.use(authenticate);
 
 // Daily revenue trend
 router.get('/daily', async (_req,res)=>{

@@ -1,9 +1,11 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '../middleware/auth';
 import QRCode from 'qrcode';
 
 import logger from '../config/logger';
 
 const router = Router();
+router.use(authenticate);
 
 // GET /api/qr/:payload
 router.get('/:payload', async (req: Request, res: Response) => {

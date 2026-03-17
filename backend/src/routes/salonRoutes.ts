@@ -1,11 +1,15 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { createSalonSchema } from '../schemas/salon';
 import { pool } from '../config/db';
 
 import logger from '../config/logger';
 
 const router = Router();
+router.use(authenticate);
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createSalonSchema), async (req, res) => {
   try {
     const { owner_id, name, city, address, phone, whatsapp_number } = req.body;
 

@@ -17,3 +17,8 @@ export * from './export';
 export * from './upsell';
 export * from './userProfile';
 export * from './chat';
+export * from './salon';
+export * from './slotSuggestion';
+export * from './actionHistory';
+export * from './ai';
+export * from './revenueAction';

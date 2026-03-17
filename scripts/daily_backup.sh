@@ -12,11 +12,11 @@ RETENTION_DAYS=30
 LOG_FILE="/var/log/salonos_backup.log"
 
 # Database configuration (from environment or defaults)
-DB_HOST=${DB_HOST:-"34.29.171.92"}
+DB_HOST=${DB_HOST:-""}
 DB_PORT=${DB_PORT:-"5432"}
 DB_NAME=${DB_NAME:-"postgres"}
 DB_USER=${DB_USER:-"salon_admin"}
-DB_PASSWORD=${DB_PASSWORD:-"JHSalonAdmin123"}
+DB_PASSWORD=${DB_PASSWORD:-""}
 
 # Cloud Storage bucket (GCP)
 GCS_BUCKET=${GCS_BUCKET:-"gs://salonos-backups"}

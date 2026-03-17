@@ -1,15 +1,17 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '../middleware/auth';
 import { NotificationTemplateRepository } from '../repositories/NotificationTemplateRepository';
 import { NotificationLogRepository } from '../repositories/NotificationLogRepository';
 import { dispatchNotification, sendAppointmentConfirmation, dispatchReminderForAppointment } from '../services/NotificationOrchestrator';
 import { query } from '../config/db';
 import { validate } from '../middleware/validate';
-import { createNotificationSchema, updateNotificationPreferencesSchema } from '../schemas/notification';
+import { createNotificationSchema, updateNotificationPreferencesSchema, createTemplateSchema, updateTemplateSchema, sendNotificationSchema } from '../schemas/notification';
 
 import logger from '../config/logger';
 const log = logger.child({ module: 'notification_routes' });
 
 const router = Router();
+router.use(authenticate);
 
 // Helper to safely get string from query param
 function getString(val: unknown): string | undefined {
@@ -38,12 +40,9 @@ router.get('/templates', async (req: Request, res: Response) => {
 });
 
 // POST /api/notifications/templates - Create a new template
-router.post('/templates', async (req: Request, res: Response) => {
+router.post('/templates', validate(createTemplateSchema), async (req: Request, res: Response) => {
   try {
     const { salon_id, name, type, subject, body, variables } = req.body;
-    if (!salon_id || !name || !type || !body) {
-      return res.status(400).json({ error: 'salon_id, name, type, and body are required' });
-    }
     const template = await NotificationTemplateRepository.create({
       salon_id,
       name,
@@ -60,7 +59,7 @@ router.post('/templates', async (req: Request, res: Response) => {
 });
 
 // PUT /api/notifications/templates/:id - Update a template
-router.put('/templates/:id', async (req: Request, res: Response) => {
+router.put('/templates/:id', validate(updateTemplateSchema), async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
     const { name, subject, body, variables, is_active } = req.body;
@@ -102,7 +101,7 @@ router.get('/logs', async (req: Request, res: Response) => {
     const offsetStr = getString(req.query.offset);
     const type = getString(req.query.type);
     const status = getString(req.query.status);
-    
+
     if (!salonId) {
       return res.status(400).json({ error: 'salon_id is required' });
     }
@@ -125,7 +124,7 @@ router.get('/logs/stats', async (req: Request, res: Response) => {
   try {
     const salonId = getString(req.query.salon_id);
     const daysStr = getString(req.query.days);
-    
+
     if (!salonId) {
       return res.status(400).json({ error: 'salon_id is required' });
     }
@@ -145,12 +144,9 @@ router.get('/logs/stats', async (req: Request, res: Response) => {
 // ============================================
 
 // POST /api/notifications/send - Send a notification
-router.post('/send', async (req: Request, res: Response) => {
+router.post('/send', validate(sendNotificationSchema), async (req: Request, res: Response) => {
   try {
     const { salon_id, user_id, user_type, type, template_name, subject, content, recipient, dynamic_data } = req.body;
-    if (!salon_id || !user_id || !user_type || !type || !recipient) {
-      return res.status(400).json({ error: 'salon_id, user_id, user_type, type, and recipient are required' });
-    }
     const result = await dispatchNotification({
       salonId: salon_id,
       userId: user_id,
@@ -202,7 +198,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
   try {
     const userId = getString(req.query.user_id);
     const userType = getString(req.query.user_type);
-    
+
     if (!userId || !userType) {
       return res.status(400).json({ error: 'user_id and user_type are required' });
     }
@@ -222,9 +218,6 @@ router.get('/preferences', async (req: Request, res: Response) => {
 router.put('/preferences', validate(updateNotificationPreferencesSchema), async (req: Request, res: Response) => {
   try {
     const { user_id, user_type, preferences } = req.body;
-    if (!user_id || !user_type || !preferences) {
-      return res.status(400).json({ error: 'user_id, user_type, and preferences are required' });
-    }
     const result = await query(
       `UPDATE user_settings
        SET notification_preferences = $1, updated_at = NOW()

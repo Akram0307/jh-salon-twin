@@ -30,3 +30,12 @@ export const updateServicesConfigSchema = z.object({
   buffer_time: z.number().optional(),
   allow_overlapping: z.boolean().optional(),
 }).strict();
+
+export const updateSalonServiceSchema = z.object({
+  name: z.string().min(1).optional(),
+  base_price: z.number().min(0).optional(),
+  duration_minutes: z.number().int().min(5).max(480).optional(),
+  description: z.string().max(1000).optional().nullable(),
+  category: z.string().min(1).optional().nullable(),
+  is_active: z.boolean().optional(),
+}).strict();

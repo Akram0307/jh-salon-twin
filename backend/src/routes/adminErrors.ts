@@ -5,12 +5,14 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { authenticate } from '../middleware/auth';
 import { getErrorStats, getErrorById, markErrorResolved, clearOldErrors } from '../middleware/errorTracking';
 
 import logger from '../config/logger';
 const log = logger.child({ module: 'admin_errors' });
 
 const router = Router();
+router.use(authenticate);
 
 /**
  * GET /api/admin/errors

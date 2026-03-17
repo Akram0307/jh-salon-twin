@@ -1,9 +1,11 @@
 
 import logger from '../config/logger';
 import { Router } from 'express'
+import { authenticate } from '../middleware/auth';
 import { pool } from '../config/db'
 
 const router = Router()
+router.use(authenticate);
 
 // --- In-memory SSE clients ---
 const clients: any[] = []

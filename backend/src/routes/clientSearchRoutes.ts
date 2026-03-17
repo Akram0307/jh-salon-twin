@@ -1,10 +1,12 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
 import clientSearchService from '../services/ClientSearchService';
 import { validateUUID } from '../middleware/validateUUID';
 
 import logger from '../config/logger';
 
 const router = Router();
+router.use(authenticate);
 router.use(validateUUID);
 
 // GET /api/clients/search?q=term - Fuzzy search with pg_trgm

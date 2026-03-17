@@ -209,14 +209,14 @@ jobs:
         with:
           context: ${{ matrix.project }}
           load: true
-          tags: gcr.io/${{ env.PROJECT_ID }}/${{ matrix.image }}:${{ github.sha }}
+          tags: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/${{ matrix.image }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: gcr.io/${{ env.PROJECT_ID }}/${{ matrix.image }}:${{ github.sha }}
+          image-ref: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/${{ matrix.image }}:${{ github.sha }}
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL'
@@ -225,7 +225,7 @@ jobs:
       - name: Run Trivy full scan (all severities) for artifact
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: gcr.io/${{ env.PROJECT_ID }}/${{ matrix.image }}:${{ github.sha }}
+          image-ref: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/${{ matrix.image }}:${{ github.sha }}
           format: 'sarif'
           output: 'trivy-results-${{ matrix.project }}.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'

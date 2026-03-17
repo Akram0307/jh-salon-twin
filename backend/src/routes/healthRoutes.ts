@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { authenticate } from '../middleware/auth';
 import pool from '../config/db';
 import os from 'os';
 import redis from '../config/redis';
@@ -113,7 +114,7 @@ router.get('/live', async (req: Request, res: Response) => {
  * Returns detailed health information including all subsystems
  * Requires authentication for security
  */
-router.get('/detailed', async (req: Request, res: Response) => {
+router.get('/detailed', authenticate, async (req: Request, res: Response) => {
   const uptime = Math.floor((Date.now() - startTime) / 1000);
   const memoryUsage = process.memoryUsage();
   
@@ -208,7 +209,7 @@ router.get('/detailed', async (req: Request, res: Response) => {
  * GET /api/health/queues
  * Returns BullMQ queue job counts (waiting, active, completed, failed, delayed)
  */
-router.get('/queues', async (req: Request, res: Response) => {
+router.get('/queues', authenticate, async (req: Request, res: Response) => {
   try {
     const queues: Record<string, { waiting: number; active: number; completed: number; failed: number; delayed: number }> = {};
 

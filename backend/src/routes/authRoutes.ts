@@ -230,7 +230,7 @@ router.post('/forgot-password', validate(forgotPasswordSchema), async (req: Requ
     );
 
     // TODO: Send email with reset link containing resetToken
-    log.info('Password reset token for'  + " " + email  + " " + ':'  + " " + resetToken);
+    log.info({ email, user_type }, 'Password reset token generated');
 
     res.json({ message: 'If an account exists, a reset link has been sent' });
   } catch (err: any) {

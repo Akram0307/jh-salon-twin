@@ -11,30 +11,29 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-  ,
-  expect: {
-    visual: {
-      threshold: 0.2,
-      maxDiffPixels: 1000,
-      animations: 'disabled'
-    }
-  }
-}},
+  },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'
+      use: { ...devices['Desktop Chrome'] },
+    },
     {
       name: 'mobile',
       use: { ...devices['iPhone 12'] },
     },
-  ] },
+  ],
+  webServer: [
+    {
+      command: 'cd frontend-next && npm run dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000,
+    },
+    {
+      command: 'cd frontend && npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120000,
     },
   ],
-  webServer: {
-    command: 'cd frontend && npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: true,
-    timeout: 120000,
-  },
 });

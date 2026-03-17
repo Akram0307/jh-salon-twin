@@ -1,11 +1,14 @@
 import { Router } from 'express';
-import { z } from 'zod';
+import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { staffCreateRouteSchema, staffUpdateRouteSchema } from '../schemas/staff';
 import { StaffRepository } from '../repositories/StaffRepository';
 import { query } from '../config/db';
 
 import logger from '../config/logger';
 
 const router = Router();
+router.use(authenticate);
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
 const ok = (data: unknown, meta: Record<string, unknown> = {}) => ({
@@ -23,44 +26,6 @@ const fail = (message: string, details?: unknown, error?: string) => ({
   error: error || message,
   message,
   ...(details !== undefined ? { details } : {}),
-});
-
-const normalizeOptionalString = (value: unknown) => {
-  if (typeof value !== 'string') return value;
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-};
-
-const emailSchema = z.string().trim().email('email must be a valid email address').transform((value) => value.toLowerCase());
-
-const staffCreateSchema = z.object({
-  full_name: z.string().trim().min(2, 'full_name must be at least 2 characters').max(120),
-  email: emailSchema,
-  phone_number: z.preprocess(
-    normalizeOptionalString,
-    z.string().trim().min(7, 'phone_number must be at least 7 characters').max(32).nullable().optional()
-  ),
-  role: z.preprocess(
-    normalizeOptionalString,
-    z.string().trim().min(2, 'role must be at least 2 characters').max(60).nullable().optional()
-  ),
-  is_active: z.boolean().optional(),
-});
-
-const staffUpdateSchema = z.object({
-  full_name: z.string().trim().min(2, 'full_name must be at least 2 characters').max(120).optional(),
-  email: emailSchema.optional(),
-  phone_number: z.preprocess(
-    normalizeOptionalString,
-    z.string().trim().min(7, 'phone_number must be at least 7 characters').max(32).nullable().optional()
-  ),
-  role: z.preprocess(
-    normalizeOptionalString,
-    z.string().trim().min(2, 'role must be at least 2 characters').max(60).nullable().optional()
-  ),
-  is_active: z.boolean().optional(),
-}).refine((payload) => Object.keys(payload).length > 0, {
-  message: 'At least one field is required to update staff',
 });
 
 const normalizeStaffRecord = (staff: any) => {
@@ -122,19 +87,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', validate(staffCreateRouteSchema), async (req, res) => {
   try {
-    const parsed = staffCreateSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json(fail('Invalid staff payload', parsed.error.flatten()));
-    }
-
-    const duplicateError = await detectDuplicateStaff(parsed.data);
+    const duplicateError = await detectDuplicateStaff(req.body);
     if (duplicateError) {
       return res.status(409).json(fail(duplicateError));
     }
 
-    const staff = await StaffRepository.create({ ...parsed.data, salon_id: SALON_ID });
+    const staff = await StaffRepository.create({ ...req.body, salon_id: SALON_ID });
     res.status(201).json(ok(normalizeStaffRecord(staff), { updated_at: staff?.updated_at || null }));
   } catch (err) {
     logger.error(err);
@@ -142,24 +102,20 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', validate(staffUpdateRouteSchema), async (req, res) => {
   try {
-    const existing = await StaffRepository.findById(req.params.id, SALON_ID);
+    const { id } = req.params as { id: string };
+    const existing = await StaffRepository.findById(id, SALON_ID);
     if (!existing) {
       return res.status(404).json(fail('Staff member not found'));
     }
 
-    const parsed = staffUpdateSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json(fail('Invalid staff payload', parsed.error.flatten()));
-    }
-
-    const duplicateError = await detectDuplicateStaff(parsed.data, req.params.id);
+    const duplicateError = await detectDuplicateStaff(req.body, id);
     if (duplicateError) {
       return res.status(409).json(fail(duplicateError));
     }
 
-    const staff = await StaffRepository.update(req.params.id, parsed.data, SALON_ID);
+    const staff = await StaffRepository.update(id, req.body, SALON_ID);
     if (!staff) {
       return res.status(404).json(fail('Staff member not found'));
     }

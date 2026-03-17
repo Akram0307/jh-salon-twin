@@ -1,10 +1,12 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
 import { query, getClient } from '../config/db';
 
 import logger from '../config/logger';
 const log = logger.child({ module: 'analytics_routes' });
 
 const router = Router();
+router.use(authenticate);
 const SALON_ID = process.env.SALON_ID;
 
 // Owner dashboard overview

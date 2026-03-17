@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
 import { query } from '../config/db';
 
 import logger from '../config/logger';
 
 const router = Router();
+router.use(authenticate);
 const SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
 
 router.get('/', async (_req, res) => {

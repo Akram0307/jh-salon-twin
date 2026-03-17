@@ -119,9 +119,6 @@ log.info('[STARTUP] 4. Middleware configured');
 app.get('/health', (req: any, res: any) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
-app.get('/api/health/detailed', async (req, res) => {
-  res.json(await getHealthStatus());
-});
 
 log.info('[STARTUP] 5. Registering routes...');
 

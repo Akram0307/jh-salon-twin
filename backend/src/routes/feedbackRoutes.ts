@@ -1,430 +1,196 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { z } from 'zod';
-import FeedbackAnalyticsService from '../services/FeedbackAnalyticsService';
-import { authenticate, authorize } from '../middleware/auth';
+import { Router, Request, Response } from 'express';
+import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { createFeedbackRouteSchema, updateFeedbackRouteSchema, trackEventSchema, batchTrackSchema, pageviewSchema, errorTrackSchema, feedbackQuerySchema, analyticsQuerySchema, dateRangeSchema } from '../schemas/feedback';
+import { FeedbackRepository } from '../repositories/FeedbackRepository';
+import { AnalyticsRepository } from '../repositories/AnalyticsRepository';
+
+import logger from '../config/logger';
+const log = logger.child({ module: 'feedback_routes' });
 
 const router = Router();
+router.use(authenticate);
 
-// Validation schemas
-const createFeedbackSchema = z.object({
-  feedback_type: z.enum(['bug_report', 'feature_request', 'general_feedback']),
-  title: z.string().min(1).max(200),
-  description: z.string().min(1),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  page_url: z.string().url().optional(),
-  browser_info: z.record(z.any()).optional(),
-  attachments: z.array(z.string()).optional()
-});
+// ============================================
+// Feedback CRUD
+// ============================================
 
-const updateFeedbackSchema = z.object({
-  status: z.enum(['open', 'in_progress', 'resolved', 'closed']).optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  admin_notes: z.string().optional(),
-  resolved_by: z.string().uuid().optional()
-});
-
-const feedbackQuerySchema = z.object({
-  feedback_type: z.enum(['bug_report', 'feature_request', 'general_feedback']).optional(),
-  status: z.enum(['open', 'in_progress', 'resolved', 'closed']).optional(),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  user_id: z.string().uuid().optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().max(100).optional()
-});
-
-const trackEventSchema = z.object({
-  event_name: z.string().min(1).max(100),
-  event_category: z.enum(['navigation', 'interaction', 'conversion', 'error', 'performance', 'custom']),
-  event_data: z.record(z.any()).optional(),
-  page_url: z.string().optional(),
-  session_id: z.string().optional(),
-  device_type: z.string().optional(),
-  browser: z.string().optional(),
-  os: z.string().optional()
-});
-
-const analyticsQuerySchema = z.object({
-  event_name: z.string().optional(),
-  event_category: z.enum(['navigation', 'interaction', 'conversion', 'error', 'performance', 'custom']).optional(),
-  user_id: z.string().uuid().optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().max(100).optional()
-});
-
-const dateRangeSchema = z.object({
-  start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/)
-});
-
-// Helper to get salon_id from request
-const getSalonId = (req: Request): string => {
-  return (req as any).user?.salon_id || String((req.params as any).salonId);
-};
-
-// Helper to get user_id from request
-const getUserId = (req: Request): string => {
-  return (req as any).user?.id || req.body.user_id;
-};
-
-// ============ FEEDBACK ENDPOINTS ============
-
-/**
- * POST /api/feedback
- * Create new feedback (bug report, feature request, etc.)
- */
-router.post('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+// GET /api/feedback - List feedback with filters
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const salon_id = getSalonId(req);
-    const user_id = getUserId(req);
-    
-    const validatedData = createFeedbackSchema.parse(req.body);
-    
-    const feedback = await FeedbackAnalyticsService.createFeedback({
-      salon_id,
-      user_id,
-      ...validatedData
-    });
-    
-    res.status(201).json({
-      success: true,
-      data: feedback
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/feedback
- * List feedback with filters and pagination
- */
-router.get('/', authenticate, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    
     const filters = feedbackQuerySchema.parse(req.query);
-    
-    const result = await FeedbackAnalyticsService.getFeedbackByFilters({
-      salon_id,
-      ...filters
-    });
-    
-    res.json({
-      success: true,
-      data: result.feedback,
-      pagination: {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        total_pages: result.total_pages
-      }
-    });
-  } catch (error) {
-    next(error);
+    const result = await FeedbackRepository.findAll(filters);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error listing feedback:');
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ success: false, error: 'Invalid query parameters', details: error.errors });
+    }
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-/**
- * GET /api/feedback/stats
- * Get feedback statistics
- */
-router.get('/stats', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+// POST /api/feedback - Create feedback
+router.post('/', validate(createFeedbackRouteSchema), async (req: Request, res: Response) => {
   try {
-    const salon_id = getSalonId(req);
-    const { start_date, end_date } = req.query as { start_date?: string; end_date?: string };
-    
-    const stats = await FeedbackAnalyticsService.getFeedbackStats(salon_id, start_date, end_date);
-    
-    res.json({
-      success: true,
-      data: stats
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/feedback/:id
- * Get feedback by ID
- */
-router.get('/:id', authenticate, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const { id } = req.params as Record<string, string>;
-    
-    const feedback = await FeedbackAnalyticsService.getFeedbackById(id, salon_id);
-    
-    res.json({
-      success: true,
-      data: feedback
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * PATCH /api/feedback/:id
- * Update feedback (status, priority, admin notes)
- */
-router.patch('/:id', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const { id } = req.params as Record<string, string>;
-    
-    const updates = updateFeedbackSchema.parse(req.body);
-    
-    const feedback = await FeedbackAnalyticsService.updateFeedback(id, salon_id, updates);
-    
-    res.json({
-      success: true,
-      data: feedback
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * DELETE /api/feedback/:id
- * Delete feedback
- */
-router.delete('/:id', authenticate, authorize('owner', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const { id } = req.params as Record<string, string>;
-    
-    await FeedbackAnalyticsService.deleteFeedback(id, salon_id);
-    
-    res.json({
-      success: true,
-      message: 'Feedback deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// ============ ANALYTICS ENDPOINTS ============
-
-/**
- * POST /api/feedback/analytics/track
- * Track an analytics event
- */
-router.post('/analytics/track', authenticate, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const user_id = getUserId(req);
-    
-    const validatedData = trackEventSchema.parse(req.body);
-    
-    const event = await FeedbackAnalyticsService.trackEvent({
+    const salon_id = req.headers['x-salon-id'] as string;
+    const user_id = (req as any).user?.id;
+    const feedback = await FeedbackRepository.create({
+      ...req.body,
       salon_id,
       user_id,
-      ...validatedData
     });
-    
-    res.status(201).json({
-      success: true,
-      data: event
-    });
-  } catch (error) {
-    next(error);
+    res.status(201).json({ success: true, data: feedback });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error creating feedback:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-/**
- * POST /api/feedback/analytics/track/batch
- * Track multiple analytics events
- */
-router.post('/analytics/track/batch', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+// GET /api/feedback/:id - Get feedback by ID
+router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const salon_id = getSalonId(req);
-    const user_id = getUserId(req);
-    const { events } = req.body;
-    
-    if (!Array.isArray(events) || events.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: 'Events array is required and must not be empty'
-      });
+    const feedback = await FeedbackRepository.findById(String(req.params.id));
+    if (!feedback) {
+      return res.status(404).json({ success: false, error: 'Feedback not found' });
     }
-    
-    if (events.length > 50) {
-      return res.status(400).json({
-        success: false,
-        error: 'Maximum 50 events per batch'
-      });
+    res.json({ success: true, data: feedback });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error getting feedback:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+  }
+});
+
+// PATCH /api/feedback/:id - Update feedback
+router.patch('/:id', validate(updateFeedbackRouteSchema), async (req: Request, res: Response) => {
+  try {
+    const feedback = await FeedbackRepository.update(String(req.params.id), req.body);
+    if (!feedback) {
+      return res.status(404).json({ success: false, error: 'Feedback not found' });
     }
-    
-    const results = await Promise.all(
-      events.map(event =>
-        FeedbackAnalyticsService.trackEvent({
-          salon_id,
-          user_id,
-          ...event
-        })
-      )
+    res.json({ success: true, data: feedback });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error updating feedback:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+  }
+});
+
+// ============================================
+// Analytics Tracking
+// ============================================
+
+// POST /api/feedback/track - Track a single event
+router.post('/track', validate(trackEventSchema), async (req: Request, res: Response) => {
+  try {
+    const salon_id = req.headers['x-salon-id'] as string;
+    const user_id = (req as any).user?.id;
+    const event = await AnalyticsRepository.trackEvent({
+      ...req.body,
+      salon_id,
+      user_id,
+    });
+    res.status(201).json({ success: true, data: event });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error tracking event:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+  }
+});
+
+// POST /api/feedback/batch-track - Track multiple events
+router.post('/batch-track', validate(batchTrackSchema), async (req: Request, res: Response) => {
+  try {
+    const salon_id = req.headers['x-salon-id'] as string;
+    const user_id = (req as any).user?.id;
+    const results = await AnalyticsRepository.batchTrackEvents(
+      req.body.events.map((e: any) => ({ ...e, salon_id, user_id }))
     );
-    
-    res.status(201).json({
-      success: true,
-      data: results,
-      count: results.length
-    });
-  } catch (error) {
-    next(error);
+    res.status(201).json({ success: true, data: results });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error batch tracking events:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-/**
- * GET /api/feedback/analytics
- * Get analytics events with filters
- */
-router.get('/analytics', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
+// POST /api/feedback/pageview - Track page view
+router.post('/pageview', validate(pageviewSchema), async (req: Request, res: Response) => {
   try {
-    const salon_id = getSalonId(req);
-    
+    const salon_id = req.headers['x-salon-id'] as string;
+    const user_id = (req as any).user?.id;
+    const pageview = await AnalyticsRepository.trackPageview({
+      ...req.body,
+      salon_id,
+      user_id,
+    });
+    res.status(201).json({ success: true, data: pageview });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error tracking pageview:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+  }
+});
+
+// POST /api/feedback/error - Track error
+router.post('/error', validate(errorTrackSchema), async (req: Request, res: Response) => {
+  try {
+    const salon_id = req.headers['x-salon-id'] as string;
+    const user_id = (req as any).user?.id;
+    const error = await AnalyticsRepository.trackError({
+      ...req.body,
+      salon_id,
+      user_id,
+    });
+    res.status(201).json({ success: true, data: error });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error tracking error:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+  }
+});
+
+// ============================================
+// Analytics Queries
+// ============================================
+
+// GET /api/feedback/analytics/events - Get event analytics
+router.get('/analytics/events', async (req: Request, res: Response) => {
+  try {
     const filters = analyticsQuerySchema.parse(req.query);
-    
-    const result = await FeedbackAnalyticsService.getAnalyticsByFilters({
-      salon_id,
-      ...filters
-    });
-    
-    res.json({
-      success: true,
-      data: result.events,
-      pagination: {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        total_pages: result.total_pages
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/feedback/analytics/summary
- * Get analytics summary
- */
-router.get('/analytics/summary', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const { start_date, end_date } = req.query as { start_date?: string; end_date?: string };
-    
-    const summary = await FeedbackAnalyticsService.getAnalyticsSummary(salon_id, start_date, end_date);
-    
-    res.json({
-      success: true,
-      data: summary
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /api/feedback/analytics/daily
- * Get daily analytics summary
- */
-router.get('/analytics/daily', authenticate, authorize('owner', 'manager', 'admin'), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const { start_date, end_date } = dateRangeSchema.parse(req.query);
-    
-    const summary = await FeedbackAnalyticsService.getDailyAnalyticsSummary(salon_id, start_date, end_date);
-    
-    res.json({
-      success: true,
-      data: summary
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * POST /api/feedback/analytics/pageview
- * Track page view (convenience endpoint)
- */
-router.post('/analytics/pageview', authenticate, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const salon_id = getSalonId(req);
-    const user_id = getUserId(req);
-    const { page_url, session_id, device_type, browser, os, ip_address, user_agent } = req.body;
-    
-    if (!page_url) {
-      return res.status(400).json({
-        success: false,
-        error: 'page_url is required'
-      });
+    const result = await AnalyticsRepository.getEventAnalytics(filters);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error getting event analytics:');
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ success: false, error: 'Invalid query parameters', details: error.errors });
     }
-    
-    const event = await FeedbackAnalyticsService.trackPageView(
-      salon_id,
-      page_url,
-      user_id,
-      session_id,
-      {
-        device_type,
-        browser,
-        os,
-        ip_address: ip_address || req.ip,
-        user_agent: user_agent || req.headers['user-agent']
-      }
-    );
-    
-    res.status(201).json({
-      success: true,
-      data: event
-    });
-  } catch (error) {
-    next(error);
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-/**
- * POST /api/feedback/analytics/error
- * Track error event (convenience endpoint)
- */
-router.post('/analytics/error', authenticate, async (req: Request, res: Response, next: NextFunction) => {
+// GET /api/feedback/analytics/pageviews - Get pageview analytics
+router.get('/analytics/pageviews', async (req: Request, res: Response) => {
   try {
-    const salon_id = getSalonId(req);
-    const user_id = getUserId(req);
-    const { error_type, error_message, stack_trace, session_id, page_url } = req.body;
-    
-    if (!error_type || !error_message) {
-      return res.status(400).json({
-        success: false,
-        error: 'error_type and error_message are required'
-      });
+    const filters = dateRangeSchema.parse(req.query);
+    const result = await AnalyticsRepository.getPageviewAnalytics(filters);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error getting pageview analytics:');
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ success: false, error: 'Invalid query parameters', details: error.errors });
     }
-    
-    const event = await FeedbackAnalyticsService.trackError(
-      salon_id,
-      error_type,
-      error_message,
-      stack_trace,
-      user_id,
-      session_id,
-      page_url
-    );
-    
-    res.status(201).json({
-      success: true,
-      data: event
-    });
-  } catch (error) {
-    next(error);
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
+  }
+});
+
+// GET /api/feedback/analytics/errors - Get error analytics
+router.get('/analytics/errors', async (req: Request, res: Response) => {
+  try {
+    const filters = dateRangeSchema.parse(req.query);
+    const result = await AnalyticsRepository.getErrorAnalytics(filters);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error getting error analytics:');
+    if (error.name === 'ZodError') {
+      return res.status(400).json({ success: false, error: 'Invalid query parameters', details: error.errors });
+    }
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 

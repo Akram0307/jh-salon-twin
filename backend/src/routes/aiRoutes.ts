@@ -1,131 +1,70 @@
-import { Router } from 'express';
-import { DemandForecastService } from '../services/DemandForecastService';
-import { ServicePopularityService } from '../services/ServicePopularityService';
-import { DynamicOfferGenerator } from '../services/DynamicOfferGenerator';
-import { query } from '../config/db';
+import { Router, Request, Response } from 'express';
+import { authenticate } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { forecastSchema, recomputePopularitySchema, generateOfferSchema } from '../schemas/ai';
+import { AIService } from '../services/AIService';
 
 import logger from '../config/logger';
 const log = logger.child({ module: 'ai_routes' });
 
 const router = Router();
-const DEFAULT_SALON_ID = process.env.SALON_ID || 'b0dcbd9e-1ca0-450e-a299-7ad239f848f4';
+router.use(authenticate);
 
-// Fetch demand forecast (for dashboard)
-router.get('/forecast', async (req, res) => {
+// POST /api/ai/campaigns/:id/pause - Pause a campaign (no body)
+router.post('/campaigns/:id/pause', async (req: Request, res: Response) => {
   try {
-    const salonId = String(req.query.salonId || DEFAULT_SALON_ID || '');
-
-    const result = await query(
-      `
-      SELECT service_id, forecast_date, predicted_demand, confidence_score
-      FROM demand_forecasts
-      WHERE salon_id = $1
-      ORDER BY forecast_date ASC
-      LIMIT 50
-    `,
-      [salonId]
-    );
-
-    res.json({
-      success: true,
-      forecast: result.rows,
-    });
-  } catch (err) {
-    log.error(err);
-    res.status(500).json({ error: 'Forecast fetch failed' });
+    const result = await AIService.pauseCampaign(String(req.params.id));
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error pausing campaign:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-router.get('/campaigns', async (req, res) => {
-  const salonId = String(req.query.salonId || DEFAULT_SALON_ID);
+// POST /api/ai/campaigns/:id/resume - Resume a campaign (no body)
+router.post('/campaigns/:id/resume', async (req: Request, res: Response) => {
   try {
-    const result = await query(
-      `
-      SELECT
-        id,
-        salon_id,
-        client_id,
-        service_id,
-        offer_discount,
-        sent_at,
-        claimed_at,
-        CASE WHEN claimed_at IS NULL THEN 'active' ELSE 'completed' END AS status
-      FROM ai_campaigns
-      WHERE salon_id = $1
-      ORDER BY sent_at DESC NULLS LAST, id DESC
-      LIMIT 50
-      `,
-      [salonId]
-    );
-
-    res.json({ campaigns: result.rows });
-  } catch (err: any) {
-    log.error({ err: err }, 'AI campaigns fetch error:');
-    res.json({ campaigns: [] });
+    const result = await AIService.resumeCampaign(String(req.params.id));
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error resuming campaign:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-router.post('/campaigns/:id/pause', async (req, res) => {
-  res.json({ success: true, id: req.params.id, status: 'paused' });
-});
-
-router.post('/campaigns/:id/resume', async (req, res) => {
-  res.json({ success: true, id: req.params.id, status: 'active' });
-});
-
-// Generate demand forecast
-router.post('/forecast', async (req, res) => {
+// POST /api/ai/forecast - Generate forecast
+router.post('/forecast', validate(forecastSchema), async (req: Request, res: Response) => {
   try {
-    const salonId = req.body.salonId || process.env.SALON_ID;
-
-    const forecastService = new DemandForecastService();
-    await forecastService.generateSimpleForecast(salonId || '');
-
-    res.json({
-      success: true,
-      message: 'Demand forecast generated',
-    });
-  } catch (err) {
-    log.error(err);
-    res.status(500).json({ error: 'Forecast generation failed' });
+    const salonId = req.body.salonId || req.headers['x-salon-id'] as string;
+    const result = await AIService.generateForecast(salonId);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error generating forecast:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-// Recompute service popularity
-router.post('/recompute-popularity', async (req, res) => {
+// POST /api/ai/recompute-popularity - Recompute service popularity
+router.post('/recompute-popularity', validate(recomputePopularitySchema), async (req: Request, res: Response) => {
   try {
-    const salonId = req.body.salonId || process.env.SALON_ID;
-
-    const popularity = new ServicePopularityService();
-    await popularity.recomputePopularity(salonId);
-
-    res.json({
-      success: true,
-      message: 'Service popularity updated',
-    });
-  } catch (err) {
-    log.error(err);
-    res.status(500).json({ error: 'Popularity recompute failed' });
+    const salonId = req.body.salonId || req.headers['x-salon-id'] as string;
+    const result = await AIService.recomputePopularity(salonId);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error recomputing popularity:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
-// Generate AI offer for a client
-router.post('/generate-offer', async (req, res) => {
+// POST /api/ai/generate-offer - Generate an offer
+router.post('/generate-offer', validate(generateOfferSchema), async (req: Request, res: Response) => {
   try {
     const { salonId, clientId, serviceId } = req.body;
-
-    const generator = new DynamicOfferGenerator();
-
-    const offer = await generator.generateOffer(
-      salonId || process.env.SALON_ID,
-      clientId,
-      serviceId
-    );
-
-    res.json({ offer });
-  } catch (err) {
-    log.error(err);
-    res.status(500).json({ error: 'Offer generation failed' });
+    const result = await AIService.generateOffer({ salonId, clientId, serviceId });
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    log.error({ err: error }, 'Error generating offer:');
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
 
