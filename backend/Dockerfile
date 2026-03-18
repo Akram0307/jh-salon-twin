@@ -34,4 +34,4 @@ COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
 USER nodejs
 EXPOSE 8080
 ENV PORT=8080 NODE_ENV=production
-CMD ["node", "dist/index.js"]
+CMD ["node", "bootstrap.js"]

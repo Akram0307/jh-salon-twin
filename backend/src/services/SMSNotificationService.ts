@@ -25,7 +25,7 @@ async function resolveSenderNumber(salonId: string): Promise<string> {
   } catch (e) {
     // fallthrough to default
   }
-  if (!defaultSender) throw new Error('No Twilio sender configured')
+  if (!defaultSender) console.warn('[SMS] No Twilio sender configured - SMS features disabled')
   return defaultSender
 }
 

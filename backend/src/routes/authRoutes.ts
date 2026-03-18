@@ -12,23 +12,28 @@ import { JwtTokenPayload, getErrorMessage } from '../types/routeTypes'
 const log = logger.child({ module: 'auth_routes' });
 
 const router = Router();
-// Fail-fast: no fallback secrets allowed
-const JWT_SECRET = process.env.JWT_SECRET;
-const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
-
-if (!JWT_SECRET || JWT_SECRET.length < 32) {
-  throw new Error(`FATAL: JWT_SECRET must be set and >= 32 chars (got ${JWT_SECRET?.length ?? 0})`);
-}
-if (!REFRESH_TOKEN_SECRET || REFRESH_TOKEN_SECRET.length < 32) {
-  throw new Error(`FATAL: REFRESH_TOKEN_SECRET must be set and >= 32 chars (got ${REFRESH_TOKEN_SECRET?.length ?? 0})`);
-}
+// Lazy secret validation - checked at request time, not import time
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(`JWT_SECRET must be set and >= 32 chars (got ${secret?.length ?? 0})`);
+  }
+  return secret;
+};
+const getRefreshSecret = () => {
+  const secret = process.env.REFRESH_TOKEN_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(`REFRESH_TOKEN_SECRET must be set and >= 32 chars (got ${secret?.length ?? 0})`);
+  }
+  return secret;
+};
 
 // Token generation helpers
 const generateAccessToken = (payload: object) => 
-  jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+  jwt.sign(payload, getJwtSecret(), { expiresIn: '1h' });
 
 const generateRefreshToken = (payload: object) => 
-  jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+  jwt.sign(payload, getRefreshSecret(), { expiresIn: '7d' });
 
 // POST /api/auth/login - Owner login
 router.post('/login', validate(loginSchema), async (req: Request, res: Response) => {
@@ -169,7 +174,7 @@ router.post('/refresh', validate(refreshTokenSchema), async (req: Request, res: 
     }
 
     // Verify refresh token
-    const decoded = jwt.verify(refresh_token, REFRESH_TOKEN_SECRET) as JwtTokenPayload;
+    const decoded = jwt.verify(refresh_token, getRefreshSecret()) as JwtTokenPayload;
 
     // Check if refresh token exists in database
     const stored = await pool.query(

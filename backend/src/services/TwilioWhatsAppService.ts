@@ -26,7 +26,7 @@ async function resolveSenderNumber(salonId: string): Promise<string> {
   )
 
   if (result.rows.length === 0 || !result.rows[0].whatsapp_sender_number) {
-    throw new Error('Salon sender number not configured')
+    log.warn('Salon sender number not configured - WhatsApp features disabled')
   }
 
   return result.rows[0].whatsapp_sender_number
