@@ -5,23 +5,18 @@ import pool from '../config/db';
 import logger from '../config/logger';
 import { JwtTokenPayload } from '../types/routeTypes';
 
-// Fail-fast at module load time if JWT_SECRET is missing or too short
-const JWT_SECRET: string = (() => {
+// Lazy JWT_SECRET validation - checked at request time, not import time
+// This prevents the entire container from crashing if secrets are misconfigured
+const getJwtSecret = (): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    throw new Error(
-      'FATAL: JWT_SECRET environment variable is required but not set. ' +
-      'Refusing to start without a valid secret.'
-    );
+    throw new Error('JWT_SECRET environment variable is required but not set.');
   }
   if (secret.length < 32) {
-    throw new Error(
-      'FATAL: JWT_SECRET must be at least 32 characters long. ' +
-      `Current length: ${secret.length}. Refusing to start.`
-    );
+    throw new Error(`JWT_SECRET must be at least 32 characters long (got ${secret.length}).`);
   }
   return secret;
-})();
+};
 
 export interface AuthRequest extends Request {
   user?: {
@@ -41,7 +36,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtTokenPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as JwtTokenPayload;
 
     // Get user from database to ensure they still exist and have correct role
     const result = await pool.query(
