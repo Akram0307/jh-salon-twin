@@ -1,24 +1,36 @@
-// MINIMAL TEST: Does the container environment allow listening on PORT?
-const http = require('http');
-const port = process.env.PORT || 8080;
+// SalonOS Backend Entrypoint
+// Combines bootstrap error handling with application startup
+// (Dockerfile copies this file but not bootstrap.js, so logic is inlined)
 
-console.log('[MINIMAL] Node version:', process.version);
-console.log('[MINIMAL] Platform:', process.platform, process.arch);
-console.log('[MINIMAL] PORT:', port);
-console.log('[MINIMAL] NODE_ENV:', process.env.NODE_ENV);
-console.log('[MINIMAL] CWD:', process.cwd());
-console.log('[MINIMAL] Starting minimal HTTP server...');
-
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify({ status: 'ok', test: 'minimal' }));
-});
-
-server.listen(port, () => {
-  console.log('[MINIMAL] ✓ LISTENING on port', port);
-});
-
-server.on('error', (err) => {
-  console.error('[MINIMAL] Server error:', err.message);
+process.on('uncaughtException', (err) => {
+  console.error('[BOOTSTRAP FATAL] Uncaught Exception during startup:');
+  console.error('[BOOTSTRAP FATAL] Error:', err.message);
+  console.error('[BOOTSTRAP FATAL] Stack:', err.stack);
   process.exit(1);
 });
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[BOOTSTRAP FATAL] Unhandled Rejection during startup:');
+  console.error('[BOOTSTRAP FATAL] Reason:', reason);
+  process.exit(1);
+});
+
+console.log('[BOOTSTRAP] Starting SalonOS backend...');
+console.log('[BOOTSTRAP] NODE_ENV:', process.env.NODE_ENV);
+console.log('[BOOTSTRAP] PORT:', process.env.PORT);
+console.log('[BOOTSTRAP] JWT_SECRET set:', !!process.env.JWT_SECRET, 'length:', process.env.JWT_SECRET?.length || 0);
+console.log('[BOOTSTRAP] REFRESH_TOKEN_SECRET set:', !!process.env.REFRESH_TOKEN_SECRET, 'length:', process.env.REFRESH_TOKEN_SECRET?.length || 0);
+console.log('[BOOTSTRAP] DB_USER set:', !!process.env.DB_USER);
+console.log('[BOOTSTRAP] DB_HOST set:', !!process.env.DB_HOST);
+console.log('[BOOTSTRAP] DB_NAME set:', !!process.env.DB_NAME);
+console.log('[BOOTSTRAP] REDIS_HOST set:', !!process.env.REDIS_HOST);
+console.log('[BOOTSTRAP] INSTANCE_CONNECTION_NAME set:', !!process.env.INSTANCE_CONNECTION_NAME);
+
+try {
+  require('./dist/index.js');
+} catch (err) {
+  console.error('[BOOTSTRAP FATAL] Failed to load application:');
+  console.error('[BOOTSTRAP FATAL] Error:', err.message);
+  console.error('[BOOTSTRAP FATAL] Stack:', err.stack);
+  process.exit(1);
+}
