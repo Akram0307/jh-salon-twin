@@ -1,0 +1,53 @@
+name: Create Staging VPC Connector
+on:
+  workflow_dispatch:
+
+jobs:
+  create-vpc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: salon-saas-487508
+
+      - name: Create VPC Connector
+        run: |
+          PROJECT="salon-saas-487508"
+          REGION="us-central1"
+          CONNECTOR="salonos-staging-vpc"
+
+          echo "========================================"
+          echo "CREATE STAGING VPC CONNECTOR"
+          echo "========================================"
+          echo ""
+
+          # Check if connector already exists
+          echo "=== Checking if connector exists ==="
+          if gcloud compute networks vpc-access connectors describe $CONNECTOR --region=$REGION --project=$PROJECT 2>/dev/null; then
+            echo "Connector already exists and is healthy"
+            gcloud compute networks vpc-access connectors describe $CONNECTOR --region=$REGION --project=$PROJECT --format="table(name, state, ipCidrRange)"
+            exit 0
+          fi
+
+          echo ""
+          echo "=== Creating new VPC connector ==="
+          gcloud compute networks vpc-access connectors create $CONNECTOR             --region=$REGION             --network=default             --range=10.9.0.0/28             --machine-type=e2-micro             --min-instances=2             --max-instances=10             --min-throughput=200             --max-throughput=1000             --project=$PROJECT
+
+          echo ""
+          echo "=== Verifying connector ==="
+          sleep 15
+          gcloud compute networks vpc-access connectors describe $CONNECTOR             --region=$REGION             --project=$PROJECT             --format="table(name, state, ipCidrRange, network, machineType)"
+
+          echo ""
+          echo "========================================"
+          echo "VPC CONNECTOR CREATION COMPLETE"
+          echo "========================================"
