@@ -124,7 +124,6 @@ jobs:
             --timeout=300
             --max-instances=20
             --service-account=${{ env.STAGING_SA }}
-            --add-cloudsql-instances=${{ secrets.STAGING_INSTANCE_CONNECTION_NAME }}
             --set-env-vars="NODE_ENV=staging,GCLOUD_PROJECT=${{ env.PROJECT_ID }},LOG_LEVEL=info,OTEL_ENABLED=true,ALLOWED_ORIGINS=https://${{ env.STAGING_FRONTEND_SERVICE }}-rgvcleapsa-uc.a.run.app"
             --set-secrets="JWT_SECRET=salonos-staging-JWT_SECRET_STAGING:latest,REFRESH_TOKEN_SECRET=salonos-staging-REFRESH_TOKEN_SECRET_STAGING:latest,DB_USER=salonos-staging-DB_USER:latest,DB_PASSWORD=salonos-staging-DB_PASSWORD:latest,DB_HOST=salonos-staging-DB_HOST:latest,DB_PORT=salonos-staging-DB_PORT:latest,DB_NAME=salonos-staging-DB_NAME:latest,REDIS_HOST=salonos-staging-REDIS_HOST:latest,REDIS_PORT=salonos-staging-REDIS_PORT:latest,INSTANCE_CONNECTION_NAME=salonos-staging-INSTANCE_CONNECTION_NAME:latest,TWILIO_ACCOUNT_SID=salonos-staging-TWILIO_ACCOUNT_SID:latest,TWILIO_AUTH_TOKEN=salonos-staging-TWILIO_AUTH_TOKEN:latest,OPENROUTER_API_KEY=salonos-staging-OPENROUTER_API_KEY:latest,SMTP_HOST=salonos-staging-SMTP_HOST:latest,SMTP_USER=salonos-staging-SMTP_USER:latest,SMTP_PASS=salonos-staging-SMTP_PASS:latest"
 
