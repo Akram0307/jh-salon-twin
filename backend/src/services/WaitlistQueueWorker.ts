@@ -49,6 +49,11 @@ export function startWaitlistWorker(): void {
     concurrency: 2,
   });
 
+  if (!worker) {
+    log.warn('[WaitlistQueueWorker] Redis not configured - waitlist worker disabled');
+    return;
+  }
+
   worker.on('failed', (job, err) => {
     log.error({ jobId: job?.id, jobName: job?.name, err }, '[WaitlistQueueWorker] Job failed');
   });

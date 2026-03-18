@@ -22,6 +22,7 @@ export class RevenueScheduler {
     log.info('[RevenueScheduler] Registering BullMQ repeatable jobs');
 
     const revenueQueue = createQueue('revenue');
+    if (!revenueQueue) return;
 
     revenueQueue.add(
       'daily-revenue-cycle',
@@ -69,6 +70,7 @@ export async function dispatchAutoRebookMessages() {
  */
 export function startBackgroundJobs() {
   const revenueQueue = createQueue('revenue');
+    if (!revenueQueue) return;
 
   revenueQueue.add(
     'auto-rebook-scan',

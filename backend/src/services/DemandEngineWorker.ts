@@ -10,10 +10,17 @@ import { broadcastActivity } from '../routes/activityRoutes'
 import { createQueue, createWorker, registerWorker } from '../config/queue'
 import type { IdleSlot, RecentClient } from '../types/serviceTypes';
 import { ActivityEvent } from '../types/routeTypes'
+import logger from '../config/logger'
+
+const log = logger.child({ module: 'demand_engine_worker' })
 
 const queue = createQueue('demand-engine')
 
 export async function startDemandEngine(salonId: string) {
+  if (!queue) {
+    log.warn('[DemandEngine] Redis not configured - demand engine disabled');
+    return;
+  }
   await queue.add(
     'demand-scan',
     { salonId },
@@ -24,7 +31,7 @@ export async function startDemandEngine(salonId: string) {
   )
 }
 
-const worker = createWorker(
+const _worker = createWorker(
   'demand-engine',
   async (job: Job) => {
     const { salonId } = job.data as { salonId: string }
@@ -92,4 +99,8 @@ const worker = createWorker(
   { concurrency: 5 }
 )
 
-registerWorker(worker)
+if (_worker) {
+  registerWorker(_worker)
+} else {
+  log.warn('[DemandEngine] Redis not configured - demand engine worker disabled')
+}

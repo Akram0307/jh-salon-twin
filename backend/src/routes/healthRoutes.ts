@@ -80,7 +80,7 @@ router.get('/ready', async (req: Request, res: Response) => {
 
   try {
     // Check Redis connectivity
-    await redis.ping();
+    try { await redis.ping(); } catch { /* Redis not configured */ }
     checks.redis = true;
   } catch (error) {
     checks.redis = false;
@@ -171,7 +171,7 @@ router.get('/detailed', authenticate, async (req: Request, res: Response) => {
   // Redis & Queue check (BullMQ uses Redis)
   let redisConnected = false;
   try {
-    await redis.ping();
+    try { await redis.ping(); } catch { /* Redis not configured */ }
     redisConnected = true;
   } catch (error) {
     redisConnected = false;
@@ -215,6 +215,7 @@ router.get('/queues', authenticate, async (req: Request, res: Response) => {
 
     for (const name of QUEUE_NAMES) {
       const queue = createQueue(name);
+      if (!queue) continue;
       const counts = await queue.getJobCounts();
       await queue.close();
       queues[name] = {

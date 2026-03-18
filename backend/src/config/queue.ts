@@ -1,23 +1,27 @@
 import { Queue, Worker, Processor, JobsOptions, WorkerOptions } from 'bullmq';
+import logger from './logger';
 
 const REDIS_HOST = process.env.REDIS_HOST;
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD || undefined;
 
 if (!REDIS_HOST) {
-  throw new Error('FATAL: REDIS_HOST environment variable is required for queue connections');
+  logger.warn('[QUEUE] REDIS_HOST not set - BullMQ queue features disabled');
 }
 
 /**
  * Shared BullMQ connection config.
+ * Returns undefined if Redis is not configured, allowing callers to bail out.
  * maxRetriesPerRequest: null is REQUIRED by BullMQ for worker connections.
  */
-export const QueueConnection = {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  password: REDIS_PASSWORD,
-  maxRetriesPerRequest: null,
-};
+export const QueueConnection = REDIS_HOST
+  ? {
+      host: REDIS_HOST,
+      port: REDIS_PORT,
+      password: REDIS_PASSWORD,
+      maxRetriesPerRequest: null,
+    }
+  : undefined;
 
 /** All known queue names in the system */
 export const QUEUE_NAMES = [
@@ -42,8 +46,13 @@ const defaultJobOptions: JobsOptions = {
 
 /**
  * Create a BullMQ Queue with standard defaults.
+ * Returns null if Redis is not configured.
  */
-export function createQueue(name: string, opts?: JobsOptions): Queue {
+export function createQueue(name: string, opts?: JobsOptions): Queue | null {
+  if (!QueueConnection) {
+    logger.warn(`[QUEUE] Skipping queue creation for "${name}" - Redis not configured`);
+    return null;
+  }
   return new Queue(name, {
     connection: QueueConnection,
     defaultJobOptions: { ...defaultJobOptions, ...opts },
@@ -52,12 +61,17 @@ export function createQueue(name: string, opts?: JobsOptions): Queue {
 
 /**
  * Create a BullMQ Worker with the shared connection.
+ * Returns null if Redis is not configured.
  */
 export function createWorker(
   name: string,
   handler: Processor,
   opts?: Omit<WorkerOptions, 'connection'>,
-): Worker {
+): Worker | null {
+  if (!QueueConnection) {
+    logger.warn(`[QUEUE] Skipping worker creation for "${name}" - Redis not configured`);
+    return null;
+  }
   return new Worker(name, handler, {
     connection: QueueConnection,
     ...opts,

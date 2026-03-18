@@ -28,6 +28,7 @@ export class WaitlistWorker {
    */
   static enqueueSlotEvent(eventId: string, slotTime: string): void {
     const queue = createQueue('waitlist-processing');
+    if (!queue) return;
     queue.add(
       'process-slot-event',
       { eventId, slotTime },
@@ -43,6 +44,7 @@ export class WaitlistWorker {
   static async enqueueBacklog(): Promise<number> {
     const events = await SlotEventRepository.getUnprocessedEvents(1000);
     const queue = createQueue('waitlist-processing');
+    if (!queue) return 0;
 
     for (const event of events) {
       queue.add(

@@ -45,6 +45,11 @@ export function startRevenueWorker(): void {
     concurrency: 1,
   });
 
+  if (!worker) {
+    log.warn('[RevenueWorker] Redis not configured - revenue worker disabled');
+    return;
+  }
+
   worker.on('failed', (job, err) => {
     log.error({ jobId: job?.id, jobName: job?.name, err }, '[RevenueWorker] Job failed');
   });
