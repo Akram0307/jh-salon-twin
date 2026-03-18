@@ -39,3 +39,8 @@ docs/verification_artifacts/
 
 # Staging secrets (use Secret Manager)
 environments/staging/env-staging.yaml
+
+# Test results and artifacts
+**/test-results/
+**/playwright-report/
+e2e/live_screenshots/
