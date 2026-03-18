@@ -164,7 +164,8 @@ jobs:
           DB_USER=$(gcloud secrets versions access latest --secret="salonos-staging-DB_USER")
           DB_PASSWORD=$(gcloud secrets versions access latest --secret="salonos-staging-DB_PASSWORD")
           DB_NAME=$(gcloud secrets versions access latest --secret="salonos-staging-DB_NAME")
-          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}?sslmode=disable"
+          export DB_PASSWORD_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote("$DB_PASSWORD", safe=""))")
+          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD_ENCODED}@localhost:5432/${DB_NAME}?sslmode=disable"
           wget -qO- https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 > /usr/local/bin/dbmate
           chmod +x /usr/local/bin/dbmate
           dbmate status
@@ -304,7 +305,8 @@ jobs:
           DB_USER=$(gcloud secrets versions access latest --secret="salonos-prod-DB_USER")
           DB_PASSWORD=$(gcloud secrets versions access latest --secret="salonos-prod-DB_PASSWORD")
           DB_NAME=$(gcloud secrets versions access latest --secret="salonos-prod-DB_NAME")
-          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD}@localhost:5432/${DB_NAME}?sslmode=disable"
+          export DB_PASSWORD_ENCODED=$(python3 -c "import urllib.parse; print(urllib.parse.quote("$DB_PASSWORD", safe=""))")
+          export DATABASE_URL="postgres://${DB_USER}:${DB_PASSWORD_ENCODED}@localhost:5432/${DB_NAME}?sslmode=disable"
           wget -qO- https://github.com/amacneil/dbmate/releases/latest/download/dbmate-linux-amd64 > /usr/local/bin/dbmate
           chmod +x /usr/local/bin/dbmate
           dbmate status
