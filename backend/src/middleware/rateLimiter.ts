@@ -3,15 +3,21 @@ import RedisStore from 'rate-limit-redis';
 import redis from '../config/redis';
 import logger from '../config/logger';
 
-// S5-C5: Redis-backed rate limiter store for distributed rate limiting across Cloud Run instances
-let redisStore: RedisStore | undefined;
-
-try {
-  redisStore = new RedisStore({
-    sendCommand: (cmd: string, ...args: (string | Buffer)[]) => redis.call(cmd, ...args) as any  // Redis SendCommandFn type boundary,
-  });
-} catch (err) {
-  logger.warn({ err }, 'Failed to create Redis rate limit store, falling back to MemoryStore');
+/**
+ * Each rate limiter MUST get its own store instance.
+ * express-rate-limit v7+ throws ERR_ERL_STORE_REUSE if a store is shared.
+ * Falls back to MemoryStore (undefined) when Redis is not configured.
+ */
+function createRedisStore(): RedisStore | undefined {
+  if (!process.env.REDIS_HOST) return undefined;
+  try {
+    return new RedisStore({
+      sendCommand: (cmd: string, ...args: (string | Buffer)[]) => redis.call(cmd, ...args) as any,
+    });
+  } catch (err) {
+    logger.warn({ err }, 'Failed to create Redis rate limit store, falling back to MemoryStore');
+    return undefined;
+  }
 }
 
 // Rate limiter for auth routes: 10 requests per 15 minutes
@@ -20,7 +26,7 @@ export const authRateLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  store: redisStore,
+  store: createRedisStore(),
   message: {
     error: 'Too many authentication attempts. Please try again later.',
   },
@@ -32,7 +38,7 @@ export const rateLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  store: redisStore,
+  store: createRedisStore(),
   message: {
     error: 'Too many requests. Please slow down.',
   },
