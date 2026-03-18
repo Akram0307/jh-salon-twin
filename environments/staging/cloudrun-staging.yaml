@@ -13,7 +13,7 @@ frontend:
   concurrency: 80
   min_instances: 0
   max_instances: 10
-  vpc_connector: salonos-staging-vpc          # S5-I1
+  vpc_connector: salonos-vpc-connector          # S5-I1
   vpc_egress: private-ranges-only
   env_vars:
     - name: NEXT_PUBLIC_API_BASE_URL
@@ -40,7 +40,7 @@ backend:
   concurrency: 80
   min_instances: 0
   max_instances: 5
-  vpc_connector: salonos-staging-vpc          # S5-I1
+  vpc_connector: salonos-vpc-connector          # S5-I1
   vpc_egress: private-ranges-only
   cloud_sql_instances:                        # S5-I2: Private IP Cloud SQL
     - salonos-staging-db
@@ -148,7 +148,7 @@ service_account:
 
 # VPC Connector (S5-I1)
 vpc_connector:
-  name: salonos-staging-vpc
+  name: salonos-vpc-connector
   region: us-central1
   range: 10.8.0.0/28
   min_instances: 2
