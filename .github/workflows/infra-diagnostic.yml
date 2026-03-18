@@ -1,0 +1,86 @@
+name: GCP Infrastructure Diagnostic
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose-infrastructure:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: salon-saas-487508
+
+      - name: Run Infrastructure Diagnostics
+        run: |
+          set +e
+          PROJECT="salon-saas-487508"
+          REGION="us-central1"
+
+          echo "========================================"
+          echo "GCP INFRASTRUCTURE DIAGNOSTIC REPORT"
+          echo "Project: $PROJECT"
+          echo "Region: $REGION"
+          echo "========================================"
+
+          # 1. VPC Connectors
+          echo ""
+          echo "=== 1. VPC CONNECTORS ==="
+          gcloud compute networks vpc-access connectors list --region=$REGION --project=$PROJECT --format="table(name, state, ipCidrRange, network)" 2>&1
+
+          # 2. Cloud SQL Instances
+          echo ""
+          echo "=== 2. CLOUD SQL INSTANCES ==="
+          gcloud sql instances list --project=$PROJECT --format="table(name, state, databaseVersion, tier, region)" 2>&1
+
+          # 3. Memorystore Redis
+          echo ""
+          echo "=== 3. MEMORSTORE REDIS ==="
+          gcloud redis instances list --region=$REGION --project=$PROJECT --format="table(name, state, tier, memorySizeGb, host, port)" 2>&1
+
+          # 4. Cloud Run Services
+          echo ""
+          echo "=== 4. CLOUD RUN SERVICES ==="
+          gcloud run services list --region=$REGION --project=$PROJECT --format="table(name, status.url, status.latestCreatedRevisionName, metadata.labels)" 2>&1
+
+          # 5. Service Account Permissions
+          echo ""
+          echo "=== 5. SERVICE ACCOUNT PERMISSIONS ==="
+          SA="salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com"
+          echo "Checking permissions for: $SA"
+          gcloud projects get-iam-policy $PROJECT --flatten="bindings[].members" --format="table(bindings.role)" --filter="bindings.members:$SA" 2>&1
+
+          # 6. Secret Manager Secrets
+          echo ""
+          echo "=== 6. SECRET MANAGER SECRETS ==="
+          gcloud secrets list --project=$PROJECT --format="table(name, created, labels)" 2>&1
+
+          # 7. Artifact Registry
+          echo ""
+          echo "=== 7. ARTIFACT REGISTRY ==="
+          gcloud artifacts repositories list --location=$REGION --project=$PROJECT --format="table(name, format, mode)" 2>&1
+
+          # 8. Check specific secrets for staging
+          echo ""
+          echo "=== 8. STAGING SECRETS CHECK ==="
+          REQUIRED_SECRETS=("JWT_SECRET_STAGING" "REFRESH_TOKEN_SECRET_STAGING" "DB_USER" "DB_PASSWORD" "DB_HOST" "DB_PORT" "DB_NAME" "REDIS_HOST" "REDIS_PORT" "INSTANCE_CONNECTION_NAME")
+          for secret in "${REQUIRED_SECRETS[@]}"; do
+            if gcloud secrets describe "salonos-staging-$secret" --project=$PROJECT &>/dev/null; then
+              echo "✅ salonos-staging-$secret exists"
+            else
+              echo "❌ salonos-staging-$secret MISSING"
+            fi
+          done
+
+          echo ""
+          echo "========================================"
+          echo "DIAGNOSTIC COMPLETE"
+          echo "========================================"
