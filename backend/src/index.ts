@@ -170,15 +170,16 @@ const server = http.createServer(app);
 log.info('[STARTUP] 7. Initializing WebSocket...');
 webSocketService.initialize(server);
 
-if (process.env.OTEL_ENABLED === 'true') {
-  startTelemetry();
-}
-
 log.info({ data: PORT }, '[STARTUP] 8. Starting server on port');
 
 server.listen(PORT, () => {
   log.info(`[STARTUP] ✓ Server listening on port ${PORT}`);
   log.info(`[STARTUP] Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Start OpenTelemetry AFTER server is listening (non-blocking)
+  if (process.env.OTEL_ENABLED === 'true') {
+    startTelemetry().catch(() => {});
+  }
 
   // Structured startup health report
   (async () => {
