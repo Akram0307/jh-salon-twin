@@ -23,9 +23,9 @@ env:
   STAGING_FRONTEND_SERVICE: salonos-owner-frontend-staging
   STAGING_BACKEND_SERVICE: salonos-backend-staging
   STAGING_SA: salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com
-  VPC_CONNECTOR: salonos-staging-vpc
+  VPC_CONNECTOR: salonos-vpc-connector
   PROD_SA: salonos-prod-sa@salon-saas-487508.iam.gserviceaccount.com
-  PROD_VPC_CONNECTOR: salonos-prod-vpc
+  PROD_VPC_CONNECTOR: salonos-vpc-connector
 
 concurrency:
   group: ${{ github.event.inputs.environment || 'staging' }}-${{ github.ref }}
