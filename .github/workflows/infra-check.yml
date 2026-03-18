@@ -1,0 +1,74 @@
+name: GCP Infra Check
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: salon-saas-487508
+
+      - name: Check Infrastructure
+        run: |
+          PROJECT="salon-saas-487508"
+          REGION="us-central1"
+
+          echo "# GCP Infrastructure Report" > infra-report.md
+          echo "Generated: $(date)" >> infra-report.md
+          echo "" >> infra-report.md
+
+          echo "## VPC Connectors" >> infra-report.md
+          echo '```' >> infra-report.md
+          gcloud compute networks vpc-access connectors list --region=$REGION --project=$PROJECT 2>&1 >> infra-report.md
+          echo '```' >> infra-report.md
+          echo "" >> infra-report.md
+
+          echo "## Cloud SQL" >> infra-report.md
+          echo '```' >> infra-report.md
+          gcloud sql instances list --project=$PROJECT 2>&1 >> infra-report.md
+          echo '```' >> infra-report.md
+          echo "" >> infra-report.md
+
+          echo "## Redis" >> infra-report.md
+          echo '```' >> infra-report.md
+          gcloud redis instances list --region=$REGION --project=$PROJECT 2>&1 >> infra-report.md
+          echo '```' >> infra-report.md
+          echo "" >> infra-report.md
+
+          echo "## Cloud Run Services" >> infra-report.md
+          echo '```' >> infra-report.md
+          gcloud run services list --region=$REGION --project=$PROJECT 2>&1 >> infra-report.md
+          echo '```' >> infra-report.md
+          echo "" >> infra-report.md
+
+          echo "## Service Account Roles" >> infra-report.md
+          echo '```' >> infra-report.md
+          gcloud projects get-iam-policy $PROJECT --flatten="bindings[].members" --format="table(bindings.role)" --filter="bindings.members:salonos-staging-sa@$PROJECT.iam.gserviceaccount.com" 2>&1 >> infra-report.md
+          echo '```' >> infra-report.md
+          echo "" >> infra-report.md
+
+          echo "## Secrets" >> infra-report.md
+          echo '```' >> infra-report.md
+          gcloud secrets list --project=$PROJECT --format="table(name)" 2>&1 >> infra-report.md
+          echo '```' >> infra-report.md
+
+          cat infra-report.md
+
+      - name: Commit Report
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add infra-report.md
+          git commit -m "chore: update infrastructure report" || echo "No changes"
+          git push
