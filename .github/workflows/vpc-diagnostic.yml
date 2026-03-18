@@ -1,4 +1,4 @@
-name: VPC Connector Diagnostic
+name: VPC Diagnostic
 on:
   workflow_dispatch:
 
@@ -22,12 +22,12 @@ jobs:
       - name: Check VPC Connector Status
         run: |
           echo "=== Checking VPC Connector Status ==="
-          gcloud compute networks vpc-access connectors describe salonos-staging-vpc             --region=us-central1             --project=salon-saas-487508             --format=json || echo "Connector not found or error"
+          gcloud compute networks vpc-access connectors describe salonos-staging-vpc             --region=us-central1             --project=salon-saas-487508             --format=json 2>&1 || echo "CONNECTOR_NOT_FOUND"
 
-          echo "
-=== Listing all connectors in us-central1 ==="
-          gcloud compute networks vpc-access connectors list             --region=us-central1             --project=salon-saas-487508
+          echo ""
+          echo "=== Listing all connectors in us-central1 ==="
+          gcloud compute networks vpc-access connectors list             --region=us-central1             --project=salon-saas-487508 2>&1
 
-          echo "
-=== Checking service account permissions ==="
-          gcloud projects get-iam-policy salon-saas-487508             --flatten="bindings[].members"             --format="table(bindings.role)"             --filter="bindings.members:salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com"
+          echo ""
+          echo "=== Checking connector IAM permissions ==="
+          gcloud projects get-iam-policy salon-saas-487508             --flatten="bindings[].members"             --format="table(bindings.role)"             --filter="bindings.members:salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com" 2>&1
