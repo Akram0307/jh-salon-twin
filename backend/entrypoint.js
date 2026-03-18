@@ -1,35 +1,24 @@
-// Container entrypoint with full diagnostics
-console.log('[ENTRY] Starting SalonOS container...');
-console.log('[ENTRY] NODE_ENV:', process.env.NODE_ENV);
-console.log('[ENTRY] PORT:', process.env.PORT);
-console.log('[ENTRY] JWT_SECRET set:', !!process.env.JWT_SECRET, 'len:', process.env.JWT_SECRET?.length || 0);
-console.log('[ENTRY] DB_USER set:', !!process.env.DB_USER);
-console.log('[ENTRY] DB_HOST set:', !!process.env.DB_HOST);
-console.log('[ENTRY] DB_NAME set:', !!process.env.DB_NAME);
-console.log('[ENTRY] REDIS_HOST set:', !!process.env.REDIS_HOST);
-console.log('[ENTRY] INSTANCE_CONNECTION_NAME set:', !!process.env.INSTANCE_CONNECTION_NAME);
-console.log('[ENTRY] OTEL_ENABLED:', process.env.OTEL_ENABLED);
-console.log('[ENTRY] Node version:', process.version);
-console.log('[ENTRY] Platform:', process.platform, process.arch);
-console.log('[ENTRY] CWD:', process.cwd());
-console.log('[ENTRY] About to require dist/index.js...');
+// MINIMAL TEST: Does the container environment allow listening on PORT?
+const http = require('http');
+const port = process.env.PORT || 8080;
 
-process.on('uncaughtException', (err) => {
-  console.error('[ENTRY FATAL] Uncaught Exception:', err.message);
-  console.error('[ENTRY FATAL] Stack:', err.stack);
-  process.exit(1);
+console.log('[MINIMAL] Node version:', process.version);
+console.log('[MINIMAL] Platform:', process.platform, process.arch);
+console.log('[MINIMAL] PORT:', port);
+console.log('[MINIMAL] NODE_ENV:', process.env.NODE_ENV);
+console.log('[MINIMAL] CWD:', process.cwd());
+console.log('[MINIMAL] Starting minimal HTTP server...');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ status: 'ok', test: 'minimal' }));
 });
 
-process.on('unhandledRejection', (reason) => {
-  console.error('[ENTRY FATAL] Unhandled Rejection:', reason);
-  process.exit(1);
+server.listen(port, () => {
+  console.log('[MINIMAL] ✓ LISTENING on port', port);
 });
 
-try {
-  require('./dist/index.js');
-  console.log('[ENTRY] require() returned successfully');
-} catch (err) {
-  console.error('[ENTRY FATAL] Failed to require dist/index.js:', err.message);
-  console.error('[ENTRY FATAL] Stack:', err.stack);
+server.on('error', (err) => {
+  console.error('[MINIMAL] Server error:', err.message);
   process.exit(1);
-}
+});
