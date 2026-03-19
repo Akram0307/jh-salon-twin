@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JH Salon - Mission Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jh: { black: '#121212', white: '#ffffff', gold: '#D4AF37', champagne: '#F3E5AB', red: '#8B0000' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen flex flex-col font-sans">
+    <!-- Topbar -->
+    <header class="bg-jh-black text-jh-white p-4 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-jh-gold rounded flex items-center justify-center text-black font-bold text-xl">JH</div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wide text-jh-gold">MISSION CONTROL</h1>
+                <p class="text-xs text-gray-400">Kurnool Branch • Today, Oct 24</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-xs font-medium">AI Active</span>
+            </div>
+            <button class="relative p-2 text-gray-300 hover:text-jh-gold transition">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-jh-red rounded-full"></span>
+            </button>
+            <div class="w-8 h-8 rounded-full bg-gray-700 border border-jh-gold overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=Staff&background=333&color=D4AF37" alt="Staff">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content (Kanban) -->
+    <main class="flex-1 overflow-x-auto p-6">
+        <div class="flex gap-6 h-full min-w-max">
+
+            <!-- Column: Upcoming -->
+            <div class="w-80 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h2 class="font-semibold text-gray-700 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-blue-500"></i> Upcoming
+                    </h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">3</span>
+                </div>
+                <div class="p-3 flex-1 overflow-y-auto space-y-3 bg-gray-50/50">
+                    <!-- Card -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-jh-gold transition cursor-pointer border-l-4 border-l-blue-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-sm font-bold text-gray-900">10:30 AM</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">AI Booked</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Arjun Kumar</h3>
+                        <p class="text-sm text-gray-500 mb-3">Hair Color & Styling</p>
+                        <div class="flex justify-between items-center text-xs">
+                            <div class="flex items-center gap-1 text-gray-500"><i data-lucide="scissors" class="w-3 h-3"></i> Stylist: Priya</div>
+                            <button class="text-jh-gold hover:text-yellow-600 font-medium">Check In</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column: In Progress -->
+            <div class="w-80 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h2 class="font-semibold text-gray-700 flex items-center gap-2">
+                        <i data-lucide="play-circle" class="w-4 h-4 text-jh-gold"></i> In Progress
+                    </h2>
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full">2</span>
+                </div>
+                <div class="p-3 flex-1 overflow-y-auto space-y-3 bg-gray-50/50">
+                    <!-- Card -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-jh-gold transition cursor-pointer border-l-4 border-l-jh-gold">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-sm font-bold text-gray-900">09:45 AM</span>
+                            <span class="text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 px-2 py-1 rounded flex items-center gap-1">
+                                <div class="w-1.5 h-1.5 bg-yellow-500 rounded-full animate-pulse"></div> Active
+                            </span>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Sneha Reddy</h3>
+                        <p class="text-sm text-gray-500 mb-3">Keratin Treatment</p>
+                        <div class="flex justify-between items-center text-xs">
+                            <div class="flex items-center gap-1 text-gray-500"><i data-lucide="scissors" class="w-3 h-3"></i> Stylist: Rahul</div>
+                            <button class="bg-jh-black text-jh-gold px-3 py-1 rounded hover:bg-gray-800 transition">Complete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column: Completed -->
+            <div class="w-80 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                    <h2 class="font-semibold text-gray-700 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Completed
+                    </h2>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full">5</span>
+                </div>
+                <div class="p-3 flex-1 overflow-y-auto space-y-3 bg-gray-50/50">
+                    <!-- Card -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 opacity-75 border-l-4 border-l-green-500">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-sm font-bold text-gray-500 line-through">09:00 AM</span>
+                            <span class="text-xs text-green-600 font-medium">Paid ₹1200</span>
+                        </div>
+                        <h3 class="font-semibold text-gray-600">Vikram Singh</h3>
+                        <p class="text-sm text-gray-400 mb-3">Haircut & Spa</p>
+                        <div class="flex justify-between items-center text-xs">
+                            <div class="flex items-center gap-1 text-gray-400"><i data-lucide="scissors" class="w-3 h-3"></i> Stylist: Amit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Human Takeover Alert Example -->
+            <div class="w-80 flex flex-col bg-white rounded-xl shadow-sm border border-jh-red overflow-hidden relative">
+                <div class="absolute top-0 left-0 w-full h-1 bg-jh-red"></div>
+                <div class="p-4 border-b border-red-100 bg-red-50 flex justify-between items-center">
+                    <h2 class="font-semibold text-jh-red flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i> Action Required
+                    </h2>
+                </div>
+                <div class="p-4 flex-1 flex flex-col justify-center items-center text-center space-y-3">
+                    <div class="w-12 h-12 bg-red-100 text-jh-red rounded-full flex items-center justify-center">
+                        <i data-lucide="message-square" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Client Needs Assistance</h3>
+                        <p class="text-xs text-gray-500 mt-1">AI escalated a complex query from <strong>Neha</strong> regarding bridal packages.</p>
+                    </div>
+                    <button class="w-full bg-jh-red text-white py-2 rounded-lg text-sm font-medium hover:bg-red-800 transition shadow-sm">Take Over Chat</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

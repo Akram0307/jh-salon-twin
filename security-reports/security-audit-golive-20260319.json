@@ -1,0 +1,169 @@
+{
+  "audit_date": "2026-03-19T10:30:00Z",
+  "scope": "Backend, Frontend, Infrastructure",
+  "overall_score": 42,
+  "go_live_ready": false,
+  "critical_blockers": [
+    {
+      "id": "SEC-001",
+      "severity": "CRITICAL",
+      "category": "Secrets Management",
+      "title": "Hardcoded Database Password in .env",
+      "description": "Database password 'JHSalonAdmin123' is hardcoded in backend/.env and backend/.env.bak_20260313",
+      "location": "backend/.env:4, backend/.env.bak_20260313:4",
+      "impact": "If .env is committed to git, attackers can extract credentials from git history. Database is exposed on internal IP 34.29.171.92",
+      "remediation": "1. Remove .env and .env.bak from git history (git filter-branch or BFG Repo-Cleaner)\n2. Add .env to .gitignore\n3. Store secrets in GCP Secret Manager\n4. Use Workload Identity Federation for production",
+      "cvss": "9.1 (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)",
+      "estimated_fix_hours": 4
+    },
+    {
+      "id": "SEC-002",
+      "severity": "CRITICAL",
+      "category": "Secrets Management",
+      "title": "Hardcoded API Keys in .env",
+      "description": "OpenRouter API key, Twilio credentials, and internal IPs exposed in .env files",
+      "location": "backend/.env:10-21",
+      "exposed_secrets": [
+        "OPENROUTER_API_KEY=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",
+        "TWILIO_AUTH_TOKEN=f5bad139950fcadb2bea37287da3828d",
+        "TWILIO_API_KEY_SECRET=yWThlxtOGIaAQAq4kBJDY9MItqK0vTqk",
+        "DB_HOST=34.29.171.92",
+        "REDIS_HOST=10.215.7.43"
+      ],
+      "impact": "Financial loss via API abuse, unauthorized Twilio SMS/WhatsApp sending, database compromise",
+      "remediation": "Rotate all exposed keys immediately. Migrate to GCP Secret Manager. Update GCP Secret Manager config to include JWT_SECRET, REFRESH_TOKEN_SECRET, TWILIO_API_KEY_SECRET",
+      "cvss": "9.1",
+      "estimated_fix_hours": 6
+    },
+    {
+      "id": "SEC-003",
+      "severity": "CRITICAL",
+      "category": "Configuration",
+      "title": "Missing JWT_SECRET and REFRESH_TOKEN_SECRET in .env",
+      "description": "JWT_SECRET and REFRESH_TOKEN_SECRET are not defined in backend/.env. The app will crash at runtime when trying to authenticate users",
+      "location": "backend/.env (missing)",
+      "impact": "Application will fail to start or authenticate users. Authentication completely broken in production",
+      "remediation": "1. Generate cryptographically secure secrets (32+ chars)\n2. Add to GCP Secret Manager\n3. Add to .env (local dev only, NOT committed)\n4. Update loadSecrets() in backend/src/config/secrets.ts to include JWT_SECRET and REFRESH_TOKEN_SECRET",
+      "cvss": "10.0 (availability:complete, integrity:complete)",
+      "estimated_fix_hours": 2
+    },
+    {
+      "id": "SEC-004",
+      "severity": "CRITICAL",
+      "category": "Secrets Management",
+      "title": "Backup File with Secrets Committed to Repository",
+      "description": "backend/.env.bak_20260313 contains identical secrets and is likely committed to git",
+      "location": "backend/.env.bak_20260313",
+      "impact": "Secrets extractable from git history even after .env is removed. Historical exposure window",
+      "remediation": "1. Remove file: rm backend/.env.bak_20260313\n2. Purge from git history: bfg --delete-files .env.bak*\n3. Force push if needed",
+      "cvss": "8.5",
+      "estimated_fix_hours": 2
+    }
+  ],
+  "high_issues": [
+    {
+      "id": "SEC-005",
+      "severity": "HIGH",
+      "category": "Dependency Vulnerability",
+      "title": "serialize-javascript RCE Vulnerability",
+      "description": "serialize-javascript <=7.0.2 vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
+      "cve": "CVE-2024-9163",
+      "cvss_score": 8.1,
+      "affected_chain": "vite-plugin-pwa -> @rollup/plugin-terser -> serialize-javascript",
+      "location": "frontend/package.json",
+      "impact": "Remote Code Execution possible through malicious input processed by workbox-build",
+      "remediation": "npm update vite-plugin-pwa to >=0.19.8",
+      "estimated_fix_hours": 1
+    },
+    {
+      "id": "SEC-006",
+      "severity": "HIGH",
+      "category": "Dependency Vulnerability",
+      "title": "esbuild Development Server Request Bypass",
+      "description": "esbuild <=0.24.2 allows any website to send requests to development server and read responses",
+      "cve": "GHSA-67mh-4wv8-2f99",
+      "cvss_score": 5.3,
+      "location": "frontend/node_modules/esbuild",
+      "impact": "Information disclosure if dev server is exposed. Production not affected if built with production flag",
+      "remediation": "npm update vite to >=8.0.1",
+      "estimated_fix_hours": 1
+    }
+  ],
+  "medium_issues": [
+    {
+      "id": "SEC-007",
+      "severity": "MEDIUM",
+      "category": "Security Headers",
+      "title": "'unsafe-inline' Allowed in CSP Style Source",
+      "description": "Content Security Policy allows 'unsafe-inline' for styles, reducing XSS protection",
+      "location": "backend/src/middleware/securityHeaders.ts:14",
+      "impact": "Stored XSS via style injection possible, though impact reduced by other CSP directives",
+      "remediation": "If TailwindCSS requires inline styles, consider using 'nonce' approach or CSS-in-JS",
+      "estimated_fix_hours": 2
+    },
+    {
+      "id": "SEC-008",
+      "severity": "MEDIUM",
+      "category": "Rate Limiting",
+      "title": "Rate Limiter Falls Back to MemoryStore Without Redis",
+      "description": "rateLimiter.ts creates MemoryStore when Redis is unavailable. In multi-instance deployment, each instance has independent limits",
+      "location": "backend/src/middleware/rateLimiter.ts:10-18",
+      "impact": "Rate limiting can be bypassed by distributing requests across instances",
+      "remediation": "Ensure Redis is always available in production. Add health check that fails if Redis is down",
+      "estimated_fix_hours": 1
+    }
+  ],
+  "positive_findings": [
+    "Auth middleware properly throws error if JWT_SECRET missing (fixed from previous audit)",
+    "SQL queries use parameterized queries ($1, $2) - SQL injection prevented",
+    "Twilio webhook validates signature using twilio.validateRequest()",
+    "Security headers configured with comprehensive Helmet policy",
+    "CORS properly configured with explicit origin validation",
+    "Rate limiting implemented for auth (10/min) and general API (100/15min)",
+    "bcrypt used for password hashing (appropriate work factor)",
+    "Refresh tokens stored in database with expiration",
+    "GCP Secret Manager integration configured",
+    "HSTS configured with preload and includeSubDomains"
+  ],
+  "recommendations": [
+    {
+      "priority": "IMMEDIATE",
+      "action": "Rotate all exposed secrets (API keys, Twilio credentials, DB password)"
+    },
+    {
+      "priority": "IMMEDIATE",
+      "action": "Add JWT_SECRET and REFRESH_TOKEN_SECRET to .env and GCP Secret Manager"
+    },
+    {
+      "priority": "IMMEDIATE",
+      "action": "Remove .env.bak_20260313 and purge from git history"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Update vite-plugin-pwa to >=0.19.8 to fix serialize-javascript RCE"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Update loadSecrets() to include JWT_SECRET and REFRESH_TOKEN_SECRET"
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Implement Workload Identity Federation to eliminate service account key files"
+    },
+    {
+      "priority": "MEDIUM",
+      "action": "Add fail2ban or Cloud Armor rules for DDoS protection"
+    },
+    {
+      "priority": "LOW",
+      "action": "Review and tighten CSP directives to remove 'unsafe-inline'"
+    }
+  ],
+  "estimated_total_fix_hours": 16,
+  "risk_summary": {
+    "critical": 4,
+    "high": 2,
+    "medium": 2,
+    "low": 0
+  }
+}
