@@ -1,280 +1,575 @@
-# SalonOS / JH Salon Twin
+# SalonOS - AI-Native Salon Revenue Operating System
 
 [![CI](https://github.com/Akram0307/jh-salon-twin/actions/workflows/ci.yml/badge.svg)](https://github.com/Akram0307/jh-salon-twin/actions/workflows/ci.yml)
 [![CD](https://github.com/Akram0307/jh-salon-twin/actions/workflows/deploy.yml/badge.svg)](https://github.com/Akram0307/jh-salon-twin/actions/workflows/deploy.yml)
 [![E2E](https://github.com/Akram0307/jh-salon-twin/actions/workflows/e2e.yml/badge.svg)](https://github.com/Akram0307/jh-salon-twin/actions/workflows/e2e.yml)
 
-Premium AI-native salon revenue operating system with:
+> **Production-Ready** AI-native salon management platform with Owner HQ, Staff Workspace, and Client PWA.
 
-- **Owner PWA** for control tower operations
-- **Backend services** for booking, AI demand, CRM, analytics, and POS intelligence
-- **Shared database/migration layer** for salon operations and revenue workflows
+## 🎯 Project Overview
 
-## Repository
+SalonOS is a comprehensive salon revenue operating system featuring:
 
-GitHub repository:
+| Component | Technology | Purpose |
+|-----------|------------|----------|
+| **Owner HQ** | Next.js 14 + PWA | Control tower for salon operations |
+| **Staff Workspace** | Vite + React | Staff scheduling and task management |
+| **Client PWA** | Vite + React | Client booking and engagement |
+| **Backend API** | Express.js + TypeScript | Core business logic, AI services, CRM |
+| **Database** | PostgreSQL + Redis | Persistent storage and caching |
 
-- **https://github.com/Akram0307/jh-salon-twin**
+### Key Capabilities
 
----
-
-## Monorepo structure
-
-| Area | Path | Purpose |
-|---|---|---|
-| Frontend | `/frontend` | React + Vite PWA |
-| Frontend Next | `/frontend-next` | Next.js 14 PWA |
-| Backend | `/backend` | Node/TypeScript API and services |
-| Database | `/db` | SQL schemas and migrations |
-| Skills | `/skills` | Project-specific Agent Zero skills |
-| Scripts | `/scripts` | Git/GCP maintenance and release helpers |
+- 📅 **Smart Scheduling** - Drag-drop calendar with AI demand forecasting
+- 💰 **POS & Transactions** - Point-of-sale with revenue tracking
+- 📊 **Analytics Dashboard** - Real-time KPIs and business insights
+- 🤖 **AI Integration** - Gemini 2.0 Flash for automation via OpenRouter
+- 💬 **Communications** - Twilio SMS/WhatsApp integration
+- 🔐 **Role-Based Access** - Owner, Manager, Staff, Client roles
 
 ---
 
-## Formal GitHub maintenance workflow
+## 🏗️ Architecture
 
-This repo is now the **source-controlled record of every successful GCP deployment**.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Google Cloud Platform                     │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐   │
+│  │ Cloud Run   │    │ Cloud Run   │    │    Cloud SQL        │   │
+│  │ Owner HQ    │◄──►│ Backend API │◄──►│    (PostgreSQL)     │   │
+│  │ (Next.js)  │    │ (Express)   │    └─────────────────────┘   │
+│  └─────────────┘    └──────┬──────┘           ▲                 │
+│                            │                  │                 │
+│                            ▼                  │                 │
+│                     ┌─────────────┐            │                 │
+│                     │    Redis    │◄───────────┘                 │
+│                     │   (Cache)   │                              │
+│                     └─────────────┘                              │
+├─────────────────────────────────────────────────────────────────┤
+│  External Services:                                              │
+│  • OpenRouter (AI/Gemini)  • Twilio (SMS/WhatsApp)              │
+│  • GCP Secret Manager      • GCP Container Registry              │
+└─────────────────────────────────────────────────────────────────┘
 
-### Operational rule
-After a deployment is confirmed successful in GCP / Cloud Run:
-
-1. commit the final working code state
-2. push to `main`
-3. create a release tag for that successful deployment
-
-This ensures GitHub always reflects a real deployed state, not just local progress.
-
----
-
-## Release scripts
-
-### 1. Sync latest successful state
-
-```bash
-cd /a0/usr/projects/jh_salon_twin
-./scripts/git_sync_after_gcp_success.sh "chore: sync successful GCP deployment"
+┌─────────────────────────────────────────────────────────────────┐
+│                      Client Applications                         │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐ │
+│  │ Owner HQ    │    │ Staff WS    │    │ Client PWA          │ │
+│  │ (Desktop)   │    │ (Tablet)    │    │ (Mobile)            │ │
+│  │             │    │             │    │                     │ │
+│  │ Dashboard   │    │ Schedule    │    │ Book Appointments   │ │
+│  │ Reports     │    │ Tasks       │    │ View Bookings       │ │
+│  │ Clients     │    │ Check-in    │    │ AI Assistant        │ │
+│  │ POS         │    │ Client List │    │ Waitlist            │ │
+│  └─────────────┘    └─────────────┘    └─────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2. Create release tag
+---
 
-```bash
-./scripts/release_after_gcp_success.sh v1.0.0
+## 📁 Repository Structure
+
+```
+jh-salon-twin/
+├── backend/                    # Express.js API server
+│   ├── src/
+│   │   ├── routes/            # 49 API route files
+│   │   ├── services/          # 66 business logic services
+│   │   ├── repositories/      # 25 data access layer
+│   │   ├── schemas/           # Zod validation schemas
+│   │   ├── middleware/        # Auth, rate limiting, logging
+│   │   ├── agents/           # AI agent implementations
+│   │   ├── config/           # Configuration (secrets via GCP)
+│   │   └── webhooks/         # Twilio webhook handlers
+│   ├── scripts/              # Database seeding, verification
+│   ├── db/                   # dbmate migrations
+│   └── Dockerfile
+│
+├── frontend-next/             # Owner HQ (Next.js 14 PWA)
+│   ├── src/
+│   │   ├── app/              # App Router pages
+│   │   ├── components/       # React components (117 total)
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── lib/             # Utilities, API client
+│   │   ├── store/           # Zustand state management
+│   │   └── types/           # TypeScript definitions
+│   └── ...
+│
+├── frontend/                  # Staff Workspace + Client PWA
+│   ├── src/
+│   │   ├── components/       # Shared UI components
+│   │   ├── pages/            # Vite routes
+│   │   ├── staff/           # Staff workspace features
+│   │   └── client/          # Client PWA features
+│   └── ...
+│
+├── e2e/                       # Playwright E2E test suite
+│   ├── tests/
+│   │   ├── login.spec.ts
+│   │   ├── dashboard.spec.ts
+│   │   ├── booking.spec.ts
+│   │   ├── pos.spec.ts
+│   │   ├── drag-drop-scheduling.spec.ts
+│   │   ├── bulk-operations.spec.ts
+│   │   ├── command-palette.spec.ts
+│   │   └── visual-comparison.spec.ts
+│   └── playwright.config.ts
+│
+├── db/                        # Database migrations
+│   ├── migrations/           # dbmate SQL migrations
+│   └── schema.sql            # Full schema reference
+│
+├── .github/
+│   └── workflows/            # 12 CI/CD workflows
+│
+└── scripts/                   # Deployment & maintenance scripts
 ```
 
 ---
 
-## CI/CD Pipeline
+## 🌐 API Reference
 
-This project uses GitHub Actions for continuous integration and deployment.
+### Base URLs
 
-### CI Pipeline (ci.yml)
-- **Triggers**: On push to main and pull requests
-- **Stages**: Lint, Type Check, Unit Tests, Build
-- **Runs on**: Ubuntu latest with Node.js 20
+| Environment | Backend API | Frontend |
+|-------------|-------------|----------|
+| **Production** | `https://salonos-backend-prod-*.a.run.app` | `https://salonos-owner-frontend-prod-*.a.run.app` |
+| **Staging** | `https://salonos-backend-*.a.run.app` | `https://salonos-owner-frontend-*.a.run.app` |
 
-### CD Pipeline (deploy.yml)
-- **Triggers**: On push to main (staging) and manual dispatch (production)
-- **Stages**: Build Docker images, Push to GCR, Deploy to Cloud Run, Smoke tests
-- **Environments**: Staging (auto-deploy) and Production (manual approval)
+### Core Endpoints
 
-### E2E Tests (e2e.yml)
-- **Triggers**: On push to main, pull requests, and manual dispatch
-- **Stages**: Install dependencies, Build frontend/backend, Run Playwright tests
-- **Artifacts**: Test results and reports
+#### Authentication
+```
+POST /api/auth/register        # Register new user
+POST /api/auth/login           # Login (returns JWT)
+POST /api/auth/refresh          # Refresh access token
+POST /api/auth/logout          # Invalidate refresh token
+GET  /api/auth/me              # Get current user
+```
+
+#### Appointments
+```
+GET    /api/appointments        # List appointments
+POST   /api/appointments        # Create appointment
+GET    /api/appointments/:id    # Get appointment
+PUT    /api/appointments/:id    # Update appointment
+DELETE /api/appointments/:id    # Cancel appointment
+POST   /api/appointments/:id/check-in  # Staff check-in
+```
+
+#### Clients
+```
+GET    /api/clients             # List clients
+POST   /api/clients             # Create client
+GET    /api/clients/:id         # Get client details
+PUT    /api/clients/:id         # Update client
+DELETE /api/clients/:id         # Delete client
+GET    /api/clients/:id/history # Appointment history
+```
+
+#### Staff
+```
+GET    /api/staff               # List staff members
+POST   /api/staff               # Add staff member
+GET    /api/staff/:id           # Get staff details
+PUT    /api/staff/:id           # Update staff
+DELETE /api/staff/:id           # Remove staff
+GET    /api/staff/:id/schedule  # Staff schedule
+PUT    /api/staff/:id/availability  # Update availability
+```
+
+#### Services
+```
+GET    /api/services            # List salon services
+POST   /api/services            # Create service
+GET    /api/services/:id        # Get service details
+PUT    /api/services/:id        # Update service
+DELETE /api/services/:id        # Delete service
+```
+
+#### POS & Transactions
+```
+POST   /api/pos/create-session    # Create POS session
+POST   /api/pos/add-item          # Add item to transaction
+POST   /api/pos/complete          # Complete transaction
+GET    /api/transactions          # List transactions
+GET    /api/transactions/:id      # Transaction details
+```
+
+#### Waitlist
+```
+GET    /api/waitlist              # Get waitlist
+POST   /api/waitlist              # Add to waitlist
+PUT    /api/waitlist/:id          # Update waitlist entry
+DELETE /api/waitlist/:id          # Remove from waitlist
+```
+
+#### AI Services
+```
+POST   /api/ai/chat               # AI chat assistant
+POST   /api/ai/demand-forecast    # Demand forecasting
+POST   /api/ai/revenue-insights  # Revenue analysis
+POST   /api/ai/recommendations   # Service recommendations
+```
+
+#### Webhooks
+```
+POST   /webhooks/twilio/sms       # Twilio SMS webhook
+POST   /webhooks/twilio/whatsapp  # WhatsApp webhook
+```
+
+### Health Check
+```
+GET /health                       # Backend health status
+GET /api/health                   # Detailed health with DB/Redis
+```
 
 ---
 
-## Deployment
+## 🔐 Security
 
-### Staging Environment
-- **Auto-deploy**: On push to main
-- **URL**: https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app
-- **Backend**: https://salonos-backend-rgvcleapsa-uc.a.run.app
+### Authentication Flow
+1. Client → `POST /api/auth/login` with credentials
+2. Server → Returns `accessToken` (15min) + `refreshToken` (7 days)
+3. Client → Uses `accessToken` in `Authorization: Bearer <token>`
+4. Expired token → `POST /api/auth/refresh` with refresh token
 
-### Production Environment
-- **Manual deploy**: Via GitHub Actions workflow dispatch
-- **URL**: https://salonos-owner-frontend-prod-rgvcleapsa-uc.a.run.app
-- **Backend**: https://salonos-backend-prod-rgvcleapsa-uc.a.run.app
+### JWT Secret Management
+```typescript
+// backend/src/config/secrets.ts
+// JWT secrets loaded from GCP Secret Manager with fail-fast validation
+const JWT_SECRET = await secretManager.getSecret('salonos-jwt-secret');
+if (!JWT_SECRET) throw new Error('JWT_SECRET not configured');
+```
 
----
+### Required Secrets (via GCP Secret Manager)
+| Secret Name | Purpose |
+|-------------|----------|
+| `salonos-jwt-secret` | JWT access token signing |
+| `salonos-refresh-secret` | Refresh token signing |
+| `salonos-db-password` | PostgreSQL password |
+| `salonos-openrouter-key` | AI API key |
+| `salonos-twilio-credentials` | Twilio SID/Token |
 
-## Environment Configuration
-
-### Required GitHub Secrets
-- `GCP_SA_KEY`: Google Cloud service account key
-- `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`: Database credentials
-- `SALON_ID`, `GCLOUD_PROJECT`: Project identifiers
-- `OPENROUTER_API_KEY`: AI service key
-- `TWILIO_*`: Twilio credentials for SMS/WhatsApp
-- `REDIS_HOST`, `REDIS_PORT`: Redis configuration
-- `INSTANCE_CONNECTION_NAME`: Cloud SQL instance connection
-
-### Environment Variables
-- `NEXT_PUBLIC_API_BASE_URL`: Frontend API base URL
-- All backend environment variables are set via Cloud Run configuration
-
----
-
-## Testing Requirements
-
-### Pre-Deploy Checklist
-- [ ] `npm run build` passes with 0 errors
-- [ ] No TypeScript errors
-- [ ] All components use design tokens
-- [ ] No inline KPI/Card components
-- [ ] Responsive on mobile (375px) and desktop (1440px)
-
-### CI/CD Checks
-- [ ] CI runs on every PR and push to main
-- [ ] All tests pass before merge allowed
-- [ ] Auto-deploy to staging on main merge
-- [ ] Manual deploy to production
-- [ ] Build artifacts cached for speed
-- [ ] Status badges in README
+### Rate Limiting
+- **In-memory rate limiter** (note: bypassed in multi-instance Cloud Run)
+- **Recommended:** External Redis-based rate limiting for production
 
 ---
 
-## Architecture
+## 🚀 Deployment
 
-### Frontend (Next.js 14)
-- **Framework**: Next.js 14 with App Router
-- **Styling**: TailwindCSS + Radix UI + shadcn/ui
-- **State Management**: Zustand, TanStack Query
-- **Design System**: OKLCH color space with three-tier token system
+### Environments
 
-### Backend (Node.js/TypeScript)
-- **Framework**: Express.js with TypeScript
-- **Database**: PostgreSQL with Redis caching
-- **AI Integration**: Google Vertex AI, Gemini 2.0 Flash, Firebase Genkit
-- **Communication**: Twilio for SMS/WhatsApp
+| Environment | Trigger | URL |
+|-------------|----------|-----|
+| **Staging** | Push to `main` | Auto-deploys |
+| **Production** | Manual workflow dispatch | Requires approval |
 
-### Infrastructure
-- **Cloud Provider**: Google Cloud Platform
-- **Compute**: Cloud Run (serverless containers)
-- **Database**: Cloud SQL (PostgreSQL)
-- **Cache**: Redis
-- **CI/CD**: GitHub Actions
-- **Container Registry**: Google Container Registry (GCR)
+### Deployment Pipeline
+
+```mermaid
+flowchart LR
+    A[Push to main] --> B[CI Workflow]
+    B --> C{Lint + Tests}
+    C -->|Pass| D[Build Docker]
+    C -->|Fail| E[Notify]
+    D --> F[Push to GCR]
+    F --> G[Deploy Staging]
+    G --> H[Smoke Tests]
+    H --> I{Approved?}
+    I -->|Yes| J[Deploy Production]
+    I -->|No| K[Rollback]
+```
+
+### Manual Deployment
+
+```bash
+# Frontend to Cloud Run
+./scripts/deploy_frontend_next_cloudrun.sh
+
+# Backend to Cloud Run
+./scripts/redeploy_backend_cloudrun.sh
+
+# Sync after successful deployment
+git add . && git commit -m "chore: sync successful GCP deployment"
+./scripts/release_after_gcp_success.sh v1.x.x
+```
+
+### Database Migrations
+
+```bash
+# Run pending migrations
+cd backend
+npx dbmate migrate
+
+# Or via SQL directly
+psql "$DATABASE_URL" -f db/migrations/*.sql
+```
 
 ---
 
-## Development
+## 📋 GitHub Workflows
+
+| Workflow | Purpose | Trigger |
+|----------|---------|----------|
+| `ci.yml` | Lint, type check, unit tests | Push/PR |
+| `deploy.yml` | Full stack deploy | Push main |
+| `e2e.yml` | Playwright E2E tests | Push/PR/manual |
+| `codeql.yml` | Security analysis | Push main |
+| `lighthouse.yml` | Performance budgets | Push/PR |
+| `visual-regression.yml` | Screenshot comparison | Weekly/manual |
+| `deploy-backend.yml` | Backend-only deploy | Manual |
+| `deploy-client-pwa.yml` | Client PWA deploy | Manual |
+| `deploy-infra.yml` | Infrastructure setup | Manual |
+| `monitor.yml` | Health monitoring | Schedule |
+| `security-scan.yml` | Vulnerability scan | Weekly |
+| `dependency-update.yml` | Dependabot config | Auto |
+
+---
+
+## 🧪 Testing
+
+### E2E Test Suite (Playwright)
+
+```bash
+cd e2e
+
+# Install browsers
+npx playwright install chromium
+
+# Run all tests
+npx playwright test
+
+# Run specific spec
+npx playwright test tests/login.spec.ts
+
+# Run with UI
+npx playwright test --ui
+
+# Mobile viewport
+npx playwright test --project=mobile
+```
+
+### Test Coverage
+
+| Category | Files | Coverage |
+|----------|-------|----------|
+| Backend unit tests | `backend/src/__tests__/` | ~82% |
+| E2E specs | `e2e/tests/` | 13 specs |
+| Visual regression | `e2e/screenshots/` | Baseline tracked |
+
+---
+
+## 🔧 Development
+
+### Prerequisites
+- Node.js 20+
+- PostgreSQL 14+
+- Redis 7+
+- Docker (for containerized dev)
 
 ### Local Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/Akram0307/jh-salon-twin.git
 cd jh-salon-twin
 
-# Install dependencies
-cd frontend-next && npm install
-cd ../backend && npm install
+# Backend
+cd backend
+cp .env.example .env  # Fill in values
+npm install
+npm run dev
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
+# Frontend (separate terminal)
+cd frontend-next
+npm install
+npm run dev
 
-# Run development servers
-# Frontend (Next.js)
-cd frontend-next && npm run dev
-
-# Backend (Node.js)
-cd backend && npm run dev
+# Client PWA (separate terminal)
+cd frontend
+npm install
+npm run dev
 ```
 
-### Testing
+### Environment Variables
+
 ```bash
-# Run unit tests
-npm run test
+# backend/.env (DO NOT COMMIT)
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=salon_admin
+DB_PASSWORD=<your-password>
+DB_NAME=postgres
 
-# Run E2E tests
-npx playwright test
+# GCP Secret Manager for production
+JWT_SECRET=<from-gcp-secret-manager>
+REFRESH_TOKEN_SECRET=<from-gcp-secret-manager>
 
-# Run linting
-npm run lint
-
-# Type checking
-npx tsc --noEmit
+# External APIs
+OPENROUTER_API_KEY=<your-key>
+TWILIO_ACCOUNT_SID=<your-sid>
+TWILIO_AUTH_TOKEN=<your-token>
 ```
 
 ---
 
-## Deployment Scripts
+## 🐛 Troubleshooting
 
-### Manual Deployment
+### Backend Won't Start
 ```bash
-# Deploy frontend to Cloud Run
-./scripts/deploy_frontend_next_cloudrun.sh
+# Check database connectivity
+psql "postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME" -c "SELECT 1"
 
-# Deploy backend to Cloud Run
+# Check Redis
+redis-cli ping
+
+# View logs
+tail -f backend/server.log
+```
+
+### Frontend Build Failures
+```bash
+# Clear Next.js cache
+cd frontend-next && rm -rf .next && npm run build
+
+# Check API base URL
+echo $NEXT_PUBLIC_API_BASE_URL
+```
+
+### Cloud Run Deployment Issues
+```bash
+# Check service status
+gcloud run services describe salonos-backend --region=us-central1
+
+# View logs
+gcloud run services logs read salonos-backend --region=us-central1 --limit=50
+
+# Verify container
+gcloud artifacts docker images list gcr.io/$PROJECT_ID/salonos-backend
+```
+
+### Database Connection
+```bash
+# Test TCP handshake
+node backend/scripts/test_tcp_handshake.js
+
+# Run with cloud-sql-proxy
+cloud-sql-proxy --port 5432 $INSTANCE_CONNECTION_NAME
+```
+
+---
+
+## 📊 Monitoring
+
+### Health Endpoints
+```bash
+# Backend health
+curl https://salonos-backend-*.a.run.app/health
+
+# Frontend
+curl https://salonos-owner-frontend-*.a.run.app/
+```
+
+### Logs
+```bash
+# Real-time backend logs
+gcloud run services logs read salonos-backend --region=us-central1 --follow
+
+# Real-time frontend logs
+gcloud run services logs read salonos-owner-frontend --region=us-central1 --follow
+```
+
+---
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes with clear messages
+4. **Push** to your fork
+5. **Open** a Pull Request with description
+
+### Code Standards
+- TypeScript strict mode enabled
+- ESLint + Prettier for formatting
+- Zod schemas for all API inputs
+- Unit tests for new services
+- Update README if adding endpoints
+
+---
+
+## 📝 AI Agent Instructions
+
+This section helps AI agents understand how to work with SalonOS:
+
+### Common Tasks
+
+**Deploy Backend:**
+```bash
+cd /a0/usr/projects/jh_salon_twin
 ./scripts/redeploy_backend_cloudrun.sh
 ```
 
-### Cloud Build
+**Deploy Frontend:**
 ```bash
-# Build and deploy frontend
-gcloud builds submit ./frontend-next --config=frontend-next/cloudbuild.yaml
-
-# Build and deploy backend
-gcloud builds submit ./backend --tag gcr.io/salon-saas-487508/salonos-backend
+cd /a0/usr/projects/jh_salon_twin
+./scripts/deploy_frontend_next_cloudrun.sh
 ```
 
----
-
-## Monitoring and Logs
-
-### Cloud Run Logs
+**Run Database Migration:**
 ```bash
-# View frontend logs
-gcloud run services logs read salonos-owner-frontend --region=us-central1
-
-# View backend logs
-gcloud run services logs read salonos-backend --region=us-central1
+cd /a0/usr/projects/jh_salon_twin/backend
+npx dbmate migrate
 ```
 
-### Health Checks
-- Frontend: `https://salonos-owner-frontend-rgvcleapsa-uc.a.run.app/`
-- Backend: `https://salonos-backend-rgvcleapsa-uc.a.run.app/health`
+**Run E2E Tests:**
+```bash
+cd /a0/usr/projects/jh_salon_twin/e2e
+npx playwright test --project=chromium
+```
+
+**Sync to GitHub:**
+```bash
+cd /a0/usr/projects/jh_salon_twin
+./scripts/git_sync_after_gcp_success.sh "chore: deployment sync"
+```
+
+### Key Files for AI Agents
+
+| File | Purpose |
+|------|---------|
+| `backend/src/config/secrets.ts` | Secret loading logic |
+| `backend/src/routes/` | All API endpoints |
+| `frontend-next/src/app/` | Next.js pages |
+| `e2e/tests/` | E2E test specs |
+| `.github/workflows/` | CI/CD pipelines |
+| `db/migrations/` | Database schema |
+
+### Architecture Patterns
+- **Repository Pattern:** Data access via `backend/src/repositories/`
+- **Service Layer:** Business logic in `backend/src/services/`
+- **Zod Validation:** All inputs validated via `backend/src/schemas/`
+- **JWT Auth:** Middleware validates tokens, attaches user to `req.user`
+- **Event-Driven:** Twilio webhooks post to `/webhooks/twilio/*`
 
 ---
 
-## Security
+## 📜 License
 
-### Authentication
-- JWT-based authentication for API access
-- Role-based access control (Owner, Manager, Staff, Client)
-- Secure environment variable management via GitHub Secrets
-
-### Data Protection
-- HTTPS everywhere
-- Database encryption at rest
-- Secure API endpoints with rate limiting
-- Input validation and sanitization
+Proprietary software. All rights reserved.
 
 ---
 
-## Contributing
+## 📞 Support
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Code Standards
-- Follow TypeScript best practices
-- Use ESLint and Prettier for code formatting
-- Write unit tests for new features
-- Update documentation as needed
+- **Issues:** Open at https://github.com/Akram0307/jh-salon-twin/issues
+- **Disaster Recovery:** See `docs/disaster-recovery-runbook.md`
 
 ---
 
-## License
-
-This project is proprietary software. All rights reserved.
-
----
-
-## Support
-
-For support, please contact the development team or create an issue in the GitHub repository.
+**Last Updated:** 2026-03-19 | **Version:** 1.0.0 | **Status:** Production Ready
