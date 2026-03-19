@@ -1,46 +1,44 @@
-# Root secrets and project internals
-.a0proj/
-credentials/
-**/.env
-**/.env.*
-
-# Node / frontend
-**/node_modules/
-
-# Backend build artifacts
-backend/dist/
-
-# Python / caches
-**/__pycache__/
-**/*.pyc
+# Dependencies
+node_modules/
 venv/
+__pycache__/
+*.pyc
+
+# Environment files (NEVER commit)
+.env
+.env.local
+.env.*.local
+.env.bak*
+*.env.backup
+
+# Credentials
+credentials/
+*.pem
+*.key
 
 # Logs
 *.log
-**/*.log
+logs/
 
-# OS / editor
+# OS files
 .DS_Store
+Thumbs.db
+
+# IDE
 .vscode/
 .idea/
 
-# Large generated assets / mock outputs
-/generated_images/
+# Build outputs
+dist/
+build/
+.next/
 
-# Temp / archives
-*.zip
-*.tar.gz
+# Test artifacts
+e2e/test-results/
+e2e/screenshots/
+frontend/test-results/
+playwright-report/
 
-# Local binaries
-cloud-sql-proxy
-.next
-coverage
-docs/verification_artifacts/
-
-# Staging secrets (use Secret Manager)
-environments/staging/env-staging.yaml
-
-# Test results and artifacts
-**/test-results/
-**/playwright-report/
-e2e/live_screenshots/
+# Deploy logs
+*_deploy_*.log
+*_deploy_*.log.*

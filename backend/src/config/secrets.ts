@@ -8,7 +8,7 @@ function getClient(): SecretManagerServiceClient {
   if (!client) {
     client = new SecretManagerServiceClient();
   }
-  return client!; // Non-null assertion since we just initialized it
+  return client!;
 }
 
 async function accessSecret(secretName: string): Promise<string | undefined> {
@@ -26,14 +26,18 @@ async function accessSecret(secretName: string): Promise<string | undefined> {
 }
 
 export async function loadSecrets() {
+  // All secrets that should be loaded from GCP Secret Manager
   const secrets = [
     'DB_USER',
     'DB_PASSWORD',
     'DB_HOST',
     'DB_NAME',
     'DATABASE_URL',
+    'JWT_SECRET',
+    'REFRESH_TOKEN_SECRET',
     'TWILIO_AUTH_TOKEN',
-    'OPENAI_API_KEY'
+    'OPENAI_API_KEY',
+    'OPENROUTER_API_KEY'
   ];
 
   for (const key of secrets) {
@@ -44,5 +48,13 @@ export async function loadSecrets() {
         logger.info(`Loaded secret: ${key}`);
       }
     }
+  }
+
+  // Validate critical secrets are present (fail fast in production)
+  if (!process.env.JWT_SECRET) {
+    throw new Error('CRITICAL: JWT_SECRET not configured. Set it in GCP Secret Manager or .env');
+  }
+  if (!process.env.REFRESH_TOKEN_SECRET) {
+    throw new Error('CRITICAL: REFRESH_TOKEN_SECRET not configured. Set it in GCP Secret Manager or .env');
   }
 }

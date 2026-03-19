@@ -1,0 +1,19 @@
+# Environment files (NEVER commit these)
+.env
+.env.local
+.env.*.local
+.env.bak*
+*.env.backup
+
+# Credentials
+credentials/
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
