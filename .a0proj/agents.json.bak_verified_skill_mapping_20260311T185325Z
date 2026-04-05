@@ -1,0 +1,386 @@
+{
+  "version": "2.0",
+  "last_updated": "2026-03-11T18:43:19Z",
+  "architecture": "10-domain lead-first architecture with specialist sub-agents",
+  "agents": {
+    "product_strategist": {
+      "title": "Product Strategist",
+      "team": "product",
+      "reports_to": null,
+      "skills": [
+        "prd-development",
+        "find-skills"
+      ],
+      "description": "Owns roadmap, product requirements, prioritization, and cross-team coordination."
+    },
+    "product_manager": {
+      "title": "Product Manager",
+      "team": "product",
+      "reports_to": "product_strategist",
+      "skills": [
+        "prd-development",
+        "find-skills"
+      ],
+      "description": "Turns strategy into scoped requirements, acceptance criteria, and release plans."
+    },
+    "frontend_architect": {
+      "title": "Frontend Architect",
+      "team": "frontend",
+      "reports_to": null,
+      "skills": [
+        "ui-design-system",
+        "tailwind-design-system",
+        "shadcn-ui-expert",
+        "shadcn",
+        "ui-ux-design-pro",
+        "ui-ux-pro-max",
+        "all-in-one-ui-ux-design",
+        "gts-design-system-integration",
+        "react-vite-best-practices",
+        "react-gradual-architecture",
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "accessibility",
+        "ui-animation",
+        "playwright-visual-testing",
+        "api-contract-testing",
+        "pwa-development",
+        "tailwindcss-mobile-first",
+        "tailwindcss-performance"
+      ],
+      "description": "Leads React/PWA architecture, design system governance, accessibility, and frontend delivery."
+    },
+    "design_system_enforcer": {
+      "title": "Design System Enforcer",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "ui-design-system",
+        "tailwind-design-system",
+        "shadcn-ui-expert",
+        "gts-design-system-integration",
+        "ui-ux-pro-max"
+      ],
+      "description": "Enforces tokens, component consistency, spacing, theming, and premium UI rules."
+    },
+    "component_architect": {
+      "title": "Component Architect",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "shadcn-ui-expert",
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "react-vite-best-practices"
+      ],
+      "description": "Designs reusable component primitives, shells, and module composition patterns."
+    },
+    "client_pwa_ux_specialist": {
+      "title": "Client PWA UX Specialist",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "pwa-development",
+        "ui-ux-design-pro",
+        "all-in-one-ui-ux-design",
+        "tailwindcss-mobile-first",
+        "ui-ux-pro-max"
+      ],
+      "description": "Optimizes client-facing PWA flows for conversion, trust, and mobile usability."
+    },
+    "responsive_mobile_ux_engineer": {
+      "title": "Responsive/Mobile UX Engineer",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "tailwindcss-mobile-first",
+        "tailwindcss-performance",
+        "react-vite-best-practices"
+      ],
+      "description": "Improves mobile layouts, touch ergonomics, responsiveness, and runtime efficiency."
+    },
+    "frontend_state_data_flow_engineer": {
+      "title": "Frontend State & Data Flow Engineer",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "react-state-management",
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "react-vite-best-practices"
+      ],
+      "description": "Owns client state, API integration patterns, caching, and UI data orchestration."
+    },
+    "accessibility_interaction_qa_agent": {
+      "title": "Accessibility & Interaction QA Agent",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "accessibility",
+        "frontend-accessibility",
+        "ui-ux-design-pro"
+      ],
+      "description": "Validates WCAG, ARIA, keyboard navigation, and interaction quality."
+    },
+    "performance_optimization_agent": {
+      "title": "Performance Optimization Agent",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "tailwindcss-performance",
+        "tailwindcss-mobile-first",
+        "react-vite-best-practices"
+      ],
+      "description": "Targets bundle size, rendering performance, responsiveness, and Core Web Vitals."
+    },
+    "motion_microinteraction_designer": {
+      "title": "Motion & Microinteraction Designer",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "ui-animation",
+        "frontend-ui-animator",
+        "micro-interactions",
+        "ui-ux-design-pro",
+        "ui-ux-pro-max"
+      ],
+      "description": "Designs tasteful motion, transitions, and feedback interactions."
+    },
+    "frontend_test_automation_agent": {
+      "title": "Frontend Test Automation Agent",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "playwright-cli",
+        "playwright-automation-expert",
+        "playwright-visual-testing",
+        "playwright-e2e-testing"
+      ],
+      "description": "Implements frontend regression, smoke, and route-level automated checks."
+    },
+    "visual_regression_auditor": {
+      "title": "Visual Regression Auditor",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "playwright-visual-testing",
+        "tailwind-design-system"
+      ],
+      "description": "Performs screenshot-driven visual audits and regression baselining."
+    },
+    "forms_validation_specialist": {
+      "title": "Forms & Validation Specialist",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "frontend-patterns",
+        "react-vite-best-practices",
+        "ui-ux-design-pro"
+      ],
+      "description": "Owns forms, validation states, field UX, and error recovery paths."
+    },
+    "api_contract_integration_agent": {
+      "title": "API Contract Integration Agent",
+      "team": "frontend",
+      "reports_to": "frontend_architect",
+      "skills": [
+        "api-contract-testing",
+        "api-contract",
+        "frontend-design-patterns",
+        "frontend-patterns"
+      ],
+      "description": "Validates frontend/backend payload contracts and integration assumptions."
+    },
+    "backend_architect": {
+      "title": "Backend Architect",
+      "team": "backend",
+      "reports_to": null,
+      "skills": [
+        "nodejs-backend-patterns",
+        "nodejs-backend-typescript",
+        "postgresql-database-engineering",
+        "api-design-principles",
+        "mastering-typescript"
+      ],
+      "description": "Leads Node.js/TypeScript service architecture, APIs, and backend governance."
+    },
+    "backend_engineer": {
+      "title": "Backend Engineer",
+      "team": "backend",
+      "reports_to": "backend_architect",
+      "skills": [
+        "nodejs-backend-patterns",
+        "nodejs-backend-typescript",
+        "postgresql-database-engineering",
+        "api-design-principles",
+        "mastering-typescript"
+      ],
+      "description": "Implements APIs, business logic, repository/service patterns, and integration points."
+    },
+    "database_engineer": {
+      "title": "Database Engineer",
+      "team": "backend",
+      "reports_to": "backend_architect",
+      "skills": [
+        "postgresql-database-engineering",
+        "postgresql-table-design",
+        "sql-optimization-patterns"
+      ],
+      "description": "Owns relational schema design, migrations, tenancy, and query performance."
+    },
+    "integration_specialist": {
+      "title": "Integration Specialist",
+      "team": "backend",
+      "reports_to": "backend_architect",
+      "skills": [
+        "twilio-api",
+        "api-design-principles",
+        "nodejs-backend-patterns"
+      ],
+      "description": "Implements third-party integrations such as Twilio, webhooks, and external APIs."
+    },
+    "ai_systems_architect": {
+      "title": "AI Systems Architect",
+      "team": "ai",
+      "reports_to": null,
+      "skills": [
+        "genkit",
+        "vertex-ai-api-dev"
+      ],
+      "description": "Owns agent workflows, Genkit architecture, evaluation strategy, and AI product behavior."
+    },
+    "genkit_ai_engineer": {
+      "title": "Genkit AI Engineer",
+      "team": "ai",
+      "reports_to": "ai_systems_architect",
+      "skills": [
+        "genkit",
+        "vertex-ai-api-dev"
+      ],
+      "description": "Builds AI flows, prompts, tools, and Gemini/Vertex integrations."
+    },
+    "autonomous_receptionist": {
+      "title": "Autonomous Receptionist",
+      "team": "ai",
+      "reports_to": "ai_systems_architect",
+      "skills": [
+        "genkit",
+        "nodejs-backend-patterns",
+        "mastering-typescript",
+        "vertex-ai-api-dev"
+      ],
+      "description": "Executes conversational booking and receptionist workflows."
+    },
+    "qa_strategy_lead": {
+      "title": "QA Strategy Lead",
+      "team": "quality",
+      "reports_to": null,
+      "skills": [
+        "playwright-cli",
+        "playwright-automation-expert",
+        "playwright-e2e-testing",
+        "api-contract-testing"
+      ],
+      "description": "Defines quality gates, release criteria, regression coverage, and verification plans."
+    },
+    "e2e_testing_agent": {
+      "title": "E2E Testing Agent",
+      "team": "quality",
+      "reports_to": "qa_strategy_lead",
+      "skills": [
+        "playwright-cli",
+        "playwright-automation-expert",
+        "playwright-e2e-testing"
+      ],
+      "description": "Runs end-to-end flows, smoke checks, and browser-driven verification."
+    },
+    "devops_platform_lead": {
+      "title": "DevOps Platform Lead",
+      "team": "devops",
+      "reports_to": null,
+      "skills": [
+        "docker-ci-cd",
+        "deploying-on-gcp",
+        "gcp-cloud-run"
+      ],
+      "description": "Owns delivery pipelines, deployment reliability, and platform operations."
+    },
+    "ci_cd_orchestrator": {
+      "title": "CI/CD Orchestrator",
+      "team": "devops",
+      "reports_to": "devops_platform_lead",
+      "skills": [
+        "docker-ci-cd",
+        "gcp-cloud-run"
+      ],
+      "description": "Automates build, test, release, and deployment workflows."
+    },
+    "observability_architect": {
+      "title": "Observability Architect",
+      "team": "observability",
+      "reports_to": null,
+      "skills": [
+        "observability-pattern-detector"
+      ],
+      "description": "Designs logging, tracing, metrics, alerting, and operational telemetry standards."
+    },
+    "observability_agent": {
+      "title": "Observability Agent",
+      "team": "observability",
+      "reports_to": "observability_architect",
+      "skills": [
+        "observability-pattern-detector"
+      ],
+      "description": "Implements and validates telemetry patterns, signals, and anomaly detection."
+    },
+    "security_architect": {
+      "title": "Security Architect",
+      "team": "security",
+      "reports_to": null,
+      "skills": [
+        "ghost-scan-code"
+      ],
+      "description": "Owns application security reviews, hardening standards, and secure delivery governance."
+    },
+    "security_auditor": {
+      "title": "Security Auditor",
+      "team": "security",
+      "reports_to": "security_architect",
+      "skills": [
+        "ghost-scan-code"
+      ],
+      "description": "Performs code security analysis and vulnerability-oriented reviews."
+    },
+    "analytics_lead": {
+      "title": "Analytics Lead",
+      "team": "analytics",
+      "reports_to": null,
+      "skills": [
+        "python-backend",
+        "observability-pattern-detector"
+      ],
+      "description": "Owns business analytics, KPI instrumentation requirements, and intelligence reporting."
+    },
+    "data_scientist": {
+      "title": "Data Scientist",
+      "team": "analytics",
+      "reports_to": "analytics_lead",
+      "skills": [
+        "python-backend",
+        "observability-pattern-detector"
+      ],
+      "description": "Builds experiments, analytical models, and decision-support reporting."
+    },
+    "cloud_architect": {
+      "title": "Cloud Architect",
+      "team": "cloud",
+      "reports_to": null,
+      "skills": [
+        "deploying-on-gcp",
+        "gcp-cloud-run",
+        "docker-ci-cd"
+      ],
+      "description": "Owns GCP topology, Cloud Run design, network posture, and cloud scalability patterns."
+    }
+  }
+}

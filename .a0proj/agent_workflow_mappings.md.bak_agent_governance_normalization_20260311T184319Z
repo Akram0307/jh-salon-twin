@@ -1,0 +1,177 @@
+# SalonOS Agent Workflow Mappings
+
+This document defines **task routing and orchestration rules** for the JH_SALON_TWIN project.
+
+The system follows a **7‑Agent Core Architecture** where team leads orchestrate specialist agents.
+
+---
+
+# Core Architecture
+
+The platform is governed by **7 lead agents**.
+
+Product
+- product_strategist
+
+Frontend
+- frontend_architect
+
+Backend
+- backend_architect
+
+Database
+- database_engineer
+
+AI Systems
+- ai_systems_architect
+
+DevOps / Cloud
+- devops_platform_lead
+- cloud_architect
+
+Quality
+- qa_strategy_lead
+
+---
+
+# Orchestration Rule
+
+All tasks follow this hierarchy:
+
+User / Agent Zero
+→ Team Lead
+→ Specialist Agent
+→ Execution
+→ QA Verification
+→ DevOps Deployment
+
+No specialist agents execute tasks directly without **team lead delegation**.
+
+---
+
+# Team Execution Structure
+
+## Product
+Lead: product_strategist
+
+Responsibilities:
+- feature roadmap
+- UX requirements
+- SaaS product strategy
+- cross-team coordination
+
+Delegates to:
+- frontend_architect
+- backend_architect
+- ai_systems_architect
+
+---
+
+## Frontend Team
+Lead: frontend_architect
+
+Specialists:
+- design_system_enforcer
+- component_architect
+- client_pwa_ux_specialist
+- responsive_mobile_ux_engineer
+- frontend_state_data_flow_engineer
+- accessibility_interaction_qa_agent
+- performance_optimization_agent
+- motion_microinteraction_designer
+- frontend_test_automation_agent
+
+Responsibilities:
+- React UI architecture
+- Tailwind design system
+- PWA client experience
+
+---
+
+## Backend Team
+Lead: backend_architect
+
+Specialists:
+- backend_engineer
+- database_engineer
+- integration_specialist
+
+Responsibilities:
+- APIs
+- booking engine
+- services
+- data persistence
+
+---
+
+## AI Systems
+Lead: ai_systems_architect
+
+Specialists:
+- genkit_ai_engineer
+- autonomous_receptionist
+
+Responsibilities:
+- AI receptionist
+- conversational routing
+- Gemini / Genkit flows
+
+---
+
+## Quality Engineering
+Lead: qa_strategy_lead
+
+Specialists:
+- e2e_testing_agent
+- frontend_test_automation_agent
+
+Responsibilities:
+- regression testing
+- Playwright automation
+- release verification
+
+---
+
+## DevOps / Cloud
+Lead: devops_platform_lead
+
+Specialists:
+- ci_cd_orchestrator
+- cloud_architect
+
+Responsibilities:
+- Cloud Run deployment
+- CI/CD pipelines
+- infrastructure reliability
+
+---
+
+# Task Lifecycle
+
+1. Task registered in `planned_tasks.json`
+2. Assigned to team lead
+3. Lead delegates to specialist
+4. Specialist executes task
+5. QA verifies
+6. DevOps deploys
+7. Task marked completed
+
+---
+
+# Governance Rules
+
+Mandatory rules:
+
+- All significant work must exist in `planned_tasks.json`
+- Specialists cannot bypass team leads
+- QA validation required before deployment
+- DevOps controls production deployment
+
+---
+
+# Scaling Model
+
+Additional agents may be added as **specialists under leads**, but the core leadership structure remains fixed.
+
+This ensures the platform behaves like a **professional engineering organization rather than a flat agent swarm**.
+

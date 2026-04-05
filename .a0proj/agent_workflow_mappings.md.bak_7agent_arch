@@ -1,0 +1,186 @@
+# Agent Workflow Mappings
+
+## Purpose
+This document maps task types to specific agent teams and defines the delegation workflow for all project work.
+
+---
+
+## Task Type → Team Mapping
+
+### Frontend Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| New component creation | component_architect | design_system_enforcer |
+| UI/UX improvements | client_pwa_ux_specialist | motion_microinteraction_designer |
+| Design system updates | design_system_enforcer | component_architect |
+| Responsive/mobile fixes | responsive_mobile_ux_engineer | client_pwa_ux_specialist |
+| State management | frontend_state_data_flow_engineer | api_contract_integration_agent |
+| Form/validation work | forms_validation_specialist | accessibility_interaction_qa_agent |
+| Performance optimization | performance_optimization_agent | responsive_mobile_ux_engineer |
+| Accessibility fixes | accessibility_interaction_qa_agent | design_system_enforcer |
+| Animations/transitions | motion_microinteraction_designer | design_system_enforcer |
+| API integration | api_contract_integration_agent | frontend_state_data_flow_engineer |
+| E2E testing | frontend_test_automation_agent | visual_regression_auditor |
+| Visual regression | visual_regression_auditor | frontend_test_automation_agent |
+
+### Backend Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| API route creation | backend_engineer | integration_specialist |
+| Database schema | database_engineer | backend_architect |
+| Service layer | backend_engineer | backend_architect |
+| Third-party integration | integration_specialist | backend_engineer |
+| Performance tuning | database_engineer | backend_engineer |
+
+### AI Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| AI agent development | genkit_ai_engineer | ai_systems_architect |
+| Conversation flows | autonomous_receptionist | genkit_ai_engineer |
+| Vertex AI integration | genkit_ai_engineer | ai_systems_architect |
+| Booking logic | autonomous_receptionist | backend_engineer |
+
+### Quality Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| Test strategy | qa_strategy_lead | e2e_testing_agent |
+| E2E test creation | e2e_testing_agent | qa_strategy_lead |
+| Regression testing | e2e_testing_agent | visual_regression_auditor |
+
+### DevOps Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| CI/CD pipeline | ci_cd_orchestrator | devops_platform_lead |
+| Cloud Run deployment | devops_platform_lead | ci_cd_orchestrator |
+| Docker configuration | ci_cd_orchestrator | devops_platform_lead |
+
+### Observability Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| Logging setup | observability_agent | observability_architect |
+| Monitoring | observability_architect | observability_agent |
+| Error pattern detection | observability_agent | security_auditor |
+
+### Security Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| Vulnerability scan | security_auditor | security_architect |
+| Compliance audit | security_architect | security_auditor |
+
+### Analytics Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| Revenue analytics | data_scientist | analytics_lead |
+| Churn modeling | data_scientist | analytics_lead |
+| KPI tracking | analytics_lead | observability_agent |
+
+---
+
+## Delegation Workflow
+
+
+### Product Tasks
+| Task Type | Primary Agent | Supporting Agents |
+|---|---|---|
+| Backlog grooming | product_manager | product_strategist |
+| Sprint planning | product_manager | qa_strategy_lead |
+| User story creation | product_manager | frontend_architect, backend_architect |
+| Feature prioritization | product_manager | analytics_lead |
+| Roadmap planning | product_manager | product_strategist |
+
+### Step 1: Task Classification
+When a task is received, classify it by:
+1. Domain (frontend, backend, AI, quality, devops, etc.)
+2. Complexity (simple, moderate, complex)
+3. Priority (critical, high, medium, low)
+
+### Step 2: Team Assignment
+1. Match task to primary team based on domain
+2. Identify team lead agent
+3. Identify supporting agents if needed
+
+### Step 3: Task Creation
+Create planned tasks with:
+- Clear objective
+- Assigned team/agent
+- Dependencies
+- Success criteria
+- Deadline (if applicable)
+
+### Step 4: Execution
+1. Team lead delegates to sub-agents
+2. Sub-agents execute with their skills
+3. Results reported back to lead
+4. Lead validates and reports completion
+
+---
+
+## Planned Tasks Queue Structure
+
+### Active Tasks Location
+`/a0/usr/projects/jh_salon_twin/.a0proj/planned_tasks.json`
+
+### Task Schema
+```json
+{
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "Task title",
+      "description": "Detailed description",
+      "team": "frontend",
+      "primary_agent": "component_architect",
+      "supporting_agents": ["design_system_enforcer"],
+      "priority": "high",
+      "status": "pending|in_progress|blocked|completed",
+      "created": "2026-03-10T00:00:00Z",
+      "due": "2026-03-15T00:00:00Z",
+      "dependencies": [],
+      "skills_required": ["shadcn-ui-expert", "tailwind-design-system"],
+      "success_criteria": ["Component renders correctly", "Passes accessibility audit"]
+    }
+  ]
+}
+```
+
+---
+
+## Team Lead Responsibilities
+
+### frontend_architect
+- Review all frontend tasks
+- Ensure design system compliance
+- Coordinate between frontend sub-agents
+- Validate component architecture
+
+### backend_architect
+- Review all backend tasks
+- Ensure API contract compliance
+- Coordinate database and service work
+- Validate performance and security
+
+### ai_systems_architect
+- Review all AI tasks
+- Ensure Vertex AI best practices
+- Coordinate AI agent development
+- Validate conversation flows
+
+### qa_strategy_lead
+- Review all quality tasks
+- Ensure test coverage
+- Coordinate regression testing
+- Validate release readiness
+
+### devops_platform_lead
+- Review all deployment tasks
+- Ensure CI/CD pipeline integrity
+- Coordinate Cloud Run deployments
+- Validate infrastructure changes
+
+---
+
+## Escalation Path
+
+1. **Agent → Team Lead**: Technical decisions, blockers
+2. **Team Lead → Project Lead**: Cross-team dependencies, resource conflicts
+3. **Project Lead → User**: Strategic decisions, scope changes
