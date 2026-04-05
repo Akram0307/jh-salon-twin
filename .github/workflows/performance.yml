@@ -1,0 +1,199 @@
+name: Performance Budgets
+
+on:
+  pull_request:
+    paths:
+      - 'frontend-next/**'
+      - '.github/workflows/performance.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: performance-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  performance-check:
+    name: Lighthouse CI Gate
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend-next/package-lock.json
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.14.x
+
+      - name: Prepare LHCI gate config
+        working-directory: frontend-next
+        env:
+          STAGING_URL: 'https://salonos-owner-frontend-staging-rgvcleapsa-uc.a.run.app'
+          STAGING_AUTH: ${{ secrets.STAGING_BASIC_AUTH }}
+        run: |
+          # Build extraHeaders JSON string for basic auth (staging requires auth)
+          AUTH_HEADER="[]"
+          if [ -n "$STAGING_AUTH" ]; then
+            AUTH_HEADER=$(python3 -c "import sys,json; print(json.dumps([{'header':'Authorization','value':'Basic '+sys.argv[1].strip()}]))" "$STAGING_AUTH")
+          fi
+
+          # Write gate-specific LHCI config (derived from lighthouserc.js but targeting staging)
+          # Thresholds per S12-08 spec; reference values from performance-budget.json shown in PR comment
+          cat > .lighthouserc.gate.js << EOF
+          module.exports = {
+            ci: {
+              collect: {
+                url: [
+                  '${STAGING_URL}/owner/dashboard',
+                  '${STAGING_URL}/owner/schedule',
+                  '${STAGING_URL}/owner/clients',
+                  '${STAGING_URL}/owner/settings',
+                ],
+                numberOfRuns: 3,
+                settings: {
+                  preset: 'desktop',
+                  throttling: { cpuSlowdownMultiplier: 1 },
+                  extraHeaders: '${AUTH_HEADER}',
+                },
+              },
+              assert: {
+                assertions: {
+                  'categories:performance': ['error', { minScore: 0.7 }],
+                  'categories:accessibility': ['error', { minScore: 0.8 }],
+                  'categories:best-practices': ['error', { minScore: 0.8 }],
+                  'categories:seo': ['error', { minScore: 0.7 }],
+                },
+              },
+              upload: { target: 'temporary-public-storage' },
+            },
+          };
+          EOF
+
+      - name: Run Lighthouse CI collect
+        working-directory: frontend-next
+        run: lhci collect --config=.lighthouserc.gate.js
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Assert performance budgets (blocking gate)
+        id: lhci-assert
+        working-directory: frontend-next
+        run: lhci assert --config=.lighthouserc.gate.js
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results-${{ github.run_number }}
+          path: frontend-next/.lighthouseci/
+          retention-days: 7
+
+      - name: Comment PR with performance results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const lhciDir = 'frontend-next/.lighthouseci';
+
+            // Gate thresholds (S12-08 spec)
+            const gateThresholds = { performance: 0.7, accessibility: 0.8, bestPractices: 0.8, seo: 0.7 };
+            // Reference values from performance-budget.json
+            const refBudgets = { performance: 90, accessibility: 95, bestPractices: 90, seo: 90 };
+
+            // Read manifest
+            let manifest = [];
+            try {
+              manifest = JSON.parse(fs.readFileSync(path.join(lhciDir, 'manifest.json'), 'utf8'));
+            } catch (e) { /* no manifest */ }
+
+            // Read individual Lighthouse results
+            let allScores = [];
+            for (const entry of manifest) {
+              try {
+                const result = JSON.parse(fs.readFileSync(path.join(lhciDir, entry.jsonPath), 'utf8'));
+                allScores.push({
+                  url: entry.requestedUrl || entry.url,
+                  performance: result.categories?.performance?.score ?? 0,
+                  accessibility: result.categories?.accessibility?.score ?? 0,
+                  bestPractices: result.categories?.['best-practices']?.score ?? 0,
+                  seo: result.categories?.seo?.score ?? 0,
+                });
+              } catch (e) { /* skip unreadable */ }
+            }
+
+            // Read assertion results
+            let assertionResults = [];
+            try {
+              assertionResults = JSON.parse(fs.readFileSync(path.join(lhciDir, 'assertion-results.json'), 'utf8'));
+            } catch (e) { /* no assertion file */ }
+
+            // Build comment
+            const baseUrl = 'https://salonos-owner-frontend-staging-rgvcleapsa-uc.a.run.app';
+            let comment = '## \ud83d\udcca Lighthouse CI Performance Gate\n\n';
+            comment += '**Gate Thresholds**: perf \u2265 70 | a11y \u2265 80 | BP \u2265 80 | SEO \u2265 70  \n';
+            comment += '*Reference (performance-budget.json)*: perf \u2265 ' + refBudgets.performance + ' | a11y \u2265 ' + refBudgets.accessibility + ' | BP \u2265 ' + refBudgets.bestPractices + ' | SEO \u2265 ' + refBudgets.seo + '\n\n';
+
+            if (allScores.length > 0) {
+              comment += '### Scores by URL\n\n';
+              comment += '| URL | Perf | A11y | BP | SEO |\n';
+              comment += '|-----|------|------|----|----|\n';
+              for (const s of allScores) {
+                const shortUrl = s.url.replace(baseUrl, '') || '/';
+                const icons = ['performance', 'accessibility', 'bestPractices', 'seo'].map(k => {
+                  return s[k] >= gateThresholds[k] ? '\u2705' : '\u274c';
+                });
+                comment += '| ' + shortUrl + ' | ' + (s.performance * 100).toFixed(0) + ' ' + icons[0] + ' | ' + (s.accessibility * 100).toFixed(0) + ' ' + icons[1] + ' | ' + (s.bestPractices * 100).toFixed(0) + ' ' + icons[2] + ' | ' + (s.seo * 100).toFixed(0) + ' ' + icons[3] + ' |\n';
+              }
+
+              // Averages
+              const keys = ['performance', 'accessibility', 'bestPractices', 'seo'];
+              const labels = ['Performance', 'Accessibility', 'Best Practices', 'SEO'];
+              const avg = {};
+              for (const k of keys) {
+                avg[k] = allScores.reduce((sum, s) => sum + s[k], 0) / allScores.length;
+              }
+              comment += '\n### Average Scores\n\n';
+              comment += '| Metric | Score | Gate | Status |\n';
+              comment += '|--------|-------|------|--------|\n';
+              for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                const score = avg[k];
+                const budget = gateThresholds[k];
+                const status = score >= budget ? '\u2705 Pass' : '\u274c Fail';
+                comment += '| ' + labels[i] + ' | ' + (score * 100).toFixed(0) + ' | ' + (budget * 100).toFixed(0) + ' | ' + status + ' |\n';
+              }
+            } else {
+              comment += '_No Lighthouse results available. Staging may be unreachable._\n';
+            }
+
+            // Failed assertions detail
+            const failed = Array.isArray(assertionResults) ? assertionResults.filter(a => a.passed === false) : [];
+            if (failed.length > 0) {
+              comment += '\n### \u274c Failed Assertions\n\n';
+              for (const f of failed) {
+                comment += '- **' + f.assertion + '**: ' + (f.actual || 'below threshold') + ' (expected ' + f.expected + ')\n';
+              }
+            }
+
+            comment += '\n---\n';
+            comment += '*\u26a0\ufe0f This is a **blocking gate**. Merge will be blocked if any threshold is not met.*\n';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment,
+            });

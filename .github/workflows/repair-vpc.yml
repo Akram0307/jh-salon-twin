@@ -1,0 +1,59 @@
+name: Repair Staging VPC Connector
+on:
+  workflow_dispatch:
+
+jobs:
+  repair-vpc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: salon-saas-487508
+
+      - name: Repair VPC Connector
+        run: |
+          PROJECT="salon-saas-487508"
+          REGION="us-central1"
+          BROKEN_CONNECTOR="salonos-staging-vpc"
+
+          echo "========================================"
+          echo "VPC CONNECTOR REPAIR"
+          echo "========================================"
+          echo ""
+
+          # Check current state
+          echo "=== Current State ==="
+          gcloud compute networks vpc-access connectors describe $BROKEN_CONNECTOR             --region=$REGION             --project=$PROJECT             --format="json(state)" 2>&1 || echo "Connector not found or already deleted"
+
+          echo ""
+          echo "=== Step 1: Delete Broken Connector ==="
+          # Delete the broken connector (ignore errors if already deleted)
+          gcloud compute networks vpc-access connectors delete $BROKEN_CONNECTOR             --region=$REGION             --project=$PROJECT             --quiet 2>&1 || echo "Deletion not needed or already deleted"
+
+          echo ""
+          echo "=== Waiting 30 seconds for deletion to propagate ==="
+          sleep 30
+
+          echo ""
+          echo "=== Step 2: Create New VPC Connector ==="
+          # Create new connector with proper configuration
+          gcloud compute networks vpc-access connectors create $BROKEN_CONNECTOR             --region=$REGION             --network=default             --ip-range=10.9.0.0/28             --machine-type=e2-micro             --min-instances=2             --max-instances=10             --min-throughput=200             --max-throughput=1000             --project=$PROJECT
+
+          echo ""
+          echo "=== Step 3: Verify New Connector ==="
+          sleep 10
+          gcloud compute networks vpc-access connectors describe $BROKEN_CONNECTOR             --region=$REGION             --project=$PROJECT             --format="table(name, state, ipCidrRange, network, machineType)"
+
+          echo ""
+          echo "========================================"
+          echo "VPC CONNECTOR REPAIR COMPLETE"
+          echo "========================================"

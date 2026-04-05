@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Environment files (NEVER commit)
+.env
+.env.local
+.env.*.local
+.env.bak*
+*.env.backup
+
+# Credentials
+credentials/
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Test artifacts
+e2e/test-results/
+e2e/screenshots/
+frontend/test-results/
+playwright-report/
+
+# Deploy logs
+*_deploy_*.log
+*_deploy_*.log.*

@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-03-07T09:07:16",
+  "folder": "/a0/usr/projects/jh_salon_twin/frontend/mockups/salonos_full_page_mockups",
+  "design_principles": [
+    "mobile-first premium SaaS aesthetic",
+    "glassmorphism-inspired dark surfaces",
+    "high-conversion booking UX",
+    "AI-guided decision and booking flows",
+    "trust signals, revenue signals, and fast actions"
+  ],
+  "pages": [
+    {
+      "slug": "client_home",
+      "title": "Client Home",
+      "subtitle": "Discover services, promos, trust, quick booking"
+    },
+    {
+      "slug": "client_services_catalog",
+      "title": "Services Catalog",
+      "subtitle": "Visual discovery with filters and service cards"
+    },
+    {
+      "slug": "client_service_detail",
+      "title": "Service Detail",
+      "subtitle": "Portfolio, duration, pricing, upgrades, trust"
+    },
+    {
+      "slug": "client_stylist_profiles",
+      "title": "Stylist Profiles",
+      "subtitle": "Team discovery, ratings, specialties, portfolios"
+    },
+    {
+      "slug": "client_booking_chat",
+      "title": "AI Booking Chat",
+      "subtitle": "Conversational booking with quick replies and cards"
+    },
+    {
+      "slug": "client_time_selection",
+      "title": "Time Selection",
+      "subtitle": "Fast slot picking with urgency and alternatives"
+    },
+    {
+      "slug": "client_waitlist",
+      "title": "Waitlist",
+      "subtitle": "Recovery and nearby openings"
+    },
+    {
+      "slug": "client_my_appointments",
+      "title": "My Appointments",
+      "subtitle": "Upcoming visits, reschedule, add-ons"
+    },
+    {
+      "slug": "client_membership_wallet",
+      "title": "Membership & Wallet",
+      "subtitle": "Packages, credits, rewards, saved payments"
+    },
+    {
+      "slug": "client_profile_settings",
+      "title": "Profile & Settings",
+      "subtitle": "Preferences, notes, communication, payment"
+    },
+    {
+      "slug": "owner_dashboard_mobile",
+      "title": "Owner Dashboard Mobile",
+      "subtitle": "Control tower mobile-first summary"
+    },
+    {
+      "slug": "owner_revenue_intelligence",
+      "title": "Owner Revenue Intelligence",
+      "subtitle": "Revenue trends, opportunities, recovery"
+    },
+    {
+      "slug": "owner_pos_intelligence",
+      "title": "POS Intelligence",
+      "subtitle": "Retail mix, ticket size, category performance"
+    },
+    {
+      "slug": "owner_staff_management",
+      "title": "Staff Management",
+      "subtitle": "Utilization, roles, productivity, availability"
+    },
+    {
+      "slug": "owner_services_management",
+      "title": "Service Management",
+      "subtitle": "Catalog setup, pricing, durations, margins"
+    },
+    {
+      "slug": "owner_schedule_management",
+      "title": "Schedule Management",
+      "subtitle": "Calendar, shifts, gaps, smart staffing"
+    },
+    {
+      "slug": "owner_ai_campaigns",
+      "title": "AI Campaign Control",
+      "subtitle": "Automations, segments, campaign lift"
+    },
+    {
+      "slug": "owner_client_insights",
+      "title": "Client Insights",
+      "subtitle": "Retention, VIP, churn risk, revenue cohorts"
+    },
+    {
+      "slug": "staff_dashboard",
+      "title": "Staff Dashboard",
+      "subtitle": "Today queue, clients, targets, earnings"
+    },
+    {
+      "slug": "staff_calendar_day",
+      "title": "Staff Day Schedule",
+      "subtitle": "Appointments, breaks, notes, check-in flow"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# SalonOS Daily Backup Cron Schedule
+# TASK-055: Daily Backup Automation
+# Run daily at 2 AM UTC
+0 2 * * * /app/scripts/daily_backup.sh >> /var/log/salonos_backup.log 2>&1
+
+# Weekly backup verification (Sunday at 3 AM)
+0 3 * * 0 /app/scripts/verify_backups.sh >> /var/log/salonos_backup_verify.log 2>&1

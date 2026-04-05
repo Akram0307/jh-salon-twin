@@ -1,0 +1,371 @@
+{
+  "audit_date": "2026-03-19T10:36:30Z",
+  "project": "salon-saas-487508",
+  "region": "us-central1",
+  "infrastructure_score": 78,
+  "go_live_ready": false,
+  
+  "areas": {
+    "cloud_run": {
+      "score": 85,
+      "status": "GOOD",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "Production config has startup/liveness probes",
+          "detail": "Backend: /health, 10 failures, 6s period. Frontend: /api/health"
+        },
+        {
+          "severity": "good",
+          "item": "VPC connector configured for private egress",
+          "detail": "salonos-prod-vpc with private-ranges-only egress"
+        },
+        {
+          "severity": "good",
+          "item": "Scaling configured appropriately",
+          "detail": "Backend: 2-10 instances, 80 concurrency. Frontend: 1-5 instances"
+        },
+        {
+          "severity": "warning",
+          "item": "Frontend allows unauthenticated access in production",
+          "detail": "cloudrun-production.yaml shows allow_unauthenticated: false but current deploy scripts may differ"
+        }
+      ]
+    },
+    
+    "docker": {
+      "score": 90,
+      "status": "GOOD",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "Multi-stage builds used across all Dockerfiles",
+          "detail": "Backend, frontend-next, and frontend all use multi-stage builds to minimize image size"
+        },
+        {
+          "severity": "good",
+          "item": "Non-root user execution",
+          "detail": "Backend: USER nodejs (uid 1001). Frontend-next: USER nextjs (uid 1001)"
+        },
+        {
+          "severity": "good",
+          "item": "Alpine-based images for smaller attack surface",
+          "detail": "All services use node:20-alpine"
+        },
+        {
+          "severity": "good",
+          "item": "Trivy vulnerability scanning in CI",
+          "detail": "CRITICAL vulnerabilities scanned with fail-on-error"
+        }
+      ]
+    },
+    
+    "cicd": {
+      "score": 88,
+      "status": "GOOD",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "Comprehensive CI pipeline",
+          "detail": "Migration validation, lint, type-check, unit tests, build, docker-build, secrets validation"
+        },
+        {
+          "severity": "good",
+          "item": "Trivy container scanning with SARIF output",
+          "detail": "Scans CRITICAL/HIGH/MEDIUM/LOW, uploads artifacts"
+        },
+        {
+          "severity": "good",
+          "item": "CodeQL security analysis scheduled",
+          "detail": "Runs on push to main/develop and weekly cron"
+        },
+        {
+          "severity": "warning",
+          "item": "Production deployment uses GCP_SA_KEY instead of Workload Identity",
+          "detail": "deploy-production.sh and rollback.sh use service account key file. Staging CI uses Workload Identity."
+        }
+      ]
+    },
+    
+    "networking": {
+      "score": 85,
+      "status": "GOOD",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "VPC connector provisioned",
+          "detail": "salonos-prod-vpc with /28 range (16 IPs)"
+        },
+        {
+          "severity": "good",
+          "item": "Cloud SQL uses private IP only",
+          "detail": "No public IP, private-ranges-only VPC egress"
+        },
+        {
+          "severity": "good",
+          "item": "Redis uses Private Service Access",
+          "detail": "Connect mode: PRIVATE_SERVICE_ACCESS"
+        },
+        {
+          "severity": "warning",
+          "item": "No explicit Cloud Run firewall rules documented",
+          "detail": "Relying on Cloud Run managed security defaults"
+        },
+        {
+          "severity": "info",
+          "item": "No load balancer configuration found",
+          "detail": "Cloud Run handles load balancing natively"
+        }
+      ]
+    },
+    
+    "secrets": {
+      "score": 75,
+      "status": "FAIR",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "Production uses Secret Manager exclusively",
+          "detail": "cloudrun-production.yaml uses --set-secrets for all 30+ secrets"
+        },
+        {
+          "severity": "good",
+          "item": "Staging CI validates secrets before deployment",
+          "detail": "validate-secrets.sh checks all required secrets exist"
+        },
+        {
+          "severity": "critical",
+          "item": "Backend deploy script passes secrets as env vars in plain text",
+          "detail": "redeploy_backend_cloudrun.sh: --set-env-vars=DB_USER=${DB_USER},... exposes secrets in command line"
+        },
+        {
+          "severity": "warning",
+          "item": "Seed-secrets.sh may have generated weak secrets",
+          "detail": "Need to verify secret rotation has occurred"
+        }
+      ]
+    },
+    
+    "monitoring": {
+      "score": 72,
+      "status": "FAIR",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "Performance dashboard configured",
+          "detail": "6 widgets: API response time, throughput, memory, CPU, errors, DB query time"
+        },
+        {
+          "severity": "good",
+          "item": "Alerting policies defined",
+          "detail": "4 policies: High API latency (>5s p95), High CPU (>90%), High Error Rate (>10/min), High Memory (>90%)"
+        },
+        {
+          "severity": "critical",
+          "item": "Alert notificationChannels is empty array",
+          "detail": "No notification channels configured - alerts will fire but nobody will be notified"
+        },
+        {
+          "severity": "warning",
+          "item": "Custom metrics require instrumentation",
+          "detail": "Metrics like custom.googleapis.com/api/response_time_p95 need to be implemented in code"
+        },
+        {
+          "severity": "info",
+          "item": "Runbooks referenced but existence not verified",
+          "detail": "https://salonos.dev/runbooks/* URLs in alert documentation"
+        }
+      ]
+    },
+    
+    "database": {
+      "score": 88,
+      "status": "GOOD",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "PostgreSQL 15 with pg pool connection pooling",
+          "detail": "max: 20 connections, idleTimeout: 30s, connectionTimeout: 15s"
+        },
+        {
+          "severity": "good",
+          "item": "Cloud SQL HA configuration",
+          "detail": "REGIONAL availability type, PITR enabled, 7 retained backups"
+        },
+        {
+          "severity": "good",
+          "item": "Backup automation scripts exist",
+          "detail": "daily_backup.sh with GCS upload, verify_backups.sh for weekly checks"
+        },
+        {
+          "severity": "good",
+          "item": "Deletion protection enabled",
+          "detail": "Cloud SQL has deletion_protection: true"
+        },
+        {
+          "severity": "warning",
+          "item": "Backup scripts require DB credentials as env vars",
+          "detail": "daily_backup.sh sources DB_PASSWORD from environment"
+        }
+      ]
+    },
+    
+    "cdn": {
+      "score": 60,
+      "status": "FAIR",
+      "findings": [
+        {
+          "severity": "good",
+          "item": "Next.js standalone output for efficient serving",
+          "detail": "frontend-next uses output: 'standalone' for minimal image"
+        },
+        {
+          "severity": "good",
+          "item": "Static assets properly separated",
+          "detail": ".next/static copied separately in Dockerfile"
+        },
+        {
+          "severity": "warning",
+          "item": "No explicit CDN (Cloud CDN) configuration",
+          "detail": "Static assets served from Cloud Run instance storage"
+        },
+        {
+          "severity": "info",
+          "item": "Client PWA (Vite) served via nginx:alpine",
+          "detail": "Basic nginx config with try_files /index.html fallback"
+        }
+      ]
+    }
+  },
+  
+  "critical_issues": [
+    {
+      "id": "CRIT-001",
+      "severity": "CRITICAL",
+      "category": "secrets",
+      "title": "Backend deploy script exposes secrets in command-line arguments",
+      "description": "scripts/redeploy_backend_cloudrun.sh passes secrets via --set-env-vars which exposes them in process list and logs",
+      "file": "scripts/redeploy_backend_cloudrun.sh",
+      "evidence": "--set-env-vars=DB_USER=${DB_USER},DB_PASSWORD=${DB_PASSWORD},...",
+      "impact": "Secrets visible in 'ps aux', cloud logging, and shell history",
+      "fix_required": "Use --set-secrets with Secret Manager references instead of --set-env-vars"
+    },
+    {
+      "id": "CRIT-002",
+      "severity": "CRITICAL",
+      "category": "monitoring",
+      "title": "Alert notification channels not configured",
+      "description": "All 4 alerting policies have notificationChannels: [] - alerts fire but nobody is notified",
+      "file": "environments/staging/alerts/*.json",
+      "evidence": '"notificationChannels": []',
+      "impact": "Production incidents will not alert on-call personnel",
+      "fix_required": "Configure notification channels (email, PagerDuty, Slack, etc.) and link to policies"
+    },
+    {
+      "id": "CRIT-003",
+      "severity": "CRITICAL",
+      "category": "deployment",
+      "title": "Production deployment uses service account key instead of Workload Identity",
+      "description": "deploy-production.sh and rollback.sh authenticate using GCP_SA_KEY service account file. Staging already uses Workload Identity.",
+      "file": "environments/production/deploy-production.sh, rollback.sh",
+      "evidence": "GCP_SA_KEY variable and /tmp/gcp-key-prod.json",
+      "impact": "Long-lived credentials risk. SA key may expire or be compromised.",
+      "fix_required": "Migrate to Workload Identity Federation like staging CI/CD (Sprint 6 roadmap item)"
+    }
+  ],
+  
+  "warnings": [
+    {
+      "id": "WARN-001",
+      "severity": "HIGH",
+      "category": "cdn",
+      "title": "No Cloud CDN for static asset caching",
+      "description": "Static assets (JS, CSS, images) served directly from Cloud Run instances",
+      "impact": "Higher latency for geographically distributed users, higher Cloud Run costs"
+    },
+    {
+      "id": "WARN-002",
+      "severity": "MEDIUM",
+      "category": "deployment",
+      "title": "Frontend production deployment not aligned with production YAML",
+      "description": "cloudrun-production.yaml defines frontend config but frontend-next deploy script doesn't use it",
+      "file": "frontend-next/Dockerfile, scripts/deploy_frontend_next_cloudrun.sh"
+    },
+    {
+      "id": "WARN-003",
+      "severity": "MEDIUM",
+      "category": "secrets",
+      "title": "Secret rotation not automated",
+      "description": "Secrets like JWT_SECRET, DB_PASSWORD generated once. No automated rotation.",
+      "impact": "Compliance risk if secrets are compromised"
+    },
+    {
+      "id": "WARN-004",
+      "severity": "MEDIUM",
+      "category": "monitoring",
+      "title": "Custom metrics implementation not verified",
+      "description": "Alert policies reference custom.googleapis.com/* metrics that must be implemented in application code",
+      "files": "environments/staging/alerts/*.json"
+    },
+    {
+      "id": "WARN-005",
+      "severity": "LOW",
+      "category": "networking",
+      "title": "No documented firewall rules",
+      "description": "Relying on Cloud Run defaults. No explicit firewall rules for VPC"
+    },
+    {
+      "id": "WARN-006",
+      "severity": "LOW",
+      "category": "backup",
+      "title": "Backup verification not automated in CI",
+      "description": "verify_backups.sh exists but not integrated into deployment pipeline"
+    }
+  ],
+  
+  "estimated_fix_times": {
+    "critical_issues_hours": 4,
+    "warnings_hours": 8,
+    "total_hours": 12,
+    "breakdown": {
+      "CRIT-001_redeploy_script_fix": 1,
+      "CRIT-002_notification_channels": 1,
+      "CRIT-003_workload_identity": 2,
+      "WARN-001_cloud_cdn": 4,
+      "WARN-002_frontend_deploy_alignment": 1,
+      "WARN-003_secret_rotation": 2,
+      "WARN-004_custom_metrics": 1
+    }
+  },
+  
+  "recommendations": {
+    "before_go_live": [
+      "Fix CRIT-001: Update redeploy_backend_cloudrun.sh to use --set-secrets",
+      "Fix CRIT-002: Configure at least one notification channel for alerts",
+      "Fix CRIT-003: Migrate production deploy to Workload Identity",
+      "Verify all custom metrics are implemented in backend/frontend code"
+    ],
+    "within_30_days": [
+      "Implement Cloud CDN for static asset caching",
+      "Set up secret rotation automation",
+      "Integrate backup verification into CI pipeline",
+      "Document firewall rules and VPC architecture"
+    ],
+    "nice_to_have": [
+      "Blue-green/canary deployment automation in GitHub Actions",
+      "Database connection pooling metrics in dashboards",
+      "Automated DR drills with rollback testing"
+    ]
+  },
+  
+  "positive_findings": [
+    "Multi-stage Docker builds with non-root users across all services",
+    "Comprehensive CI pipeline with migration validation, linting, testing, and security scanning",
+    "Production-grade infrastructure: VPC, Private IP DB, HA Cloud SQL, Secret Manager",
+    "Blue-green deployment with health checks and automatic rollback",
+    "Well-documented infrastructure provisioning scripts",
+    "Performance monitoring dashboard with 6 key metrics",
+    "pg Pool with appropriate connection limits (max: 20)",
+    "Cloud SQL deletion protection and PITR enabled"
+  ]
+}

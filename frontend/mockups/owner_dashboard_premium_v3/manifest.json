@@ -1,0 +1,18 @@
+{
+  "folder": "/a0/usr/projects/jh_salon_twin/frontend/mockups/owner_dashboard_premium_v3",
+  "files": [
+    "premium_v3_desktop_control_tower.png",
+    "premium_v3_desktop_finance_pos_board.png",
+    "premium_v3_desktop_appointment_timeline.png",
+    "premium_v3_desktop_client_profile.png",
+    "premium_v3_mobile_dark_command_center.png",
+    "premium_v3_mobile_ai_booking.png"
+  ],
+  "principles": [
+    "salon photo placeholders",
+    "richer KPI density",
+    "Apple/Stripe-like motion framing",
+    "appointment timeline views",
+    "client profile views"
+  ]
+}

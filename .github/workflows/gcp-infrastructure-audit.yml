@@ -1,0 +1,130 @@
+name: GCP Infrastructure Audit
+on:
+  workflow_dispatch:
+    inputs:
+    audit_type:
+      description: 'Type of audit'
+      required: true
+      default: 'full'
+      type: choice
+      options:
+        - full
+        - vpc-only
+        - sql-only
+        - secrets-only
+        - iam-only
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Infrastructure Audit
+        run: |
+          set -e
+          PROJECT_ID="salon-saas-487508"
+          REGION="us-central1"
+
+          echo "========================================"
+          echo "  GCP INFRASTRUCTURE AUDIT REPORT"
+          echo "  Project: $PROJECT_ID"
+          echo "  Region: $REGION"
+          echo "  Date: $(date -u)"
+          echo "========================================"
+          echo ""
+
+          # 1. VPC CONNECTORS
+          echo "## 1. VPC CONNECTORS"
+          echo "-------------------"
+          gcloud compute networks vpc-access connectors list --project=$PROJECT_ID --format="table(name,region,status,ipCidrRange)" || echo "ERROR: Cannot list VPC connectors"
+          echo ""
+
+          for connector in salonos-staging-vpc salonos-prod-vpc salonos-vpc-connector; do
+            echo "Checking $connector:"
+            gcloud compute networks vpc-access connectors describe $connector --region=$REGION --project=$PROJECT_ID 2>&1 | grep -E "(name|status|network|ipCidrRange|machineType|minInstances|maxInstances)" || echo "  NOT FOUND"
+            echo ""
+          done
+
+          # 2. CLOUD SQL
+          echo "## 2. CLOUD SQL INSTANCES"
+          echo "-------------------"
+          gcloud sql instances list --project=$PROJECT_ID --format="table(name,databaseVersion,state,settings.tier,settings.ipConfiguration)" || echo "ERROR: Cannot list SQL instances"
+          echo ""
+
+          for instance in salonos-staging salonos-prod; do
+            echo "Checking $instance:"
+            gcloud sql instances describe $instance --project=$PROJECT_ID 2>&1 | grep -E "(name|databaseVersion|state|tier|ipAddresses|connectionName)" || echo "  NOT FOUND"
+            echo ""
+          done
+
+          # 3. CLOUD RUN SERVICES
+          echo "## 3. CLOUD RUN SERVICES"
+          echo "-------------------"
+          gcloud run services list --project=$PROJECT_ID --region=$REGION --format="table(name,status.url,metadata.creationTimestamp)" || echo "ERROR: Cannot list Cloud Run services"
+          echo ""
+
+          for service in salonos-owner-frontend-staging salonos-backend-staging salonos-owner-frontend-prod salonos-backend-prod; do
+            echo "Checking $service:"
+            gcloud run services describe $service --region=$REGION --project=$PROJECT_ID 2>&1 | grep -E "(name|url|status|conditions|vpcAccess|cloudSqlInstances)" | head -20 || echo "  NOT FOUND"
+            echo ""
+          done
+
+          # 4. SECRET MANAGER
+          echo "## 4. SECRET MANAGER"
+          echo "-------------------"
+          echo "Listing secrets with salonos-staging prefix:"
+          gcloud secrets list --project=$PROJECT_ID --filter="name:salonos-staging" --format="table(name,created)" || echo "ERROR: Cannot list secrets"
+          echo ""
+
+          echo "Listing secrets with salonos-prod prefix:"
+          gcloud secrets list --project=$PROJECT_ID --filter="name:salonos-prod" --format="table(name,created)" || echo "ERROR: Cannot list secrets"
+          echo ""
+
+          # 5. SERVICE ACCOUNTS & IAM
+          echo "## 5. SERVICE ACCOUNTS"
+          echo "-------------------"
+          gcloud iam service-accounts list --project=$PROJECT_ID --format="table(email,displayName)" | grep -E "(salonos|Compute|Cloud Run)" || echo "ERROR: Cannot list service accounts"
+          echo ""
+
+          echo "IAM bindings for salonos-staging-sa:"
+          gcloud projects get-iam-policy $PROJECT_ID --flatten="bindings[].members" --format="table(bindings.role)" --filter="bindings.members:salonos-staging-sa@salon-saas-487508.iam.gserviceaccount.com" 2>&1 | head -20 || echo "  ERROR"
+          echo ""
+
+          # 6. WORKLOAD IDENTITY
+          echo "## 6. WORKLOAD IDENTITY FEDERATION"
+          echo "-------------------"
+          gcloud iam workload-identity-pools list --project=$PROJECT_ID --format="table(name,displayName,state)" || echo "ERROR: Cannot list WIF pools"
+          echo ""
+
+          gcloud iam workload-identity-pools providers list --project=$PROJECT_ID --location=global --workload-identity-pool=github-pool --format="table(name,displayName,oidc.issuerUri)" || echo "ERROR: Cannot list OIDC providers"
+          echo ""
+
+          # 7. REDIS (MEMORYSTORE)
+          echo "## 7. REDIS (MEMORYSTORE)"
+          echo "-------------------"
+          gcloud redis instances list --project=$PROJECT_ID --region=$REGION --format="table(name,displayName,tier,memoryGb,status)" || echo "No Redis instances or ERROR"
+          echo ""
+
+          # 8. VPC NETWORKS
+          echo "## 8. VPC NETWORKS"
+          echo "-------------------"
+          gcloud compute networks list --project=$PROJECT_ID --format="table(name,autoCreateSubnetworks,routingConfig.routingMode)" || echo "ERROR: Cannot list VPCs"
+          echo ""
+
+          echo "========================================"
+          echo "  AUDIT COMPLETE"
+          echo "========================================"

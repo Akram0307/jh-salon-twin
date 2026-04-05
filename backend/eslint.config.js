@@ -1,0 +1,91 @@
+const eslint = require('@eslint/js');
+const tseslint = require('@typescript-eslint/eslint-plugin');
+const tsparser = require('@typescript-eslint/parser');
+
+module.exports = [
+  eslint.configs.recommended,
+  {
+    files: ['src/**/*.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+      globals: {
+        // Node.js globals
+        process: 'readonly',
+        console: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        Buffer: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearTimeout: 'readonly',
+        clearInterval: 'readonly',
+        setImmediate: 'readonly',
+        clearImmediate: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        BufferEncoding: 'readonly',
+        NodeJS: 'readonly',
+        global: 'readonly',
+        Express: 'readonly',
+        crypto: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-console': 'off',
+      'no-empty': 'warn',
+      'no-constant-condition': 'warn',
+      'no-useless-assignment': 'warn',
+      'no-case-declarations': 'warn',
+    },
+  },
+  {
+    files: ['src/__tests__/**/*.ts'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        Buffer: 'readonly',
+        NodeJS: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        BufferEncoding: 'readonly',
+        setImmediate: 'readonly',
+        clearImmediate: 'readonly',
+        global: 'readonly',
+      },
+    },
+  },
+  {
+    ignores: ['dist/', 'node_modules/', 'coverage/', '*.js', 'src/**/*.js', 'src/routes/new_endpoints.ts'],
+  },
+];

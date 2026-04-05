@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JH Salon - AI Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jh: {
+                            black: '#121212',
+                            white: '#ffffff',
+                            gold: '#D4AF37',
+                            champagne: '#F3E5AB',
+                            red: '#8B0000'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex justify-center h-screen">
+    <!-- Mobile Container -->
+    <div class="w-full max-w-md bg-jh-black text-jh-white h-full flex flex-col shadow-2xl relative">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-800 bg-jh-black z-10">
+            <div class="flex items-center gap-3">
+                <i data-lucide="chevron-left" class="w-6 h-6 text-jh-gold cursor-pointer"></i>
+                <div class="relative">
+                    <img src="https://ui-avatars.com/api/?name=JH&background=D4AF37&color=000" class="w-10 h-10 rounded-full border border-jh-gold">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-jh-black"></div>
+                </div>
+                <div>
+                    <h1 class="font-semibold text-sm">JH AI Receptionist</h1>
+                    <p class="text-xs text-gray-400">Online</p>
+                </div>
+            </div>
+            <i data-lucide="info" class="w-5 h-5 text-jh-gold cursor-pointer"></i>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-[#1a1a1a]">
+            <div class="text-center text-xs text-gray-500 my-2">Today 9:41 AM</div>
+
+            <!-- AI Message -->
+            <div class="flex gap-2 max-w-[85%]">
+                <img src="https://ui-avatars.com/api/?name=JH&background=D4AF37&color=000" class="w-8 h-8 rounded-full mt-auto">
+                <div class="bg-gray-800 p-3 rounded-2xl rounded-bl-none text-sm border border-gray-700">
+                    Hi there! Welcome to Jawed Habib Kurnool. How can I help you look your best today? ✨
+                </div>
+            </div>
+
+            <!-- User Message -->
+            <div class="flex gap-2 max-w-[85%] ml-auto justify-end">
+                <div class="bg-jh-gold text-black p-3 rounded-2xl rounded-br-none text-sm">
+                    I'd like to book a haircut and beard trim for tomorrow afternoon.
+                </div>
+            </div>
+
+            <!-- AI Message with Card -->
+            <div class="flex gap-2 max-w-[85%]">
+                <img src="https://ui-avatars.com/api/?name=JH&background=D4AF37&color=000" class="w-8 h-8 rounded-full mt-auto">
+                <div class="bg-gray-800 p-3 rounded-2xl rounded-bl-none text-sm border border-gray-700">
+                    <p class="mb-2">Perfect! I have a few slots available tomorrow afternoon with our senior stylists. Here's the best option:</p>
+                    <div class="bg-jh-black border border-jh-gold rounded-lg p-3 mt-2">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-semibold text-jh-gold">Haircut & Beard Trim</span>
+                            <span class="text-xs bg-gray-700 px-2 py-1 rounded text-jh-champagne">45 mins</span>
+                        </div>
+                        <div class="text-xs text-gray-400 space-y-1 mb-3">
+                            <div class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> Tomorrow, 2:30 PM</div>
+                            <div class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> Stylist: Rahul</div>
+                            <div class="flex items-center gap-1"><i data-lucide="tag" class="w-3 h-3"></i> ₹850</div>
+                        </div>
+                        <button class="w-full bg-jh-gold text-black font-semibold py-2 rounded text-xs hover:bg-yellow-500 transition">Confirm Booking</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-3 bg-jh-black border-t border-gray-800">
+            <div class="flex items-center gap-2 bg-gray-900 rounded-full px-4 py-2 border border-gray-700 focus-within:border-jh-gold transition">
+                <i data-lucide="camera" class="w-5 h-5 text-gray-400 cursor-pointer hover:text-jh-gold"></i>
+                <input type="text" placeholder="Message..." class="bg-transparent flex-1 outline-none text-sm text-white placeholder-gray-500">
+                <button class="text-jh-gold font-semibold text-sm">Send</button>
+            </div>
+        </div>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,2146 @@
+[
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Women Hair Cut",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 599.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Happy Child Below 6 Years Girl",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 299.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Split Ends",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 799.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Men Hair Cut",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 349.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Happy Child Below 6 Years Boy",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Shaving | Moustache Trim",
+    "description": "",
+    "duration_minutes": 15.0,
+    "price": 149.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Beard Designing",
+    "description": "",
+    "duration_minutes": 15.0,
+    "price": 199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Layer/Feather Haircut",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 799.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Advance Haircut",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 999.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Cut",
+    "service_name": "Bob / Blunt HairCut",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Styling",
+    "service_name": "Ironing | Tongs Below Shoulder",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Styling",
+    "service_name": "Ironing | Tong Up To Shoulder",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 799.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Styling",
+    "service_name": "Ironing | Tongs Up To Wasit",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1599.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Colouring",
+    "service_name": "With Ammonia Colour",
+    "description": "",
+    "duration_minutes": 90.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Colouring",
+    "service_name": "Ammonia Free Colour",
+    "description": "",
+    "duration_minutes": 90.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Colouring",
+    "service_name": "Henna",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 650.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Root Touch Up",
+    "service_name": "Root Touch Up With Ammonia",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Root Touch Up",
+    "service_name": "Root Touch Up Ammonia Free",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Highlights",
+    "service_name": "All Over Head",
+    "description": "",
+    "duration_minutes": 120.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Highlights",
+    "service_name": "Profile Streaking 6 Streak",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Highlights",
+    "service_name": "Per Streak",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 499.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Wash & Blow Dry",
+    "service_name": "Men Hair Wash",
+    "description": "",
+    "duration_minutes": 15.0,
+    "price": 149.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Wash & Blow Dry",
+    "service_name": "Men Blow Dry Setting With Wash",
+    "description": "",
+    "duration_minutes": 15.0,
+    "price": 249.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Wash & Blow Dry",
+    "service_name": "Women Hair Wash",
+    "description": "",
+    "duration_minutes": 15.0,
+    "price": 399.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Wash & Blow Dry",
+    "service_name": "Hair Wash Treatment",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Wash & Blow Dry",
+    "service_name": "Women Tangle Free Wash",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "Hair Wash & Blow Dry",
+    "service_name": "Women Blow Dry Setting With Wash",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 599.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "HAIR COLOUR MEN",
+    "service_name": "With Ammonia Colour",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 999.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "HAIR COLOUR MEN",
+    "service_name": "Ammonia Free Colour",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "HAIR COLOUR MEN",
+    "service_name": "Moustache Colouring",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 199.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "HAIR COLOUR MEN",
+    "service_name": "Henna Men",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 500.0
+  },
+  {
+    "category": "Haircuts & Hair Colour",
+    "sub_category": "HAIR COLOUR MEN",
+    "service_name": "Beard Colouring",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 499.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Men Hair Spa",
+    "description": "A relaxing massage and rehydrating therapy that helps to make your hair stronger, bouncy and shiny.(Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Upto Shoulder + Below Shoulder + Upto Waist",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Below Shoulder Hair Spa",
+    "description": "A relaxing massage and rehydrating therapy that helps to make your hair stronger, bouncy and shiny.(Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Women Hair Spa",
+    "description": "A relaxing massage and rehydrating therapy that helps to make your hair stronger, bouncy and shiny.(Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Deep Conditioning Female",
+    "description": "It strengthens the hair follicles, nourish the roots & revitalize the scalp that leads to natural hair. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Men Deep Conditioning",
+    "description": "It strengthens the hair follicles, nourish the roots & revitalize the scalp that leads to natural hair. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Anti Dandruff & Flakes Men",
+    "description": "Removes impurities inside pores and repairs damaged hair by restoring vital oils and moisture which eliminates dandruff & Flakes.(Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Anti Dandruff & Flakes Women",
+    "description": "Removes impurities inside pores and repairs damaged hair by restoring vital oils and moisture which eliminates dandruff & Flakes.(Price & Time Varies According to length of the hair)",
+    "duration_minutes": 45.0,
+    "price": 1799.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Anti Hairfall Treatment Men",
+    "description": "Repaires your hair from root to tip and gives it strength by providing it with much-needed nourishment to the scalp, which prevents hair fall to a greater extent. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 45.0,
+    "price": 1399.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Anti Hairfall Women",
+    "description": "Repaires your hair from root to tip and gives it strength by providing it with much-needed nourishment to the scalp, which prevents hair fall to a greater extent. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 60.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Men Keratin Hair Spa",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Hair Spa",
+    "service_name": "Women Keratin Hair Spa",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Protein Treatment",
+    "service_name": "Classic Protein Treatment Men",
+    "description": "Boosts the hair with a variety of nutrients and protiens to help reconstruct and strengthen hair strands which improves hair growth. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 30.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Protein Treatment",
+    "service_name": "Classic Protein Treatment Women",
+    "description": "Boosts the hair with a variety of nutrients and protiens to help reconstruct and strengthen hair strands which improves hair growth. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 45.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Protein Treatment",
+    "service_name": "Premium Protein Treatment Men",
+    "description": "Boosts the hair with a variety of nutrients and protiens to help reconstruct and strengthen hair strands which improves hair growth. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 45.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Protein Treatment",
+    "service_name": "Premium Protein Treatment Women",
+    "description": "Boosts the hair with a variety of nutrients and protiens to help reconstruct and strengthen hair strands which improves hair growth. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Head Massage",
+    "service_name": "Head Massage Men 30 Min",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 399.0
+  },
+  {
+    "category": "Hairspa & Head Massage",
+    "sub_category": "Head Massage",
+    "service_name": "Head Massage Women 30 Min",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 599.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Straightening & Rebonding",
+    "service_name": "Men Straightening",
+    "description": "It flattens and straightens the hair in order to give it a smooth, streamlined, and sleek appearance",
+    "duration_minutes": 0.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Straightening & Rebonding",
+    "service_name": "Women Straightening",
+    "description": "It flattens and straightens the hair in order to give it a smooth, streamlined, and sleek appearance. (Price & Time Varies According to length of the hair)",
+    "duration_minutes": 0.0,
+    "price": 5999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Straightening & Rebonding",
+    "service_name": "Men Rebonding",
+    "description": "It is a chemical treatment that makes your har straight, sleek and shiny. It enhances your natural hair structure and restructures it. (price & time varies according to length of the hair).",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Straightening & Rebonding",
+    "service_name": "Women Rebonding",
+    "description": "It is a chemical treatment that makes your har straight, sleek and shiny. It enhances your natural hair structure and restructures it. (price & time varies according to length of the hair).",
+    "duration_minutes": 0.0,
+    "price": 5999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Men Keratin Treatment",
+    "description": "A chemical free treatment which helps in putting the protein back into hair, which is often lost due to age and chemical services, gives you a natural sleek and bouncy look with Much Healthier hair.",
+    "duration_minutes": 0.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Women Keratin Treatment",
+    "description": "A chemical free treatment which helps in putting the protien back into hair, which is often lost due to age and chemical services, gives you a natural sleek and bouncy look with Much Healtier hair. (Price & time varies according to length of the hair).",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Men Cystine Treatment",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Women Cysteine Treatment",
+    "description": "A hair repairing treatment which repairs the hairs breakage and dryness from the roots and maintains moisture, which improves overall strength of the hair,making it soft, shiny and curl free.",
+    "duration_minutes": 0.0,
+    "price": 5999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Botox Treatment",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 5999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Botox Up To Waist",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 0.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Botox Below Waist",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 0.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Smoothening Treatment",
+    "description": "Hair Smoothening is a temporary chemical treatment which gives a natural silky smooth hair. ( Price & time varies according to length of the hair).",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Women Smoothening Below Shoulder",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 0.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Smoothening Up To Waist",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 0.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Men Kerasmooth Treatment",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Women Kerasmooth Treatment",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 7999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Nanoplastia Treatment",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 7499.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Nanoplastia Below Shoulder",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 0.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Hair Treatment",
+    "service_name": "Botox Treatment Men",
+    "description": "",
+    "duration_minutes": 150.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Permanent Blow Dry & Smoothening",
+    "service_name": "Permanent Blow Dry Treatment",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 5999.0
+  },
+  {
+    "category": "Hair Treatments",
+    "sub_category": "Permanent Blow Dry & Smoothening",
+    "service_name": "Smoothening Treatment",
+    "description": "Hair Smoothening is a temporary chemical treatment which gives a natural silky smooth hair. ( Price & time varies according to length of the hair).",
+    "duration_minutes": 0.0,
+    "price": 5999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Threading",
+    "service_name": "Eyebrows Threading",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 50.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Threading",
+    "service_name": "Upperlip | Lowerlip Threading",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 50.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Threading",
+    "service_name": "Chin Threading",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 50.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Threading",
+    "service_name": "Fore Head Threading",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 50.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Threading",
+    "service_name": "Full Face Threading",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 300.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Threading",
+    "service_name": "Sidelock Threading",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 80.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Skin Polisher",
+    "service_name": "Full Arms Polish",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Skin Polisher",
+    "service_name": "Full Leg Polish",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Skin Polisher",
+    "service_name": "Back Polish",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Skin Polisher",
+    "service_name": "Full Body Polish",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 7999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Skin Polisher",
+    "service_name": "Foot Massage",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Skin Polisher",
+    "service_name": "Leg Massage",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 699.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "D Tan Wax",
+    "service_name": "Full Face D Tan Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 599.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "D Tan Wax",
+    "service_name": "Full | Half Arms D Tan Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "D Tan Wax",
+    "service_name": "Under Arms D Tan Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 299.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "D Tan Wax",
+    "service_name": "Half Leg D Tan Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "D Tan Wax",
+    "service_name": "Full Legs D Tan Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "D Tan Wax",
+    "service_name": "Full Body D Tan",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Full Face Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 299.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Full Arms Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 299.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Underarms Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 150.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Half Leg Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 299.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Full Legs Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 599.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Stomach Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 499.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Full Back Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Full Front Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Full Body Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Tan Hand Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Normal Tan Leg Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 549.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Full Face Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Full Arms Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Underarms Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 250.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Half Leg Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Full Leg Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Stomach Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 699.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Full Back Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Full Front Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Flavour Full Body Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Waxing",
+    "service_name": "Upper Lip & Chin Waxing",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 199.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Normal Wax",
+    "service_name": "Normal Full Face Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 299.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": " Full Face Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": " Full Arms Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": "Underarms Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 249.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": "Half Leg Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 399.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": " Full Leg Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": "Stomach Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 699.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": "Full Back Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": " Full Front Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Waxing & Threading",
+    "sub_category": "Flavour Wax",
+    "service_name": "Full Body Wax",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Fruit Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Herbal Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Papaya Fruit Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Hydrogel Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Silver Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Gold Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1699.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Diamond Facial ",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Classic Instafair Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1699.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Kiwi Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Barberry Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium 4 Layer Advance Whitening Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium 4 Layer Advance Radiance Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium 4 Layer Advance Anti Aging Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Platinum Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Anti Tan Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Galvanic Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Goldseen Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Depigmentation Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Acne Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Instafair Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Advanced Kiwi Fruit Marmalade",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Advanced Papaya Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Advanced Pineapple Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium 24 Carat Gold Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Facial Dipigmentation",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Acne Hydra Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Instafair Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Facial Advanced Radiance",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Facial Advanced Whitening",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Facial Advanced Anti Aging",
+    "description": "",
+    "duration_minutes": 90.0,
+    "price": 4499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Fcial Advanced Kiwi Fruit Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Facial Advanced Papaya Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium Hydra Facial Advanced Pineapple Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Facials",
+    "service_name": "Premium 24 Carrot Gold Facial",
+    "description": "",
+    "duration_minutes": 90.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Bleach",
+    "service_name": "Face Bleach",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 800.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Bleach",
+    "service_name": "Half Hand Bleach",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 500.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Bleach",
+    "service_name": "Full Hand Bleach",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 750.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Bleach",
+    "service_name": "Half Leg Bleach",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 750.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Bleach",
+    "service_name": "Full Leg Bleach",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1100.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Tightening Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Glow Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1299.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Face & Neck Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Half Hands Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Half Legs Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Face & Neck D Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Half Hands D Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 699.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Half Legs D Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Underarms D Tan",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 299.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Full Hands Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Full Legs Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Classic Full Body Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Full Hands D Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Full Legs D Tan Pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Feet D Tan pack",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Tan Removal Treatment",
+    "service_name": "Premium Full Body D Tan",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Fruit Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Herbal Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Papaya Fruit Facia",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Hydrogel Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Silver Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Gold Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1699.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Diamond Facial ",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Instafair Facial",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Classic Facials",
+    "service_name": "Diamond  Back Facial ",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Kiwi Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Barberry Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Goldseen Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 1999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Depigmentation Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Platinum Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 2199.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Galvanic Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Anti Tan Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Acne Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "Instafair Facial",
+    "description": "",
+    "duration_minutes": 45.0,
+    "price": 2499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "4 Layer Advance Whitening Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": "4 Layer Advance Radiance Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2799.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Premium Facials",
+    "service_name": " 4 Layer Advance Anti Aging Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Advanced Kiwi Fruit Marmalade",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Advanced Papaya Marmalade",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Advanced Pineapple Marmalade",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "24 Carat Gold Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Whitening Signature Facial",
+    "description": "Revolutionary Skin Whitening treatment which penetrates calcium, minerals, albumin & oyster pearls till skins deepest layer to improve skin metabolism, tone & complexion",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Sea Weed Signature Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Gold Sheen Signature Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Double Whitening Signature Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Signature Shine & Glow Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": " Signature Diamond Facial",
+    "description": "This Revolutionary Luxury Diamond facial Unifies skin tone, gives ULTRA GLOW, Minimizes pores, ILLUMINNATES & RENEWS SKIN & best for Bridals.",
+    "duration_minutes": 90.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Anti Aging Facial",
+    "description": "This Revolutionary Skin Transformation Treatment revives the skin youthfulness, minimizes wrinkles and firms facial contour. It Decelerates Pre-mature ageing by maintaining skins electrical balance to magnify hydration.",
+    "duration_minutes": 90.0,
+    "price": 4499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Brightening & Whitening Facial",
+    "description": "This Signature BRIDAL SPECIAL BRIGHTENING & WHITENING facial highlights the skin radiance and maintain uniform skin tone, it cleanses, exfoliates and nourishes the skin, making it look brighter, glowing and youthful .",
+    "duration_minutes": 90.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Signature Facials",
+    "service_name": "Premium 24 Carrot Gold Facial",
+    "description": "",
+    "duration_minutes": 90.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Cleanup",
+    "service_name": "Face Clean Up",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Cleanup",
+    "service_name": "Oily Skin Clean Up",
+    "description": "",
+    "duration_minutes": 30.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": " Hydra Facial Dipigmentation",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": " Hydra Instafair Facial",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": "Hydra Facial Advanced Radiance",
+    "description": "",
+    "duration_minutes": 60.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": " Acne Hydra Facial",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": "Hydra Facial Advanced Whitening",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": "Hydra Facial Advanced Kiwi Fruit Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": "Hydra Facial Advanced Papaya Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Facials",
+    "sub_category": "Hydra Facials",
+    "service_name": "Hydra Facial Advanced Pineapple Marmalade",
+    "description": "",
+    "duration_minutes": 75.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Cleanup",
+    "service_name": "Face Clean Up",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Cleanup",
+    "service_name": "Oily Skin Clean Up",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "O3 Facial",
+    "service_name": "Anti Aging Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4499.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "O3 Facial",
+    "service_name": "Brightening & Whitening Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "Whitening Signature Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "Double Whitening Signature Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "Sea Weed Signature Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 2999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "Gold Seen Signature Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3499.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "Brightening & Whitening Signature Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "Signature Shine & Glow Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Signature Facials",
+    "sub_category": "Signature & Facials",
+    "service_name": "O3+ Signature Diamond Facial",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3999.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Nail Filling & Paint",
+    "service_name": "Hands Nail Filling & Paints",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 150.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Nail Filling & Paint",
+    "service_name": "Legs Nail Filling & Paints",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 200.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Manicure",
+    "service_name": "Herbal Manicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 599.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Manicure",
+    "service_name": "Spa Manicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Manicure",
+    "service_name": "Crystal Manicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Manicure",
+    "service_name": "D Tan Manicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Manicure",
+    "service_name": "Raaga Manicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1000.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Pedicure",
+    "service_name": "Herbal Pedicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 649.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Pedicure",
+    "service_name": "Spa Pedicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 799.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Pedicure",
+    "service_name": "Crystal Pedicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 999.0
+  },
+  {
+    "category": "Manicure & Pedicure",
+    "sub_category": "Pedicure",
+    "service_name": "D Tan Pedicure",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 1499.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Bridal Package A + B",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 18000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "A Pre Bridal Package 5 Days Prior",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 10000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "B Wedding Day Package",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 10000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Simple Bridal Makeup",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 3000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Party Make Up",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Bridal Makeup",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 4000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Classic Package",
+    "description": "Pedicure + Classic Facial",
+    "duration_minutes": 0.0,
+    "price": 4000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Premium Package",
+    "description": "D Tan Pedicure + O3 Signature Facial",
+    "duration_minutes": 0.0,
+    "price": 8000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Brides Maid",
+    "description": "(Function makeup for friends and relatives of the Bride & Groom",
+    "duration_minutes": 0.0,
+    "price": 4000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Hair Do",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 2000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Saree Draping",
+    "description": "",
+    "duration_minutes": 0.0,
+    "price": 2000.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Bridal Classic package",
+    "description": "Bridal Consultation+ Advance Haircut + Hair Spa + D Tan Face & Back Neck + Insta Fair Facial + Waxing Full Arms + Full Leg +  Under Arms + Pedicure + Manicure",
+    "duration_minutes": 0.0,
+    "price": 7499.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Premium  Bridal package",
+    "description": "Bridal Consultation+ Advance Haircut + Protien Hair Spa + D Tan Face & Back Neck + Whitening Facial +  Waxing Full Arms + Under Arms + Full Legs + Skin Polishing (Full Body) + Crystal Pedicure + Crystal  Manicure",
+    "duration_minutes": 0.0,
+    "price": 17999.0
+  },
+  {
+    "category": "Bridal Package",
+    "sub_category": "",
+    "service_name": "Ultra Luxury Bridal  package ",
+    "description": "Bridal Consultation+ Advance Haircut + Protien Hair Spa + D Tan Face & Back Neck + Hydra Premium Brightening & Whitening Signature Facial Facial +  Waxing Full Arms + Under Arms + Full Legs + Body Polishing + D Tan Pedicure + D Tan  Manicure",
+    "duration_minutes": 0.0,
+    "price": 21999.0
+  },
+  {
+    "category": "Groom Package",
+    "sub_category": "",
+    "service_name": "The Refined Look",
+    "description": "Hair Cut + Beard Designing + Hair Spa+ D Tan  +Diamond Facial + Manicure+ Pedicure",
+    "duration_minutes": 0.0,
+    "price": 4999.0
+  },
+  {
+    "category": "Groom Package",
+    "sub_category": "",
+    "service_name": "Radiant Groom Package",
+    "description": "Hair Cut + Beard Designing + Protein Hair Spa + D Tan +  Whitening Signature Facial +  D Tan Manicure + D Tan Pedicure  ",
+    "duration_minutes": 0.0,
+    "price": 9999.0
+  },
+  {
+    "category": "Groom Package",
+    "sub_category": "",
+    "service_name": "The Ultimate Groom's Glow",
+    "description": "Haircut + Beard Designing +  keratin Hairspa + D Tan + Hydra Brightening & Whitening Signature Facial + D Tan Menicure + D Tan Pedicure  ",
+    "duration_minutes": 0.0,
+    "price": 12499.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Men Combo Packages",
+    "service_name": "The Smart Look ",
+    "description": "Haircut + Beard +D Tan (Full Face",
+    "duration_minutes": 60.0,
+    "price": 1000.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Men Combo Packages",
+    "service_name": "The Ultimate Makeover",
+    "description": "Haircut +Beard +D Tan + Hair Color",
+    "duration_minutes": 90.0,
+    "price": 2250.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Men Combo Packages",
+    "service_name": "The Royal Refresh ",
+    "description": "Haircut + Beard + Hair Spa + D Tan",
+    "duration_minutes": 75.0,
+    "price": 2050.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Men Combo Packages",
+    "service_name": "The Royal Reboot ",
+    "description": "Haircut +Beard + Head massage+Face D Tan ",
+    "duration_minutes": 75.0,
+    "price": 1450.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Women Combo Packages",
+    "service_name": "Glow & Go Pack",
+    "description": "Fruit Facial + Full Arms Waxing + Threading",
+    "duration_minutes": 90.0,
+    "price": 1400.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Women Combo Packages",
+    "service_name": "Radiance Retreat",
+    "description": "Silver/Wine Facial + DTan Pack [Face] + Pedicure + Threading",
+    "duration_minutes": 90.0,
+    "price": 2650.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Women Combo Packages",
+    "service_name": "Luxury Queen Makeover",
+    "description": "Haircut (Advance) + D Tan + Fruit Facial + [Pedicure, Manicure (or) Hair Spa]",
+    "duration_minutes": 120.0,
+    "price": 3750.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Women Combo Packages",
+    "service_name": "Salon Queen Upgrade",
+    "description": "Advance Haircut  + InstaFair Facial + Full Arms Waxing + Threading",
+    "duration_minutes": 0.0,
+    "price": 3099.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Women Combo Packages",
+    "service_name": "Ultimate Glow Up Combo",
+    "description": "Haircut + Hair Spa + Gold Facial + DTan [Face] + Threading",
+    "duration_minutes": 0.0,
+    "price": 4499.0
+  },
+  {
+    "category": "Combo Packages",
+    "sub_category": "Women Combo Packages",
+    "service_name": "Quick Clean & Shine1",
+    "description": "Clean - Up + Pedicure + Threading",
+    "duration_minutes": 75.0,
+    "price": 1650.0
+  }
+]

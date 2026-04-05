@@ -1,0 +1,156 @@
+{
+  "project": "JH_SALON_TWIN",
+  "phase": "Full Ecosystem Completion",
+  "created": "2026-03-16T08:28:43.754350",
+  "status": "planning",
+  "priority": "critical",
+  "tasks": [
+    {
+      "id": "SEC-001",
+      "title": "Critical Security Fixes - Immediate",
+      "description": "Address critical and high-severity security vulnerabilities identified in security audit",
+      "team": "security",
+      "primary_agent": "security_architect",
+      "supporting_agents": [
+        "backend_architect",
+        "devops_platform_lead"
+      ],
+      "priority": "critical",
+      "status": "todo",
+      "skills_required": [
+        "security",
+        "backend",
+        "devops"
+      ],
+      "success_criteria": [
+        "Remove hardcoded JWT secret fallback",
+        "Implement rate limiting for authentication endpoints",
+        "Configure CORS with specific allowed origins",
+        "Update backend Dockerfile to run as non-root",
+        "Implement webhook signature validation",
+        "Add security headers to frontend-next",
+        "Remove .env files from repository"
+      ],
+      "estimated_hours": 8,
+      "deadline": "2026-03-17T08:28:43.754360"
+    },
+    {
+      "id": "BACK-001",
+      "title": "Implement Missing Backend Endpoints",
+      "description": "Implement 7 missing endpoints identified for Owner HQ functionality",
+      "team": "backend",
+      "primary_agent": "backend_architect",
+      "supporting_agents": [
+        "backend_engineer",
+        "database_engineer"
+      ],
+      "priority": "high",
+      "status": "todo",
+      "skills_required": [
+        "backend",
+        "database",
+        "api"
+      ],
+      "success_criteria": [
+        "Implement /api/dashboard/kpis endpoint",
+        "Implement /api/alerts endpoint",
+        "Implement /api/analytics/service-performance endpoint",
+        "Implement /api/analytics/client-metrics endpoint",
+        "Implement /api/staff/schedule endpoint",
+        "Implement /api/clients/:id/history endpoint",
+        "Implement /api/clients/:id/preferences endpoint"
+      ],
+      "estimated_hours": 16,
+      "deadline": "2026-03-19T08:28:43.754369"
+    },
+    {
+      "id": "FRONT-001",
+      "title": "Frontend-Next API Integration",
+      "description": "Integrate frontend-next with backend API endpoints",
+      "team": "frontend",
+      "primary_agent": "frontend_architect",
+      "supporting_agents": [
+        "component_architect",
+        "api_contract_integration_agent"
+      ],
+      "priority": "high",
+      "status": "todo",
+      "skills_required": [
+        "frontend",
+        "api",
+        "integration"
+      ],
+      "success_criteria": [
+        "Set up environment variables for API base URL",
+        "Create API client with authentication",
+        "Connect dashboard components to analytics endpoints",
+        "Implement appointment management integration",
+        "Handle errors consistently with backend error patterns"
+      ],
+      "estimated_hours": 20,
+      "deadline": "2026-03-21T08:28:43.754371"
+    },
+    {
+      "id": "QA-001",
+      "title": "Integration Testing Implementation",
+      "description": "Implement comprehensive integration tests for frontend-backend integration",
+      "team": "quality",
+      "primary_agent": "qa_strategy_lead",
+      "supporting_agents": [
+        "e2e_testing_agent",
+        "frontend_test_automation_agent"
+      ],
+      "priority": "medium",
+      "status": "todo",
+      "skills_required": [
+        "testing",
+        "integration",
+        "e2e"
+      ],
+      "success_criteria": [
+        "Create integration test suite for API endpoints",
+        "Implement E2E tests for Owner HQ critical user journeys",
+        "Set up performance testing for sub-200ms API targets",
+        "Add cross-browser testing for frontend-next",
+        "Implement accessibility testing"
+      ],
+      "estimated_hours": 24,
+      "deadline": "2026-03-23T08:28:43.754373"
+    },
+    {
+      "id": "DEVOPS-001",
+      "title": "Production Deployment Preparation",
+      "description": "Prepare and execute production deployment of complete ecosystem",
+      "team": "devops",
+      "primary_agent": "devops_platform_lead",
+      "supporting_agents": [
+        "ci_cd_orchestrator",
+        "cloud_architect"
+      ],
+      "priority": "high",
+      "status": "todo",
+      "skills_required": [
+        "devops",
+        "cloud",
+        "deployment"
+      ],
+      "success_criteria": [
+        "Update deployment scripts for new endpoints",
+        "Configure environment variables in GCP Secret Manager",
+        "Set up monitoring and alerting for new endpoints",
+        "Execute staged deployment (staging \u2192 production)",
+        "Verify all services are healthy post-deployment"
+      ],
+      "estimated_hours": 12,
+      "deadline": "2026-03-24T08:28:43.754374"
+    }
+  ],
+  "dependencies": [
+    "SEC-001 must be completed before BACK-001",
+    "BACK-001 must be completed before FRONT-001",
+    "FRONT-001 must be completed before QA-001",
+    "All tasks must be completed before DEVOPS-001"
+  ],
+  "total_estimated_hours": 80,
+  "target_completion": "2026-03-26T08:28:43.754395"
+}

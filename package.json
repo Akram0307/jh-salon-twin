@@ -1,0 +1,39 @@
+{
+  "name": "jh_salon_twin",
+  "version": "1.0.0",
+  "description": "Premium AI-native salon revenue operating system with:",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "e2e": "npx playwright test",
+    "e2e:smoke": "npx playwright test --grep @smoke",
+    "e2e:ui": "npx playwright test --ui",
+    "e2e:debug": "npx playwright test --debug",
+    "e2e:mobile": "npx playwright test --project=mobile",
+    "e2e:list": "npx playwright test --list",
+    "lint": "echo \"Run lint in individual packages\"",
+    "typecheck": "echo \"Run typecheck in individual packages\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akram0307/jh-salon-twin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Akram0307/jh-salon-twin/issues"
+  },
+  "homepage": "https://github.com/Akram0307/jh-salon-twin#readme",
+  "dependencies": {
+    "playwright": "^1.58.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0"
+  }
+}

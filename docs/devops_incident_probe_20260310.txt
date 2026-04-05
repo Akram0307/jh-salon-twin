@@ -1,0 +1,104 @@
+=== GCLOUD PROJECT ===
+salon-saas-487508
+
+=== CLOUD RUN SERVICE: salonos-backend ===
+metadata:
+  name: salonos-backend
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '20'
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 557.0.0
+        run.googleapis.com/startup-cpu-boost: 'true'
+    spec:
+      containers:
+      - env:
+        - name: DATABASE_URL
+          value: postgresql://salon_admin:JHSalonAdmin123@34.29.171.92:5432/postgres
+        - name: REDIS_HOST
+          value: 10.215.7.43
+        - name: REDIS_PORT
+          value: '6379'
+        - name: NODE_ENV
+          value: production
+status:
+  latestCreatedRevisionName: salonos-backend-00070-s28
+  latestReadyRevisionName: salonos-backend-00069-kgs
+  url: https://salonos-backend-rgvcleapsa-uc.a.run.app
+
+=== VPC CONNECTORS us-central1 ===
+CONNECTOR_ID           REGION       NETWORK  IP_CIDR_RANGE  SUBNET  SUBNET_PROJECT  MACHINE_TYPE  MIN_INSTANCES  MAX_INSTANCES  MIN_THROUGHPUT  MAX_THROUGHPUT  STATE
+salonos-vpc-connector  us-central1  default  10.215.8.0/28                          e2-micro      2              10             200             1000            ERROR
+
+=== REDIS INSTANCES us-central1 ===
+INSTANCE_NAME  VERSION    REGION       TIER   SIZE_GB  HOST         PORT  NETWORK  RESERVED_IP     STATUS  CREATE_TIME
+salonos-redis  REDIS_7_2  us-central1  BASIC  1        10.215.7.43  6379  default  10.215.7.40/29  READY   2026-03-10T05:50:39
+
+=== RECENT BACKEND LOGS ===
+2026-03-10T06:22:43.115193Z	}		
+2026-03-10T06:22:43.115191Z	  syscall: 'connect'		
+2026-03-10T06:22:43.115188Z	  code: 'ETIMEDOUT',		
+2026-03-10T06:22:43.115186Z	  errorno: 'ETIMEDOUT',		
+2026-03-10T06:22:43.115183Z	    at process.processTimers (node:internal/timers:519:7) {		
+2026-03-10T06:22:43.115181Z	    at listOnTimeout (node:internal/timers:581:17)		
+2026-03-10T06:22:43.115179Z	    at Socket._onTimeout (node:net:595:8)		
+2026-03-10T06:22:43.115176Z	    at Socket.emit (node:events:524:28)		
+2026-03-10T06:22:43.115174Z	    at Object.onceWrapper (node:events:638:28)		
+2026-03-10T06:22:43.115171Z	    at Socket.<anonymous> (/app/node_modules/ioredis/built/Redis.js:171:41)		
+2026-03-10T06:22:43.115160Z	Redis error: Error: connect ETIMEDOUT		
+2026-03-10T06:22:31.111478Z	}		
+2026-03-10T06:22:31.111476Z	  syscall: 'connect'		
+2026-03-10T06:22:31.111473Z	  code: 'ETIMEDOUT',		
+2026-03-10T06:22:31.111471Z	  errorno: 'ETIMEDOUT',		
+2026-03-10T06:22:31.111468Z	    at process.processTimers (node:internal/timers:519:7) {		
+2026-03-10T06:22:31.111466Z	    at listOnTimeout (node:internal/timers:581:17)		
+2026-03-10T06:22:31.111459Z	    at Socket._onTimeout (node:net:595:8)		
+2026-03-10T06:22:31.111457Z	    at Socket.emit (node:events:524:28)		
+2026-03-10T06:22:31.111454Z	    at Object.onceWrapper (node:events:638:28)		
+
+=== HEALTH CHECKS ===
+BACKEND_URL=https://salonos-backend-rgvcleapsa-uc.a.run.app
+--- / ---
+HTTP 404
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /</pre>
+</body>
+</html>
+
+--- /health ---
+HTTP 200
+{"status":"ok","timestamp":"2026-03-10T07:06:57.782Z"}
+--- /api/health ---
+HTTP 404
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/health</pre>
+</body>
+</html>
+
+--- /api/status ---
+HTTP 404
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/status</pre>
+</body>
+</html>
+

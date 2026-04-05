@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+*.log
+.env
+.env.*
+test_*.ts
+test_*.js
+__tests__
+.a0proj
+*.bak
+*.backup
+scripts/

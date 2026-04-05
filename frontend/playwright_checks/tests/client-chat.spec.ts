@@ -1,0 +1,27 @@
+import { test, expect } from '@playwright/test';
+import fs from 'fs';
+const CLIENT_URL = process.env.CLIENT_URL || 'https://salonos-owner-frontend-687369167038.us-central1.run.app/client';
+const REPORT_PATH = 'playwright_checks/client_chat_regression_report.txt';
+const SHOT_PATH = 'playwright_checks/client_chat_regression.png';
+test('client chat production smoke renders shell', async ({ page }) => {
+  const events: string[] = [];
+  page.on('console', msg => events.push(`[console:${msg.type()}] ${msg.text()}`));
+  page.on('pageerror', err => events.push(`[pageerror] ${err.message}`));
+  page.on('requestfailed', req => events.push(`[requestfailed] ${req.method()} ${req.url()} :: ${req.failure()?.errorText || 'unknown'}`));
+  page.on('response', res => { if (res.status() >= 400) events.push(`[response:${res.status()}] ${res.request().method()} ${res.url()}`); });
+  const response = await page.goto(CLIENT_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.waitForTimeout(5000);
+  const body = page.locator('body');
+  await expect(body).toContainText(/Jawed Habib|digital receptionist|book|appointment|chat|service/i, { timeout: 20000 });
+  const bodyText = await body.innerText().catch(() => '');
+  const title = await page.title();
+  const headings = await page.locator('h1, h2, h3, [role="heading"]').allInnerTexts().catch(() => []);
+  const textboxes = page.locator('input, textarea, [contenteditable="true"]');
+  const buttons = page.locator('button');
+  await expect(textboxes.first()).toBeVisible({ timeout: 20000 });
+  await expect(buttons.first()).toBeVisible({ timeout: 20000 });
+  await page.screenshot({ path: SHOT_PATH, fullPage: true }).catch(async () => { await page.screenshot({ path: SHOT_PATH }); });
+  fs.writeFileSync(REPORT_PATH, [`URL: ${CLIENT_URL}`, `Status: ${response?.status() ?? 'unknown'}`, `Title: ${title}`, '', 'Headings:', ...headings.map(h => `- ${h}`), '', 'Events:', ...(events.length ? events : ['- none observed']), '', 'Body excerpt:', bodyText.slice(0, 4000)].join('\n'));
+  expect(response).not.toBeNull();
+  expect(response!.status()).toBeLessThan(400);
+});

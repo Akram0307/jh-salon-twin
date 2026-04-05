@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+IMAGE_PATH="$1"
+
+if [ -z "$IMAGE_PATH" ]; then
+  echo "Usage: vision /path/to/image"
+  exit 1
+fi
+
+python /a0/usr/projects/jh_salon_twin/skills/vision_analyzer/scripts/analyze.py "$IMAGE_PATH"

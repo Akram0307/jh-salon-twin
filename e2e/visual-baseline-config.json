@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "baseUrl": "http://localhost:3000",
+  "viewports": {
+    "desktop": {
+      "width": 1440,
+      "height": 900,
+      "deviceScaleFactor": 1
+    },
+    "mobile": {
+      "width": 375,
+      "height": 812,
+      "deviceScaleFactor": 2
+    }
+  },
+  "pages": [
+    {
+      "name": "owner-dashboard",
+      "path": "/owner/dashboard",
+      "waitFor": "networkidle",
+      "loginRequired": true
+    },
+    {
+      "name": "schedule-view",
+      "path": "/owner/schedule",
+      "waitFor": "networkidle",
+      "loginRequired": true
+    },
+    {
+      "name": "pos-payment",
+      "path": "/frontdesk/pos",
+      "waitFor": "networkidle",
+      "loginRequired": true
+    },
+    {
+      "name": "client-list",
+      "path": "/owner/clients",
+      "waitFor": "networkidle",
+      "loginRequired": true
+    },
+    {
+      "name": "staff-management",
+      "path": "/owner/staff",
+      "waitFor": "networkidle",
+      "loginRequired": true
+    },
+    {
+      "name": "settings-page",
+      "path": "/owner/settings",
+      "waitFor": "networkidle",
+      "loginRequired": true
+    }
+  ],
+  "comparison": {
+    "threshold": 0.2,
+    "maxDiffPixels": 1000,
+    "animations": "disabled"
+  }
+}

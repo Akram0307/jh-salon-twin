@@ -1,0 +1,237 @@
+# SalonOS Production Cloud Run Configuration
+# Production-grade: higher min instances, 2 CPU backend, health probes,
+# all secrets via Secret Manager, no plaintext env vars.
+# This file is a reference manifest. Actual deployment uses deploy-production.sh.
+
+# Frontend Service (Next.js)
+frontend:
+  name: salonos-owner-frontend
+  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/salonos-owner-frontend:latest
+  region: us-central1
+  port: 8080
+  memory: 512Mi
+  cpu: 1
+  concurrency: 80
+  min_instances: 1
+  max_instances: 5
+  timeout: 60
+  vpc_connector: salonos-prod-vpc
+  vpc_egress: private-ranges-only
+  startup_probe:
+    path: /api/health
+    failure_threshold: 10
+    period_seconds: 6
+    initial_delay_seconds: 5
+  liveness_probe:
+    path: /api/health
+    failure_threshold: 3
+    period_seconds: 10
+  secrets:
+    - name: NEXT_PUBLIC_API_BASE_URL
+      secret: salonos-prod-NEXT_PUBLIC_API_BASE_URL
+      version: latest
+  allow_unauthenticated: false
+  service_account: salonos-prod-sa@salon-saas-487508.iam.gserviceaccount.com
+  # No env_vars — all configuration via Secret Manager
+
+# Backend Service
+backend:
+  name: salonos-backend
+  image: us-central1-docker.pkg.dev/salon-saas-487508/salonos-images/salonos-backend:latest
+  region: us-central1
+  port: 8080
+  memory: 1Gi
+  cpu: 2
+  concurrency: 80
+  min_instances: 2
+  max_instances: 10
+  timeout: 300
+  vpc_connector: salonos-prod-vpc
+  vpc_egress: private-ranges-only
+  cloud_sql_instances:
+    - salonos-prod-db
+  startup_probe:
+    path: /health
+    failure_threshold: 10
+    period_seconds: 6
+    initial_delay_seconds: 10
+  liveness_probe:
+    path: /health
+    failure_threshold: 3
+    period_seconds: 10
+  secrets:
+    - name: JWT_SECRET
+      secret: salonos-prod-JWT_SECRET
+      version: latest
+    - name: REFRESH_TOKEN_SECRET
+      secret: salonos-prod-REFRESH_TOKEN_SECRET
+      version: latest
+    - name: ENCRYPTION_KEY
+      secret: salonos-prod-ENCRYPTION_KEY
+      version: latest
+    - name: DB_USER
+      secret: salonos-prod-DB_USER
+      version: latest
+    - name: DB_PASSWORD
+      secret: salonos-prod-DB_PASSWORD
+      version: latest
+    - name: DB_HOST
+      secret: salonos-prod-DB_HOST
+      version: latest
+    - name: DB_PORT
+      secret: salonos-prod-DB_PORT
+      version: latest
+    - name: DB_NAME
+      secret: salonos-prod-DB_NAME
+      version: latest
+    - name: REDIS_HOST
+      secret: salonos-prod-REDIS_HOST
+      version: latest
+    - name: REDIS_PORT
+      secret: salonos-prod-REDIS_PORT
+      version: latest
+    - name: REDIS_URL
+      secret: salonos-prod-REDIS_URL
+      version: latest
+    - name: INSTANCE_CONNECTION_NAME
+      secret: salonos-prod-INSTANCE_CONNECTION_NAME
+      version: latest
+    - name: TWILIO_ACCOUNT_SID
+      secret: salonos-prod-TWILIO_ACCOUNT_SID
+      version: latest
+    - name: TWILIO_AUTH_TOKEN
+      secret: salonos-prod-TWILIO_AUTH_TOKEN
+      version: latest
+    - name: TWILIO_PHONE_NUMBER
+      secret: salonos-prod-TWILIO_PHONE_NUMBER
+      version: latest
+    - name: SALON_ID
+      secret: salonos-prod-SALON_ID
+      version: latest
+    - name: TWILIO_API_KEY_SID
+      secret: salonos-prod-TWILIO_API_KEY_SID
+      version: latest
+    - name: TWILIO_API_KEY_SECRET
+      secret: salonos-prod-TWILIO_API_KEY_SECRET
+      version: latest
+    - name: TWILIO_WHATSAPP_NUMBER
+      secret: salonos-prod-TWILIO_WHATSAPP_NUMBER
+      version: latest
+    - name: WAITLIST_TEMPLATE_SID
+      secret: salonos-prod-WAITLIST_TEMPLATE_SID
+      version: latest
+    - name: OPENROUTER_API_KEY
+      secret: salonos-prod-OPENROUTER_API_KEY
+      version: latest
+    - name: SMTP_HOST
+      secret: salonos-prod-SMTP_HOST
+      version: latest
+    - name: SMTP_USER
+      secret: salonos-prod-SMTP_USER
+      version: latest
+    - name: SMTP_PASSWORD
+      secret: salonos-prod-SMTP_PASSWORD
+      version: latest
+    - name: NODE_ENV
+      secret: salonos-prod-NODE_ENV
+      version: latest
+    - name: GCLOUD_PROJECT
+      secret: salonos-prod-GCLOUD_PROJECT
+      version: latest
+    - name: ALLOWED_ORIGINS
+      secret: salonos-prod-ALLOWED_ORIGINS
+      version: latest
+    - name: CORS_ORIGIN
+      secret: salonos-prod-CORS_ORIGIN
+      version: latest
+    - name: LOG_LEVEL
+      secret: salonos-prod-LOG_LEVEL
+      version: latest
+  allow_unauthenticated: false
+  service_account: salonos-prod-sa@salon-saas-487508.iam.gserviceaccount.com
+  # No env_vars — all configuration via Secret Manager
+
+# Database Configuration (Production HA)
+database:
+  instance: salonos-prod-db
+  tier: db-custom-2-4096
+  database_version: POSTGRES_15
+  region: us-central1
+  ip_type: PRIVATE
+  availability_type: REGIONAL
+  database_name: salonos_production
+  user: prod-user
+  backup_enabled: true
+  backup_start_time: "02:00"
+  retained_backups_count: 7
+  point_in_time_recovery: true
+  deletion_protection: true
+  storage_auto_resize: true
+  storage_auto_resize_limit: 100GB
+  storage_size: 50GB
+  storage_type: SSD
+
+# Redis Configuration (Production Standard Tier)
+redis:
+  instance: salonos-prod-redis
+  tier: STANDARD
+  memory_size_gb: 1
+  redis_version: redis_7_0
+  region: us-central1
+  connect_mode: PRIVATE_SERVICE_ACCESS
+  replica_count: 1
+
+# Service Account
+service_account:
+  email: salonos-prod-sa@salon-saas-487508.iam.gserviceaccount.com
+  display_name: SalonOS Production Service Account
+  roles:
+    - roles/cloudsql.client
+    - roles/secretmanager.secretAccessor
+    - roles/run.invoker
+    - roles/logging.logWriter
+    - roles/monitoring.metricWriter
+
+# VPC Connector
+vpc_connector:
+  name: salonos-prod-vpc
+  region: us-central1
+  range: 10.9.0.0/28
+  min_instances: 2
+  max_instances: 10
+  machine_type: e2-micro
+  network: default
+  estimated_monthly_cost_usd: 17
+
+# Secret Manager Secrets
+# All secrets prefixed with salonos-prod-
+# No plaintext values — all accessed via secretManagerRef
+secrets:
+  generated:
+    - salonos-prod-JWT_SECRET
+    - salonos-prod-REFRESH_TOKEN_SECRET
+    - salonos-prod-ENCRYPTION_KEY
+    - salonos-prod-DB_PASSWORD
+  infrastructure:
+    - salonos-prod-DB_USER
+    - salonos-prod-DB_HOST
+    - salonos-prod-DB_PORT
+    - salonos-prod-DB_NAME
+    - salonos-prod-REDIS_HOST
+    - salonos-prod-REDIS_PORT
+    - salonos-prod-REDIS_URL
+    - salonos-prod-INSTANCE_CONNECTION_NAME
+  external_services:
+    - salonos-prod-TWILIO_ACCOUNT_SID
+    - salonos-prod-TWILIO_AUTH_TOKEN
+    - salonos-prod-TWILIO_PHONE_NUMBER
+    - salonos-prod-OPENROUTER_API_KEY
+    - salonos-prod-SMTP_HOST
+    - salonos-prod-SMTP_USER
+    - salonos-prod-SMTP_PASSWORD
+  configuration:
+    - salonos-prod-NODE_ENV
+    - salonos-prod-GCLOUD_PROJECT
+    - salonos-prod-CORS_ORIGIN
+    - salonos-prod-LOG_LEVEL
+    - salonos-prod-NEXT_PUBLIC_API_BASE_URL

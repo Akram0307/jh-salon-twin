@@ -1,0 +1,47 @@
+{
+  "budgets": {
+    "bundle": {
+      "maxSize": "250 kB",
+      "maxInitialSize": "200 kB",
+      "maxAsyncSize": "100 kB"
+    },
+    "lighthouse": {
+      "performance": 90,
+      "accessibility": 95,
+      "bestPractices": 90,
+      "seo": 90
+    },
+    "coreWebVitals": {
+      "LCP": {
+        "target": 2500,
+        "unit": "ms",
+        "description": "Largest Contentful Paint"
+      },
+      "FID": {
+        "target": 100,
+        "unit": "ms",
+        "description": "First Input Delay"
+      },
+      "CLS": {
+        "target": 0.1,
+        "unit": "score",
+        "description": "Cumulative Layout Shift"
+      },
+      "TTFB": {
+        "target": 800,
+        "unit": "ms",
+        "description": "Time to First Byte"
+      },
+      "FCP": {
+        "target": 1800,
+        "unit": "ms",
+        "description": "First Contentful Paint"
+      }
+    }
+  },
+  "enforcement": {
+    "ci": true,
+    "failOnBudgetExceeded": true,
+    "warnOnThreshold": 0.9
+  }
+}
