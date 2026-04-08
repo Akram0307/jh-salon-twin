@@ -5,7 +5,7 @@ import { get, post } from "@/lib/api-client";
 import { CLIENT_BOOKING_ENDPOINTS } from "@/lib/api-endpoints";
 import ServiceSelector from "@/components/booking/ServiceSelector";
 import TimeSlotPicker from "@/components/booking/TimeSlotPicker";
-import LoadingSpinner from "@/components/ui/LoadingSpinner"; // Assuming standard component exists
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 // AC-01: Main Client Booking Page
 export default function BookingPage() {
