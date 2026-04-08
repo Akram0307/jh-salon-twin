@@ -1,0 +1,90 @@
+# 🚀 SalonOS Go-Live Roadmap: 92% to 100%
+
+**Date:** 2026-04-05
+**Author:** John (BMAD Product Manager)
+**Status:** Draft for Stakeholder Alignment
+
+---
+
+## 📋 Executive Strategy
+
+The audit confirms SalonOS is **~92% production-ready**. The core infrastructure, Owner HQ, and CI/CD pipelines are solid. To reach **100% Go-Live**, we must bridge two critical gaps without over-engineering.
+
+**Guiding Principle:** *"Ship the smallest thing that validates the assumption."*
+We will prioritize **Client UI completeness** and **System Stability** for Go-Live, while deferring complex ML/AI models to Post-Launch Sprints. "AI" at launch means robust rule-based heuristics and conversational booking, not full predictive ML.
+
+---
+
+## 🎯 Phase 1: Go-Live Critical (Sprints 1-2)
+
+*Objective: Deliver a fully functional, stable Client PWA and Owner experience. Must launch with these.*
+
+### 📦 Epic 1: Client PWA UI Migration
+**Priority:** 🔴 Must Have
+**Timeline:** Sprint 1
+**Context:** The `frontend/` (Vite/React deprecated) contains usable booking/profile pages. `frontend-next` only has Chat. We must migrate essential UIs to Next.js App Router.
+- [ ] **Task 1.1:** Migrate `/client/booking` page (Calendar UI, Service Selection) from `frontend/` to `frontend-next/src/app/client/booking/page.tsx`.
+- [ ] **Task 1.2:** Migrate `/client/profile` & `/client/history` pages to Next.js.
+- [ ] **Task 1.3:** Integrate `frontend-next` Client UI with existing backend APIs and Zustand global stores.
+- [ ] **Task 1.4:** PWA Service Worker update to cache new client routes for offline resilience.
+**Deliverable:** Fully functional Client PWA with both Chat and native Booking/History UIs.
+
+### 📦 Epic 2: System Stabilization & QA Closure
+**Priority:** 🔴 Must Have
+**Timeline:** Sprint 1
+**Context:** Audit warns of test gaps, stale visual baselines, and potential export performance bottlenecks.
+- [ ] **Task 2.1:** Update Playwright E2E tests to cover Client Booking UI and Owner Reports/Settings.
+- [ ] **Task 2.2:** Refresh `e2e/screenshots/baseline/` to match current Next.js layout. Fix visual regression CI.
+- [ ] **Task 2.3:** Refactor `DataExportService.ts` to stream rows and prevent memory spikes during large Excel exports.
+- [ ] **Task 2.4:** Run `SmartSlotRanker.ts` unit tests; fill coverage gaps.
+**Deliverable:** 95%+ Test Coverage, Clean CI/CD Green Build, Performance-certified Export Service.
+
+---
+
+## 🌙 Phase 2: Post-Launch AI & Growth (Sprints 3-4)
+
+*Objective: Evolve heuristic engines into true Predictive AI. Not required for Day 1, but essential for long-term value prop.*
+
+### 📦 Epic 3: AI Revenue Brain Activation
+**Priority:** 🟡 Should Have (Post-Go-Live)
+**Timeline:** Sprint 3
+**Context:** `AIRevenueBrain.ts` is currently basic SQL. True value comes from predictive forecasting.
+- [ ] **Task 3.1:** Integrate Vertex AI Tables or Time-series model into `AIRevenueBrain`.
+- [ ] **Task 3.2:** Train initial model on historical appointment/transaction data.
+- [ ] **Task 3.3:** Expose "Demand Forecasting" and "Staffing Recommendations" to Owner Dashboard.
+**Deliverable:** Predictive revenue model providing actionable business insights.
+
+### 📦 Epic 4: Smart Upsell Engine Evolution
+**Priority:** 🟡 Should Have (Post-Go-Live)
+**Timeline:** Sprint 4
+**Context:** Currently hardcoded to `'addon'` category. Needs Market Basket Analysis for true personalization.
+- [ ] **Task 4.1:** Implement collaborative filtering / association rule mining for purchase history.
+- [ ] **Task 4.2:** Refactor engine to dynamically generate personalized add-on suggestions based on client profile.
+**Deliverable:** ML-driven upsell recommendations increasing average ticket size.
+
+---
+
+## ✅ Definition of Done (Go-Live Criteria)
+
+The project achieves **100% Go-Live readiness** when:
+1. [ ] **Client PWA:** Users can book via Chat **AND** Calendar UI in `frontend-next`.
+2. [ ] **CI/CD Pipeline:** All workflows (`ci.yml`, `e2e.yml`, `visual-regression.yml`, `deploy.yml`) pass green.
+3. [ ] **Security:** CodeQL + Secret Manager validation passes; no critical CVEs.
+4. [ ] **Performance:** Large exports (`DataExportService.ts`) do not block the event loop; Cloud Run scales correctly under load.
+5. [ ] **Stakeholder Sign-off:** Product, Architecture, and QA leads approve the release candidate.
+
+---
+
+## 📈 Success Metrics (Post Launch)
+
+| Metric | Baseline (Current) | Go-Live Target | 3-Month Target |
+|--------|-------------------|----------------|----------------|
+| Client Booking Completion | ~60% (Chat-only friction) | 85% (Chat + UI) | 92% |
+| Owner Dashboard Uptime | 99.5% | 99.9% | 99.99% |
+| AI Revenue Insights | Reporting Only (SQL) | Heuristic Recommendations | Predictive Forecasting |
+| Sprint Velocity | -- | Baseline established | +15% improvement |
+
+> **Next Step:** Review this roadmap with Engineering Lead and UX Designer. Once aligned, hand off to Scrum Master for Epic breakdown and Sprint Planning.
+
+---
+*Document generated by John (BMAD Product Manager)*
