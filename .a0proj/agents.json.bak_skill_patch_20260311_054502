@@ -1,0 +1,307 @@
+{
+  "agents": {
+    "frontend_architect": {
+      "_comment": "Lead frontend implementation - enhanced with ui-ux-pro-max",
+      "skills": [
+        "tailwind-design-system",
+        "shadcn-ui-expert",
+        "ui-ux-design-pro",
+        "shadcn",
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "all-in-one-ui-ux-design",
+        "gts-design-system-integration",
+        "ui-ux-pro-max",
+        "react-vite-best-practices",
+        "accessibility",
+        "ui-animation",
+        "playwright-visual-testing",
+        "api-contract-testing",
+        "react-gradual-architecture"
+      ],
+      "context": "Lead frontend implementation for React, TypeScript, TailwindCSS, premium_v4 design system across Owner, Manager, Staff, and Client surfaces.",
+      "team": "frontend",
+      "reports_to": null
+    },
+    "backend_engineer": {
+      "skills": [
+        "postgresql-database-engineering",
+        "nodejs-backend-patterns"
+      ],
+      "context": "Node.js, PostgreSQL, Redis",
+      "reports_to": "backend_architect",
+      "team": "backend"
+    },
+    "genkit_ai_engineer": {
+      "skills": [
+        "genkit",
+        "vertex-ai-api-dev"
+      ],
+      "context": "Vertex AI, Gemini 2.0 Flash",
+      "reports_to": "ai_systems_architect",
+      "team": "ai"
+    },
+    "e2e_testing_agent": {
+      "skills": [
+        "playwright-automation-expert"
+      ],
+      "context": "Playwright, E2E regression",
+      "reports_to": "qa_strategy_lead",
+      "team": "quality"
+    },
+    "ci_cd_orchestrator": {
+      "skills": [
+        "docker-ci-cd"
+      ],
+      "context": "Docker, Cloud Run, GitHub Actions",
+      "reports_to": "devops_platform_lead",
+      "team": "devops"
+    },
+    "observability_agent": {
+      "skills": [
+        "observability-pattern-detector"
+      ],
+      "context": "Telemetry, logs, error patterns",
+      "reports_to": "observability_architect",
+      "team": "observability"
+    },
+    "integration_specialist": {
+      "skills": [
+        "twilio-api"
+      ],
+      "context": "Twilio, Stripe, Webhooks",
+      "reports_to": "backend_architect",
+      "team": "backend"
+    },
+    "cloud_architect": {
+      "skills": [
+        "gcp-cloud-run"
+      ],
+      "context": "GCP Infrastructure"
+    },
+    "database_engineer": {
+      "skills": [
+        "postgresql-database-engineering"
+      ],
+      "context": "Schema, Indexing, Performance",
+      "reports_to": "backend_architect",
+      "team": "backend"
+    },
+    "data_scientist": {
+      "skills": [
+        "python-backend"
+      ],
+      "context": "Churn models, Revenue analytics",
+      "reports_to": "analytics_lead",
+      "team": "analytics"
+    },
+    "autonomous_receptionist": {
+      "skills": [
+        "nodejs-backend-patterns",
+        "mastering-typescript"
+      ],
+      "context": "Client interactions, Booking logic",
+      "reports_to": "ai_systems_architect",
+      "team": "ai"
+    },
+    "security_auditor": {
+      "skills": [
+        "ghost-scan-code"
+      ],
+      "context": "Vulnerability scanning, Compliance",
+      "reports_to": "security_architect",
+      "team": "security"
+    },
+    "design_system_enforcer": {
+      "skills": [
+        "tailwind-design-system",
+        "shadcn-ui-expert",
+        "gts-design-system-integration",
+        "ui-ux-pro-max"
+      ],
+      "context": "Enforces premium_v4 glassmorphism canon, tokens, component consistency, and design-system compliance.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "component_architect": {
+      "skills": [
+        "shadcn-ui-expert",
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "react-vite-best-practices"
+      ],
+      "context": "Designs reusable component architecture, composition patterns, and shared UI primitives.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "client_pwa_ux_specialist": {
+      "skills": [
+        "ui-ux-design-pro",
+        "all-in-one-ui-ux-design",
+        "tailwindcss-mobile-first",
+        "ui-ux-pro-max"
+      ],
+      "context": "Optimizes client booking funnels, empty states, conversion UX, and mobile-first PWA interactions.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "responsive_mobile_ux_engineer": {
+      "skills": [
+        "tailwindcss-mobile-first",
+        "tailwindcss-performance"
+      ],
+      "context": "Owns responsive layouts, mobile ergonomics, density, and device-specific polish across PWAs.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "frontend_state_data_flow_engineer": {
+      "skills": [
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "react-vite-best-practices"
+      ],
+      "context": "Shapes frontend state, async data flow, caching, query boundaries, and API consumption patterns.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "accessibility_interaction_qa_agent": {
+      "skills": [
+        "accessibility",
+        "ui-ux-design-pro"
+      ],
+      "context": "Validates accessibility, focus states, keyboard flows, semantics, and interaction quality.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "performance_optimization_agent": {
+      "skills": [
+        "tailwindcss-performance",
+        "tailwindcss-mobile-first"
+      ],
+      "context": "Optimizes rendering, bundle hygiene, utility usage, and frontend performance budgets.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "motion_microinteraction_designer": {
+      "skills": [
+        "ui-animation",
+        "ui-ux-design-pro",
+        "ui-ux-pro-max"
+      ],
+      "context": "Designs tasteful motion systems, transitions, microinteractions, and feedback animations.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "frontend_test_automation_agent": {
+      "skills": [
+        "playwright-automation-expert",
+        "playwright-visual-testing"
+      ],
+      "context": "Implements regression, journey, and UI workflow testing for frontend surfaces.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "visual_regression_auditor": {
+      "skills": [
+        "playwright-visual-testing",
+        "tailwind-design-system"
+      ],
+      "context": "Audits screenshot diffs, visual parity, and premium_v4 fidelity against mockups.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "forms_validation_specialist": {
+      "skills": [
+        "ui-ux-design-pro",
+        "frontend-patterns",
+        "react-vite-best-practices"
+      ],
+      "context": "Owns form UX, validation behavior, error messaging, and trust-building input flows.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "api_contract_integration_agent": {
+      "skills": [
+        "frontend-design-patterns",
+        "frontend-patterns",
+        "api-contract-testing"
+      ],
+      "context": "Validates API contract alignment, typed integration boundaries, and resilient UI states.",
+      "team": "frontend",
+      "reports_to": "frontend_architect"
+    },
+    "product_strategist": {
+      "skills": [
+        "find-skills"
+      ],
+      "context": "Owns product roadmap, feature prioritization, and SaaS strategy",
+      "team": "product",
+      "reports_to": null
+    },
+    "backend_architect": {
+      "skills": [
+        "postgresql-database-engineering"
+      ],
+      "context": "Designs backend services, APIs, and system architecture",
+      "team": "backend",
+      "reports_to": null
+    },
+    "ai_systems_architect": {
+      "skills": [
+        "genkit",
+        "vertex-ai-api-dev"
+      ],
+      "context": "Owns AI agents, conversation orchestration, and Gemini integration",
+      "team": "ai",
+      "reports_to": null
+    },
+    "qa_strategy_lead": {
+      "skills": [
+        "playwright-automation-expert"
+      ],
+      "context": "Owns testing strategy, regression safety, and release validation",
+      "team": "quality",
+      "reports_to": null
+    },
+    "devops_platform_lead": {
+      "skills": [
+        "docker-ci-cd",
+        "gcp-cloud-run"
+      ],
+      "context": "Owns CI/CD pipelines, deployments, and platform infrastructure",
+      "team": "devops",
+      "reports_to": null
+    },
+    "observability_architect": {
+      "skills": [
+        "observability-pattern-detector"
+      ],
+      "context": "Owns logging, monitoring, and telemetry intelligence",
+      "team": "observability",
+      "reports_to": null
+    },
+    "security_architect": {
+      "skills": [],
+      "context": "Owns application security, vulnerability audits, and compliance",
+      "team": "security",
+      "reports_to": null
+    },
+    "analytics_lead": {
+      "skills": [
+        "observability-pattern-detector",
+        "find-skills"
+      ],
+      "context": "Owns metrics, KPIs, revenue intelligence, and business analytics",
+      "team": "analytics",
+      "reports_to": null
+    },
+    "product_manager": {
+      "skills": [
+        "prd-development"
+      ],
+      "context": "Owns product backlog grooming, sprint planning, user story generation, and feature prioritization using RICE/Kano frameworks",
+      "team": "product",
+      "reports_to": "product_strategist"
+    }
+  }
+}
