@@ -164,17 +164,6 @@ export const CLIENT_BOOKING_ENDPOINTS = {
 } as const;
 
 
-// ============================================
-// Client Booking Endpoints
-// ============================================
-export const CLIENT_BOOKING_ENDPOINTS = {
-  services: '/api/client/services',
-  availability: '/api/client/availability',
-  book: '/api/client/book',
-  bookings: '/api/client/bookings',
-  cancelBooking: (id: string) => `/api/client/bookings/${id}/cancel`,
-  rescheduleBooking: (id: string) => `/api/client/bookings/${id}/reschedule`,
-} as const;
 export const ENDPOINTS = {
   auth: AUTH_ENDPOINTS,
   analytics: ANALYTICS_ENDPOINTS,
@@ -187,7 +176,6 @@ export const ENDPOINTS = {
   owner: OWNER_ENDPOINTS,
   salon: SALON_ENDPOINTS,
   reports: REPORT_ENDPOINTS,
-  clientBooking: CLIENT_BOOKING_ENDPOINTS,
   clientBooking: CLIENT_BOOKING_ENDPOINTS,
 } as const;
 
